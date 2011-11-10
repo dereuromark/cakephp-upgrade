@@ -1,0 +1,18 @@
+*** CakePHP2.0 upgrade shell - improved version ***
+
+The original one lacks a lot of things that could be done automatically.
+Changes have been reported as ticket, but so far it has not yet made it into the official version.
+
+This version supports now on top of the original commands/tasks:
+- paginator
+- database
+- legacy
+- name
+- constructors
+- webroot
+- report
+and many more
+
+And functionally also supported now:
+- svn
+- group commands
