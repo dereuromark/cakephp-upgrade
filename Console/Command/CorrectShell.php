@@ -4,13 +4,36 @@ App::uses('Folder', 'Utility');
 App::uses('UpgradeShell', 'Upgrade.Console/Command');
 
 /**
- * 2011-10-20 ms
+ * Misc. corrections for my cakephp2.0 app folders (after upgrading from 1.3)
+ * 
+ * They take care of deprecated code:
+ * - tests
+ * - request
+ * - vis
+ * - forms
+ * - reference
+ * - i18n
+ * - amp
+ * 
+ * not fully tested and therefore should not be used:
+ * - php53
+ * - objects
+ * 
+ * app specific (probably not useful for anybody else)
+ * - mail
+ * - auth
+ * 
+ * @cakephp 2
+ * @php 5
+ * @author Mark scherer
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * 2011-11-18 ms
  */
 class CorrectShell extends UpgradeShell {
 
 
 	public function all() {
-		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n');
+		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n', 'forms');
 		foreach ($all as $name) {
 			$this->out(__d('cake_console', 'Running %s', $name));
 			$this->{$name}();
@@ -26,6 +49,8 @@ class CorrectShell extends UpgradeShell {
 	
 	
 	/**
+	 * In 2.0 i18n is easier!
+	 * 
 	 * sprintf(__('Edit %s'), __('Job'))
 	 * =>
 	 * __('Edit %s', __('Job'))
@@ -51,7 +76,62 @@ class CorrectShell extends UpgradeShell {
 			
 		$this->_filesRegexpUpdate($patterns);				
 	}
+
+	/**
+	 * in 2.0 all $var should be replaced by $public
+	 * also - a framework shouldnt have ANY private methods or attributes
+	 * this makes so sense at all. this is covered in the current core
+	 * user files should also follow this principle.
+	 * Experimental/TODO:
+	 * - trying to get all __function calls back to _function
+	 */
+	public function vis() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		
+		$patterns = array(
+			array(
+				'var $ to public $',
+				'/\bvar \$/i',
+				'public $'
+			),
+			array(
+				'private $ to protected $',
+				'/\bprivate \$/i',
+				'protected $'
+			),
+			array(
+				'private function __',
+				'/\bprivate function\b/i',
+				'protected function'
+			),
+			array(
+				'	function __',
+				'/	function (.*)\(/',
+				'	public function \1('
+			),
+			/*
+			array(
+				'private function __',
+				'/\bprivate function __(?!construct|destruct|sleep|wakeup|get|set|call|toString|invoke|set_state|clone|callStatic|isset|unset])\w+\b/i',
+				'protected function _\1'
+			),
+			*/
+		);
+		$skipFiles = array(
+		);
+		$skipFolders = array(
+			'Vendor',
+			'vendors',
+			'Lib'.DS.'Vendor',
+			'Lib'.DS.'vendors',
+		);
+		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);			
+	}
 	
+	/**
+	 * in 2.0 this is not needed anymore (thank god - forms post now to themselves per default^^)
+	 */
 	public function forms() {
 		$this->params['ext'] = 'ctp';
 		$this->_getPaths();
@@ -66,60 +146,6 @@ class CorrectShell extends UpgradeShell {
 			
 		$this->_filesRegexpUpdate($patterns);				
 	}
-	
-	/**
-	 * AuthExt back to Auth (thx to aliasing!)
-	 * 2011-11-17 ms
-	 */
-	public function auth() {
-		$this->params['ext'] = 'php';
-		$this->_getPaths();
-		
-		$patterns = array(		
-			array(
-				'$this->AuthExt to $this->Auth',
-				'/\$this-\>AuthExt\b/',
-				'$this->Auth'
-			),
-			array(
-				'public $AuthExt to public $Auth',
-				'/\bpublic \$AuthExt\b/',
-				'public $Auth'
-			),
-		);
-			
-		$this->_filesRegexpUpdate($patterns);				
-	}
-		
-	
-	/**
-	 * from component to lib
-	 * 2011-11-15 ms
-	 */
-	public function mail() {
-		$this->params['ext'] = 'php';
-		$this->_getPaths();
-		
-		$patterns = array(		
-			array(
-				'App::import(\'Component\', \'Tools.Mailer\');',
-				'/App\:\:import\(\'Component\', \'Tools\.Mailer\'\)/',
-				'App::uses(\'EmailLib\', \'Tools.Lib\')'
-			),
-			array(
-				'$this->Email = new MailerComponent($this);',
-				'/\$this-\>Email = new MailerComponent\(\$this\);/',
-				'$this->Email = new EmailLib();'
-			),
-			array(
-				'$this->Email->from(...);',
-				'/\$this-\>Email-\>from\(Configure\:\:read\(\'Config\.no_reply_email\'\), Configure\:\:read\(\'Config\.no_reply_emailname\'\)\);/',
-				''
-			),
-		);
-			
-		$this->_filesRegexpUpdate($patterns);				
-	}	
 	
 	/**
 	 * deprecated stuff in php5.3
@@ -168,7 +194,11 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);				
 	}
 	
-	
+	/**
+	 * startCase is now startTest
+	 * helpers need a View object passed
+	 * 2011-11-18 ms
+	 */
 	public function tests() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
@@ -196,65 +226,58 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);			
 	}
 
-	public function vis() {
+	/**
+	 * AuthExt back to Auth (thx to aliasing!)
+	 * 2011-11-17 ms
+	 */
+	public function auth() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
 		
-		$patterns = array(
+		$patterns = array(		
 			array(
-				'var $ to public $',
-				'/\bvar \$/i',
-				'public $'
+				'$this->AuthExt to $this->Auth',
+				'/\$this-\>AuthExt\b/',
+				'$this->Auth'
 			),
 			array(
-				'private $ to protected $',
-				'/\bprivate \$/i',
-				'protected $'
+				'public $AuthExt to public $Auth',
+				'/\bpublic \$AuthExt\b/',
+				'public $Auth'
 			),
-			array(
-				'private function __',
-				'/\bprivate function\b/i',
-				'protected function'
-			),
-			array(
-				'	function __',
-				'/	function (.*)\(/',
-				'	public function \1('
-			),
-			/*
-			array(
-				'private function __',
-				'/\bprivate function __(?!construct|destruct|sleep|wakeup|get|set|call|toString|invoke|set_state|clone|callStatic|isset|unset])\w+\b/i',
-				'protected function _\1'
-			),
-			array(
-				'function __',
-				'/\bfunction __/',
-				'function _'
-			),
-			array(
-				'function _construct(',
-				'/\bfunction _construct\(/',
-				'function __construct('
-			),
-			array(
-				'function _destruct(',
-				'/\bfunction _destruct\(/',
-				'function __destruct('
-			),
-			*/
 		);
-		$skipFiles = array(
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}	
+	
+	/**
+	 * from component to lib
+	 * 2011-11-15 ms
+	 */
+	public function mail() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				'App::import(\'Component\', \'Tools.Mailer\');',
+				'/App\:\:import\(\'Component\', \'Tools\.Mailer\'\)/',
+				'App::uses(\'EmailLib\', \'Tools.Lib\')'
+			),
+			array(
+				'$this->Email = new MailerComponent($this);',
+				'/\$this-\>Email = new MailerComponent\(\$this\);/',
+				'$this->Email = new EmailLib();'
+			),
+			array(
+				'$this->Email->from(...);',
+				'/\$this-\>Email-\>from\(Configure\:\:read\(\'Config\.no_reply_email\'\), Configure\:\:read\(\'Config\.no_reply_emailname\'\)\);/',
+				''
+			),
 		);
-		$skipFolders = array(
-			'Vendor',
-			'vendors',
-			'Lib'.DS.'Vendor',
-			'Lib'.DS.'vendors',
-		);
-		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);			
-	}
-
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}	
 
 	protected function _getPaths() {
 		if (!empty($this->args)) {

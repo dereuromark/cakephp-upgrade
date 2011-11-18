@@ -427,7 +427,7 @@ class UpgradeShell extends Shell {
 				'protected $'
 			),
 			array(
-				'CakeRequest::clientIP() to CakeRequest::clientIP()',
+				'RequestHandlerComponent::clientIP() to CakeRequest::clientIP()',
 				'/\bRequestHandlerComponent\:\:getClientIP\(\)/i',
 				'CakeRequest::clientIP()'
 			),
@@ -543,12 +543,12 @@ class UpgradeShell extends Shell {
 			# TEMP ONLY!!!
 			array(
 				'->request->params[\'url\'][*] -> ->query[*]',
-				'/-\>request-\>params\[\'url\'\]\[\'(.*)\'\]/',
+				'/-\>request-\>params\[\'url\'\]\[\'(.*?)\'\]/',
 				'->request->query[\'\1\']',
 			),
 			array(
 				'->params[\'url\'][*] -> ->request->query[*]',
-				'/-\>params\[\'url\'\]\[\'(.*)\'\]/',
+				'/-\>params\[\'url\'\]\[\'(.*?)\'\]/',
 				'->request->query[\'\1\']',
 			),
 			array(
