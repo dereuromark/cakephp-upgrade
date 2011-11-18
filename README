@@ -13,6 +13,21 @@ This version supports now on top of the original commands/tasks:
 - report
 and many more
 
-And functionally also supported now:
+New functionally also supported now:
 - svn
 - group commands
+
+As this is a plugin, use it with:
+    cake Upgrade.Upgrade [command]
+
+
+Additionally you can use the CorrectShell to correct
+- tests
+- request
+- amp
+- vis
+- reference
+- i18n
+
+with
+    cake Upgrade.Correct [command]
