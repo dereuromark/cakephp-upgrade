@@ -1614,7 +1614,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('views', array(
-				'help' => __d('cake_console', 'Update components to extend Component class.'),
+				'help' => __d('cake_console', 'Update views and replace nocache tag'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('webroot', array(

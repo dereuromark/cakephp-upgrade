@@ -7,7 +7,6 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * Misc. corrections for my cakephp2.0 app folders (after upgrading from 1.3)
  * 
  * They take care of deprecated code:
- * - tests
  * - request
  * - vis
  * - forms
@@ -192,38 +191,6 @@ class CorrectShell extends UpgradeShell {
 		);
 			
 		$this->_filesRegexpUpdate($patterns);				
-	}
-	
-	/**
-	 * startCase is now startTest
-	 * helpers need a View object passed
-	 * 2011-11-18 ms
-	 */
-	public function tests() {
-		$this->params['ext'] = 'php';
-		$this->_getPaths();
-		
-		$patterns = array(
-			array(
-				'function startCase() to function startTest()',
-				'/\bfunction startCase\(\)/i',
-				'function startTest()'
-			),
-			array(
-				'new (.*)Helper() to new (.*)Helper($View)',
-				'/\bnew (.*)Helper\(\)/i',
-				'new \1Helper(new View(null))'
-			),
-			/*
-			array(
-				'new (.*)Component() to new (.*)Component(new ComponentCollection())',
-				'/\bnew (.*)Component\(\)/i',
-				'new \1Component(new ComponentCollection())'
-			),
-			*/
-		);
-			
-		$this->_filesRegexpUpdate($patterns);			
 	}
 
 	/**
@@ -904,6 +871,14 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('amp', array(
 				'help' => __d('cake_console', '=& fix'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('request', array(
+				'help' => __d('cake_console', 'clientIp correction'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('i18n', array(
+				'help' => __d('cake_console', 'i18n simplifications'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('vis', array(
