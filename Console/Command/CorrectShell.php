@@ -1,7 +1,7 @@
 <?php 
 
 App::uses('Folder', 'Utility');
-App::uses('UpgradeShell', 'Console/Command');
+App::uses('UpgradeShell', 'Upgrade.Console/Command');
 
 /**
  * 2011-10-20 ms
@@ -10,11 +10,12 @@ class CorrectShell extends UpgradeShell {
 
 
 	public function all() {
-		$all = array('tests', 'request', 'amp', 'vis', 'reference');
+		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n');
 		foreach ($all as $name) {
 			$this->out(__d('cake_console', 'Running %s', $name));
-			$this->{$name};
+			$this->{$name}();
 		}
+		$this->out(__d('cake_console', 'Done!'));
 	}
 
 
@@ -23,6 +24,135 @@ class CorrectShell extends UpgradeShell {
 		$this->params['dry-run'] = false;
 	}
 	
+	
+	/**
+	 * sprintf(__('Edit %s'), __('Job'))
+	 * =>
+	 * __('Edit %s', __('Job'))
+	 * 
+	 * 2011-11-17 ms
+	 */
+	public function i18n() {
+		$this->params['ext'] = 'php|ctp';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				'sprintf(__(\'... %s\'), __(\'...\'))',
+				'/sprintf\(__\(\'(.*?)\'\), __\(\'(.*?)\'\)\)/',
+				'__(\'\1\', __(\'\2\'))'
+			),
+			array(
+				'sprintf(__(\'... %s\'),\s*(.*?))',
+				'/sprintf\(__\(\'(.*?)\'\),\s*(.*?)\)/',
+				'__(\'\1\', \2)'
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}
+	
+	public function forms() {
+		$this->params['ext'] = 'ctp';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				', array(\'url\'=>\'/\'.$this->request->url)',
+				'/, array\(\'url\'=\>\'\/\'\.\$this-\>request-\>url\)/',
+				''
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}
+	
+	/**
+	 * AuthExt back to Auth (thx to aliasing!)
+	 * 2011-11-17 ms
+	 */
+	public function auth() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				'$this->AuthExt to $this->Auth',
+				'/\$this-\>AuthExt\b/',
+				'$this->Auth'
+			),
+			array(
+				'public $AuthExt to public $Auth',
+				'/\bpublic \$AuthExt\b/',
+				'public $Auth'
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}
+		
+	
+	/**
+	 * from component to lib
+	 * 2011-11-15 ms
+	 */
+	public function mail() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				'App::import(\'Component\', \'Tools.Mailer\');',
+				'/App\:\:import\(\'Component\', \'Tools\.Mailer\'\)/',
+				'App::uses(\'EmailLib\', \'Tools.Lib\')'
+			),
+			array(
+				'$this->Email = new MailerComponent($this);',
+				'/\$this-\>Email = new MailerComponent\(\$this\);/',
+				'$this->Email = new EmailLib();'
+			),
+			array(
+				'$this->Email->from(...);',
+				'/\$this-\>Email-\>from\(Configure\:\:read\(\'Config\.no_reply_email\'\), Configure\:\:read\(\'Config\.no_reply_emailname\'\)\);/',
+				''
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}	
+	
+	/**
+	 * deprecated stuff in php5.3
+	 * 2011-11-15 ms
+	 */
+	public function php53() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		
+		# maybe:
+		# - split => preg_split
+		# - ereg(i) => preg_match 
+		# - ereg(i)_replace => preg_replace
+		$patterns = array(		
+			array(
+				'call_user_method(',
+				'/\bcall_user_method\(/i',
+				'call_user_func('
+			),
+			array(
+				'call_user_method_array(',
+				'/\bcall_user_method_array\(/i',
+				'call_user_func_array('
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}
+	
+	/**
+	 * RequestHandler stuff is now mainly handled by Request Object
+	 * 2011-11-15 ms
+	 */
 	public function request() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
@@ -571,7 +701,7 @@ class CorrectShell extends UpgradeShell {
 			$this->_updateFile($file, $patterns);
 			*/
 		}	else {
-			die('FILE NOT EXISTS');
+			//die('FILE NOT EXISTS');
 		}
 	}
 
@@ -755,6 +885,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('vis', array(
 				'help' => __d('cake_console', 'visibility (public, protected)'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('forms', array(
+				'help' => __d('cake_console', 'post to itself by default'),
 				'parser' => $subcommandParser
 			));
 	}

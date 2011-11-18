@@ -295,6 +295,9 @@ class UpgradeShell extends Shell {
 		}
 
 		$patterns = array();
+		App::build(array(
+			'View/Helper' => App::core('View/Helper'),
+		), App::APPEND);
 		$helpers = App::objects('helper');
 		$plugins = App::objects('plugin');
 		$pluginHelpers = array();
@@ -306,6 +309,7 @@ class UpgradeShell extends Shell {
 		}
 		$helpers = array_merge($pluginHelpers, $helpers);
 		foreach ($helpers as $helper) {
+			$helper = preg_replace('/Helper$/', '', $helper);
 			$oldHelper = strtolower(substr($helper, 0, 1)).substr($helper, 1);
 			$patterns[] = array(
 				"\${$oldHelper} to \$this->{$helper}",
@@ -770,6 +774,44 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
+ * Replace cakeError with built-in exceptions.
+ * NOTE: this ignores calls where you've passed your own secondary parameters to cakeError().
+ * @return void
+ */
+	public function exceptions() {
+		$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
+		$components = array_diff(App::path('components'), App::core('components'));
+
+		$this->_paths = array_merge($controllers, $components);
+
+		if (!empty($this->params['plugin'])) {
+			$pluginPath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array(
+				$pluginPath . 'controllers' . DS,
+				$pluginPath . 'controllers' . DS . 'components' .DS,
+			);
+		}
+		$patterns = array(
+			array(
+				'$this->cakeError("error400") -> throw new BadRequestException()',
+				'/(\$this->cakeError\(["\']error400["\']\));/',
+				'throw new BadRequestException();'
+			),
+			array(
+				'$this->cakeError("error404") -> throw new NotFoundException()',
+				'/(\$this->cakeError\(["\']error404["\']\));/',
+				'throw new NotFoundException();'
+			),
+			array(
+				'$this->cakeError("error500") -> throw new InternalErrorException()',
+				'/(\$this->cakeError\(["\']error500["\']\));/',
+				'throw new InternalErrorException();'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}	
+
+/**
  * Update views.
  *
  * - Update view stuff.
@@ -1103,7 +1145,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	protected function _report() {
 		$content = '';
 		
-		//deprecated code
+		// check for deprecated code that needs manual fixing
 		$patterns = array(
 			array(
 				'aa()',
@@ -1136,7 +1178,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$content .= $this->_newIssue($result['file'], $data);
 		}
 		
-		//deprecated files
+		// deprecated files
 		$deprecatedFiles = array('Config'.DS.'inflections.php', 'config'.DS.'inflections.php');
 		foreach ($this->_files as $file) {
 			foreach ($deprecatedFiles as $deprecatedFile) {
@@ -1433,7 +1475,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	protected function _updateFile($file, $patterns) {
-		$contents = file_get_contents($file);
+		$contents = $fileContent = file_get_contents($file);
 
 		foreach ($patterns as $pattern) {
 			$this->out(__d('cake_console', ' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
@@ -1441,7 +1483,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 
 		$this->out(__d('cake_console', 'Done updating %s', $file), 1);
-		if (!$this->params['dry-run']) {
+		if (!$this->params['dry-run'] && $contents !== $fileContent) {
 			file_put_contents($file, $contents);
 		}
 	}
@@ -1565,6 +1607,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('components', array(
 				'help' => __d('cake_console', 'Update components to extend Component class.'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('exceptions', array(
+				'help' => __d('cake_console', 'Replace use of cakeError with exceptions.'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('views', array(

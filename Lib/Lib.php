@@ -2,18 +2,32 @@
 
 /**
  * try to find locations for libs during the upgrade process
- * will match old App::import('Lib', 'PluginName.ClassName') to App::uses('ClassName', 'PluginName')
+ * will match old 
+ * - App::import('Lib', 'PluginName.ClassName') to App::uses('ClassName', 'PluginName.Lib/Package')
+ * - App::import('Core', 'Xml') to App::uses('Xml', 'Package')
  * 2011-11-09 ms
  */
 class Lib {
 	
 	/**
-	 * e.g. Lib, Tools.SuperDuper (from App::import)
-	 * @return Tools.Misc (if in Misc Package), Tools.Lib (if in lib root) or NULL on failure
+	 * e.g. "Lib", "Tools.SuperDuper" (from App::import)
+	 * @return Plugin.Misc (if in Misc Package), Plugin.Lib (if in lib root) or NULL on failure
 	 */
 	public function match($name, $type = 'Lib') {
 		list($plugin, $x) = pluginSplit($name, true);
 		list($pluginName, $name) = pluginSplit($name);
+		
+		try {
+			CakePlugin::path($pluginName);
+		} catch (exception $e) {
+			//die($plugin. ' '.$name);
+			return null;
+		}
+		# blacklist? bug in app::uses causes fatal errors in some libs that extend/import vendor files
+		$blacklist = array('IcqLib');
+		if (in_array($name, $blacklist)) {
+			return null;
+		}
 		
 		$libs = App::objects($plugin.$type, null, false);
 		if (in_array($name, $libs)) {
