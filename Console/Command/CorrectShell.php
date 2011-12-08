@@ -46,6 +46,48 @@ class CorrectShell extends UpgradeShell {
 		$this->params['dry-run'] = false;
 	}
 	
+	/**
+	 * //TODO: test and verify
+	 */
+	public function conventions() {
+		$this->params['ext'] = 'php|ctp';
+		$this->_getPaths();
+		
+		$patterns = array(	
+			/*
+			array(
+				'...=>... to ... => ...',
+				array('/([^\s])=\>([^\s])/', '/([^\s])=\>/', '/=\>([^\s}])/'),
+				array('$1 => $2', '$1 =>', '=> $1')
+			),
+			array(
+				'...=... to ... = ...',
+				array('/([^\s])=([^\s])/', '/([^\s])=/', '/=([^\s])/'),
+				array('$1 = $2', '$1 =', '= $1')
+			),
+			*/
+			/*
+			# working but can cause problems if a normal character inside " or ' strings
+			array(
+				',... to , ...',
+				array('/,([^\s])(?<!\\\\)(.*?)/'),
+				array(', $1')
+			),
+			*/
+			array(
+				'if( to if (',
+				array('/\bif\(/', '/\bforeach\(/', '/\bfor\(/', '/\bwhile\(/', '/(?<!\>)\bswitch\(/', '/\)\{/'),
+				array('if (', 'foreach (', 'for (', 'while (', 'switch (', ') {')
+			),
+			array(
+				'function xyz ( to function xyz(',
+				array('/(function [a-zA-Z_\x7f\xff][a-zA-Z0-9_\x7f\xff]+) \(/'),
+				array('$1(')
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+	}
 	
 	/**
 	 * In 2.0 i18n is easier!
@@ -75,6 +117,54 @@ class CorrectShell extends UpgradeShell {
 			
 		$this->_filesRegexpUpdate($patterns);				
 	}
+	
+	//TODO: move to MyUpgradeShell
+	public function domains() {
+		$this->params['ext'] = 'php';
+		# only for shell files
+		$patterns = array(
+			array(
+				'add console domain to __()',
+				'/__\(\'(.*?)\'/',
+				'__d(\'console\', \'\1\''
+			),
+			array(
+				'add console domain to __()',
+				'/__c\(\'(.*?)\'/',
+				'__dc(\'console\', \'\1\''
+			),
+			array(
+				'add console domain to __()',
+				'/__n\(\'(.*?)\'/',
+				'__dn(\'console\', \'\1\''
+			),
+			
+		);
+		$this->_filesRegexpUpdate($patterns);
+		
+		
+		$this->params['ext'] = 'php|ctp';
+		# only for non-shell files
+		$patterns = array(
+			array(
+				'remove cake domain from __()',
+				'/__d\(\'(.*?)\',\s*/',
+				'__('
+			),
+			array(
+				'remove cake domain from __()',
+				'/__dc\(\'(.*?)\',\s*/',
+				'__c('
+			),
+			array(
+				'remove cake domain from __()',
+				'/__dn\(\'(.*?)\',\s*/',
+				'__n('
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);				
+	}
+	
 
 	/**
 	 * in 2.0 all $var should be replaced by $public
@@ -188,6 +278,16 @@ class CorrectShell extends UpgradeShell {
 				'/\bRequestHandlerComponent\:\:getClientIP\(\)/i',
 				'CakeRequest::clientIP()'
 			),
+			array(
+				'if (!empty($this->request->data)) to if($this->request->is(\'post\'))',
+				'/\bif \(!empty\(\$this-\>request-\>data\)\)/',
+				'if ($this->request->is(\'post\'))'
+			),
+			array(
+				'Html->link() to Form->postLink()',
+				'/\$this-\>Html-\>link\(\$this-\>Common-\>icon\(\'delete\'\)/',
+				'$this->Form->postLink($this->Common->icon(\'delete\')'
+			),
 		);
 			
 		$this->_filesRegexpUpdate($patterns);				
@@ -228,12 +328,12 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array(		
 			array(
 				'App::import(\'Component\', \'Tools.Mailer\');',
-				'/App\:\:import\(\'Component\', \'Tools\.Mailer\'\)/',
+				'/App\:\:import\(\'Component\',\s*\'Tools\.Mailer\'\)/',
 				'App::uses(\'EmailLib\', \'Tools.Lib\')'
 			),
 			array(
 				'$this->Email = new MailerComponent($this);',
-				'/\$this-\>Email = new MailerComponent\(\$this\);/',
+				'/\$this-\>Email\s*=\s*new MailerComponent\(\$this\);/',
 				'$this->Email = new EmailLib();'
 			),
 			array(
@@ -887,6 +987,14 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('forms', array(
 				'help' => __d('cake_console', 'post to itself by default'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('conventions', array(
+				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('mail', array(
+				'help' => __d('cake_console', 'mail'),
 				'parser' => $subcommandParser
 			));
 	}

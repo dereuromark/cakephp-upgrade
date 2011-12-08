@@ -24,7 +24,7 @@ App::uses('Folder', 'Utility');
  *
  * @package       Cake.Console.Command
  */
-class UpgradeShell extends Shell {
+class UpgradeShell extends AppShell {
 
 /**
  * Files
@@ -39,6 +39,13 @@ class UpgradeShell extends Shell {
  * @var array
  */
 	protected $_paths = array();
+
+/**
+ * Custom Paths
+ *
+ * @var array
+ */	
+	protected $_customPaths = array();
 
 /**
  * Map
@@ -79,6 +86,23 @@ class UpgradeShell extends Shell {
 			$this->out(__d('cake_console', '<warning>No svn repository detected!</warning>'), 1, Shell::QUIET);
 		}
 		//TODO: .hg
+		
+		// custom path overrides everything
+		if (!empty($this->params['custom'])) {
+			$this->_customPaths = array($this->params['custom']);
+			//$this->_paths = array($this->params['custom']);
+			$this->params['plugin'] = '';
+		} elseif ($this->params['plugin'] == '*') {
+			$plugins = App::objects('plugins');
+			$plugins = array_unique($plugins);
+			$paths = array();
+			foreach ($plugins as $plugin) {
+				$paths[] = App::pluginPath($plugin);
+			}
+			$this->_customPaths = $paths;
+			//$this->_paths = $this->_customPaths;
+			$this->params['plugin'] = '';
+		}
 	}
 	
 /**
@@ -164,11 +188,15 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function tests() {
-		$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$pluginpath = App::pluginPath($this->params['plugin']);
 			$this->_paths = array($pluginpath . 'Test' . DS, $pluginpath . 'tests' . DS);
+		} else {
+			$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
 		}
+		
 		$patterns = array(
 			array(
 				'*TestCase extends CakeTestCase to *Test extends CakeTestCase',
@@ -185,6 +213,21 @@ class UpgradeShell extends Shell {
 				'/\bnew (.*)Helper\(\)/i',
 				'new \1Helper(new View(null))'
 			),
+			array(
+				'$this->assertEqual to $this->assertEquals',
+				'/\$this-\>assertEqual\(/i',
+				'$this->assertEquals('
+			),
+			array(
+				'$this->assertIdentical to $this->assertSame',
+				'/\$this-\>assertIdentical\(/i',
+				'$this->assertSame('
+			),
+			array(
+				'$this->assertPattern to $this->assertRegExp',
+				'/\$this-\>assertPattern\(/i',
+				'$this->assertRegExp('
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -200,8 +243,11 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function locations() {
+		if (!empty($this->params['custom'])) {
+			return;
+		}
+		
 		$cwd = getcwd();
-
 		if (!empty($this->params['plugin'])) {
 			chdir(App::pluginPath($this->params['plugin']));
 		}
@@ -248,6 +294,8 @@ class UpgradeShell extends Shell {
 			'Model',
 			'tests',
 			'Test' => array('regex' => '@class (\S*Test) extends CakeTestCase@'),
+			'Test/fixtures',
+			'Test/Fixture',
 			'views',
 			'View',
 			'vendors/shells',
@@ -288,11 +336,14 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function helpers() {
-		$this->_paths = array_diff(App::path('views'), App::core('views'));
-
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']) . 'views' . DS);
+		} else {
+			$this->_paths = array_diff(App::path('views'), App::core('views'));
 		}
+		
 
 		$patterns = array();
 		App::build(array(
@@ -330,11 +381,12 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function i18n() {
-		$this->_paths = array(
-			APP
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
 		}
 
 		$patterns = array(
@@ -369,12 +421,14 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function basics() {
-		$this->_paths = array(
-			APP
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
 		}
+		
 		$patterns = array(
 			array(
 				'a(*) -> array(*)',
@@ -398,12 +452,12 @@ class UpgradeShell extends Shell {
 			),
 			array(
 				'up(*) -> strtoupper(*)',
-				'/\bup\(/',
+				'/(?<!\>)\bup\(/',
 				'strtoupper('
 			),
 			array(
 				'low(*) -> strtolower(*)',
-				'/\blow\(/',
+				'/(?<!\>)\blow\(/',
 				'strtolower('
 			),
 			array(
@@ -441,18 +495,9 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function name() {
-		$libs = App::path('Lib');
-		$views = App::path('views');
-		$controllers = App::path('controllers');
-		$components = App::path('components');
-		$models = App::path('models');
-		$helpers = App::path('helpers');
-		$behaviors = App::path('behaviors');
-		
-		$this->_paths = array_merge($libs, $views, $controllers, $components, $models, $helpers, $behaviors);
-		$this->_paths[] = TESTS . 'Fixture' . DS;
-		
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$pluginPath = App::pluginPath($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'Lib' . DS,
@@ -463,6 +508,7 @@ class UpgradeShell extends Shell {
 				$pluginPath . 'Model' . DS,
 				$pluginPath . 'Model' . DS . 'Behavior' . DS,
 				$pluginPath . 'Test' . DS . 'Fixture' . DS,
+				$pluginPath . 'Config' . DS . 'Schema' . DS,
 				$pluginPath . 'libs' . DS,
 				$pluginPath . 'controllers' . DS,
 				$pluginPath . 'controllers' . DS . 'components' .DS,
@@ -471,18 +517,30 @@ class UpgradeShell extends Shell {
 				$pluginPath . 'models' . DS,
 				$pluginPath . 'models' . DS . 'behaviors' . DS,
 				$pluginPath . 'tests' . DS . 'fixtures' . DS,
+				$pluginPath . 'config' . DS . 'schema' . DS,
 			);
+		} else {
+			$libs = App::path('Lib');
+			$views = App::path('views');
+			$controllers = App::path('controllers');
+			$components = App::path('components');
+			$models = App::path('models');
+			$helpers = App::path('helpers');
+			$behaviors = App::path('behaviors');
+			$this->_paths = array_merge($libs, $views, $controllers, $components, $models, $helpers, $behaviors);
+			$this->_paths[] = TESTS . 'Fixture' . DS;
+			$this->_paths[] = APP . 'Config' . DS . 'Schema' . DS;
 		}
 		
 		$patterns = array(
 			array(
 				'remove var $name = ...;',
-				'/\bvar\s*\$name\s*=\s*(.*);/',
+				'/\s\bvar\s*\$name\s*=\s*(.*);\s/',
 				''
 			),
 			array(
 				'remove public $name = ...;',
-				'/\bpublic\s*\$name\s*=\s*(.*);/',
+				'/\s\bpublic\s*\$name\s*=\s*(.*);\s/',
 				''
 			),
 		);
@@ -496,13 +554,9 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function request() {
-		$views = App::path('views');
-		$controllers = App::path('controllers');
-		$components = App::path('components');
-	
-		$this->_paths = array_merge($views, $controllers, $components);
-
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$pluginPath = App::pluginPath($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'Controller' . DS,
@@ -512,7 +566,13 @@ class UpgradeShell extends Shell {
 				$pluginPath . 'controllers' . DS . 'components' .DS,
 				$pluginPath . 'views' . DS,
 			);
+		} else {
+			$views = App::path('views');
+			$controllers = App::path('controllers');
+			$components = App::path('components');
+			$this->_paths = array_merge($views, $controllers, $components);
 		}
+		
 		$patterns = array(
 			array(
 				'$this->data -> $this->request->data',
@@ -597,6 +657,13 @@ class UpgradeShell extends Shell {
  * @return void
  */
 	public function routes() {
+		if (!empty($this->params['plugin'])) {
+			return;
+		}
+		if (!empty($this->params['custom'])) {
+			return;
+		}
+		
 		$file = APP.'Config'.DS.'routes.php';
 		if (!file_exists($file)) {
 			$this->out(__d('cake_console', 'no routes.php found in Config - abort adding missing routes'));
@@ -629,12 +696,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function configure() {
-		$this->_paths = array(
-			APP
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
 		}
+		
 		$patterns = array(
 			array(
 				"Configure::read() -> Configure::read('debug')",
@@ -651,12 +720,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function constants() {
-		$this->_paths = array(
-			APP
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
 		}
+		
 		$patterns = array(
 			array(
 				"LIBS -> CAKE",
@@ -735,15 +806,24 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function controllers() {
-		$this->_paths = App::Path('Controller');
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = App::Path('Controller', $this->params['plugin']);
+		} else {
+			$this->_paths = App::Path('Controller');
 		}
+		
 		$patterns = array(
 			array(
 				'$this->viewPath = \'elements\' to $this->viewPath = \'Elements\'',
 				'/\$this-\>viewPath\s*=\s*\'elements\'/i',
 				'$this->viewPath = \'Elements\''
+			),
+			array(
+				'$this->view is now $this->viewClass',
+				'/\$this-\>view\s*=\s*\'(.*?)\'/i',
+				'$this->viewClass = \'\1\''
 			),
 		);
 
@@ -758,10 +838,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function components() {
-		$this->_paths = App::Path('Controller/Component');
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = App::Path('Controller/Component', $this->params['plugin']);
+		} else {
+			$this->_paths = App::Path('Controller/Component');
 		}
+		
 		$patterns = array(
 			array(
 				'*Component extends Object to *Component extends Component',
@@ -774,23 +858,53 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
+ * Update method calls
+ *
+ * - mainly in controllers/models
+ *
+ * @return void
+ */
+	public function methods() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
+		}
+		
+		$patterns = array(
+			array(
+				'generatetreelist to generateTreeList',
+				'/\bgeneratetreelist\(/i',
+				'generateTreeList('
+			),
+		);
+		
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+
+/**
  * Replace cakeError with built-in exceptions.
  * NOTE: this ignores calls where you've passed your own secondary parameters to cakeError().
  * @return void
  */
 	public function exceptions() {
-		$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
-		$components = array_diff(App::path('components'), App::core('components'));
-
-		$this->_paths = array_merge($controllers, $components);
-
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$pluginPath = App::pluginPath($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'controllers' . DS,
 				$pluginPath . 'controllers' . DS . 'components' .DS,
 			);
+		} else {
+			$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
+			$components = array_diff(App::path('components'), App::core('components'));
+			$this->_paths = array_merge($controllers, $components);
 		}
+		
 		$patterns = array(
 			array(
 				'$this->cakeError("error400") -> throw new BadRequestException()',
@@ -819,14 +933,18 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function views() {
-		$this->_paths = array(
-			APP . 'View' . DS,
-			APP . 'views' . DS
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$path = App::pluginPath($this->params['plugin']);
 			$this->_paths = array($path . 'View' . DS, $path . 'views' . DS);
+		} else {
+			$this->_paths = array(
+				APP . 'View' . DS,
+				APP . 'views' . DS
+			);
 		}
+		
 		$patterns = array(
 			array(
 				'<cake:nocache> to <!--nocache-->',
@@ -853,6 +971,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  */
 	public function webroot() {
 		if (!empty($this->params['plugin'])) {
+			return;
+		}
+		if (!empty($this->params['custom'])) {
 			return;
 		}
 		
@@ -887,12 +1008,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function legacy() {
-		$this->_paths = array(
-			APP
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
 		}
+		
 
 		$patterns = array(
 			array(
@@ -952,6 +1075,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->params['plugin'])) {
 			return;
 		}
+		if (!empty($this->params['custom'])) {
+			return;
+		}
+		
 		$file = APP.'Config'.DS.'database.php';
 		if (!file_exists($file)) {
 			return;
@@ -985,10 +1112,15 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function constructors() {
-		$this->_paths = App::Path('View/Helper');
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = App::Path('View/Helper', $this->params['plugin']);
+		} else {
+			$this->_paths = App::Path('View/Helper');
 		}
+		
+		
 		$patterns = array(
 			array(
 				'__construct() to __construct(View $View, $settings = array())',
@@ -1018,11 +1150,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		);
 		$this->_filesRegexpUpdate($patterns);
 		
-		
-		$this->_paths = App::Path('Controller/Component');
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = App::Path('Controller/Component', $this->params['plugin']);
+		} else {
+			$this->_paths = App::Path('Controller/Component');
 		}
+		
 		$patterns = array(
 			array(
 				'__construct() to __construct(ComponentCollection $Collection, $settings = array())',
@@ -1055,14 +1190,19 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * 
  */
 	public function paginator() {
-		$this->_paths = array(
-			APP . 'View' . DS,
-			APP . 'views' . DS
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$path = App::pluginPath($this->params['plugin']);
 			$this->_paths = array($path . 'View' . DS, $path . 'views' . DS);
+		} else {
+			$this->_paths = array(
+				APP . 'View' . DS,
+				APP . 'views' . DS
+			);
 		}
+		
+		
 		$patterns = array(
 			/*
 			array(
@@ -1073,12 +1213,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			*/
 			array(
 				'Paginator->sort(\'title\', \'field\') -> Paginator->sort(\'field\', \'title\')',
-				'/Paginator\-\>sort\(\'(.*)\',\s*\'(.*)\'\)/',
+				'/Paginator\-\>sort\(\'(.*?)\',\s*\'(.*?)\'\)/',
 				'Paginator->sort(\'\2\', \'\1\')'
 			),
 			array(
 				'Paginator->sort(\'title\', \'field\') -> Paginator->sort(\'field\', \'title\')',
-				'/Paginator\-\>sort\(__(.*),\s*\'(.*)\'\)/',
+				'/Paginator\-\>sort\(__(.*),\s*\'(.*?)\'\)/',
 				'Paginator->sort(\'\2\', __\1)'
 			),
 			array(
@@ -1088,7 +1228,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			),
 			array(
 				'Paginator->sort(\'title\', \'field\', (.*)) -> Paginator->sort(\'field\', \'title\', (.*))',
-				'/Paginator\-\>sort\(\'(.*)\',\s*\'(.*)\', array\((.*)\)\)/',
+				'/Paginator\-\>sort\(\'(.*?)\',\s*\'(.*?)\', array\((.*)\)\)/',
 				'Paginator->sort(\'\2\', \'\1\', array(\3))'
 			),
 			array(
@@ -1121,13 +1261,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  */
 	public function report() {
 		$file = TMP.'report.txt';
-		
-		$this->_paths = array(
-			APP
-		);
-		if (!empty($this->params['plugin'])) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(App::pluginPath($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
 		}
+		
 		
 		$content = $this->_report();
 		if ($content) {
@@ -1197,6 +1338,22 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		return '*** '.$path.' ***'.PHP_EOL.print_r($data, true).PHP_EOL.PHP_EOL;
 	}
 
+	/**
+	 * automatically set the path according to custom paths or plugin given
+	 * defaults to $path
+	 */
+	protected function _setPath($path, $pluginPath) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = (array)$this->_customPaths;
+			return;
+		}
+		if (!empty($this->params['plugin'])) {
+			$this->_paths = (array)$pluginPath;
+			return;
+		}
+		$this->_paths = (array)$path; 
+	}
+
 /**
  * move file with 2 step process to avoid collisions on case insensitive systems
  */
@@ -1225,16 +1382,18 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * delete file according to repository type
  */
 	protected function _delete($path, $folder = true) {
-		//problems on windows due to case insensivity
+		//problems on windows due to case insensivity (Config/config etc)
 		//problems in subversion after deletion
-		return;
+		if (strpos($path, DS.'Config'.DS) !== false) {
+			return;
+		}
 		
 		if ($this->params['git']) {
-			exec('git rm -rf ' . escapeshellarg($path));
+			//exec('git rm -rf ' . escapeshellarg($path));
 		} elseif ($this->params['tgit']) {
-			exec('tgit rm -rf ' . escapeshellarg($path));
+			//exec('tgit rm -rf ' . escapeshellarg($path));
 		} elseif ($this->params['svn']) {
-			exec('svn delete --force ' . escapeshellarg($path));
+			//exec('svn delete --force ' . escapeshellarg($path));
 		} elseif ($folder) {
 			$Folder = new Folder($path);
 			$Folder->delete();
@@ -1438,7 +1597,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		foreach ($this->_paths as $path) {
 			if (!is_dir($path)) {
 				continue;
-			}	
+			}
 			$Iterator = new RegexIterator(
 				new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path)),
 				'/^.+\.(' . $extensions . ')$/i',
@@ -1482,7 +1641,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$contents = preg_replace($pattern[1], $pattern[2], $contents);
 		}
 
-		$this->out(__d('cake_console', 'Done updating %s', $file), 1);
+		$this->out(__d('cake_console', 'Done updating %s', $file), 1, Shell::VERBOSE);
 		if (!$this->params['dry-run'] && $contents !== $fileContent) {
 			file_put_contents($file, $contents);
 		}
@@ -1507,7 +1666,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			}
 		}
 
-		$this->out(__d('cake_console', 'Done checking %s', $file), 1);
+		$this->out(__d('cake_console', 'Done checking %s', $file), 1, Shell::VERBOSE);
 		return $matches;
 	}
 
@@ -1524,6 +1683,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'plugin' => array(
 					'short' => 'p',
 					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
+					'default' => ''
+				),
+				'custom' => array(
+					'short' => 'c',
+					'help' => __d('cake_console', 'Custom path to update recursivly.'),
 					'default' => ''
 				),
 				'ext' => array(
@@ -1639,6 +1803,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('name', array(
 				'help' => __d('cake_console', 'Remove name var'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('methods', array(
+				'help' => __d('cake_console', 'Correct method calls'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('report', array(
