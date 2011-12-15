@@ -21,6 +21,7 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * app specific (probably not useful for anybody else)
  * - mail
  * - auth
+ * - helper
  * 
  * @cakephp 2
  * @php 5
@@ -281,16 +282,56 @@ class CorrectShell extends UpgradeShell {
 			array(
 				'if (!empty($this->request->data)) to if($this->request->is(\'post\'))',
 				'/\bif \(!empty\(\$this-\>request-\>data\)\)/',
-				'if ($this->request->is(\'post\'))'
+				//'if ($this->request->is(\'post\'))'
+				'if ($this->Common->isPost())'
+			),
+			//TODO: test
+			array(
+				'delete post requirement',
+				'/\bfunction (.*?)delete\(\$id = null\) {\s*\s*\s*\if \(empty/',
+				'function \1delete($id = null) {
+		if (!$this->Common->isPost()) {
+			throw new MethodNotAllowedException();
+		}
+		if (empty'
+			),
+			array(
+				'revert $this->request->is(\'post\'))',
+				'/\$this-\>request-\>is\(\'post\'\)/',
+				'$this->Common->isPost()'
+			),
+			array(
+				'revert $this->request->is(\'put\'))',
+				'/\$this-\>request-\>is\(\'put\'\)/',
+				'$this->Common->isPost()'
+			),
+			array(
+				'correct redirect',
+				'/\$this-\>Common-\>flashMessage\(__\(\'record (edit|add) %s saved\', h\(\$var\)\), \'success\'\);
+				\$this-\>Common-\>autoRedirect\(/',
+				'$this->Common->flashMessage(__(\'record \1 %s saved\', h($var)), \'success\');
+				$this->Common->postRedirect('
+			)
+		);
+		$this->_filesRegexpUpdate($patterns);				
+		
+		
+		$this->params['ext'] = 'ctp';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				'Html->link() to Form->postLink()',
+				'/\$this-\>Html-\>link\(\$this-\>Common-\>icon\(\'delete\'/',
+				'$this->Form->postLink($this->Common->icon(\'delete\''
 			),
 			array(
 				'Html->link() to Form->postLink()',
-				'/\$this-\>Html-\>link\(\$this-\>Common-\>icon\(\'delete\'\)/',
-				'$this->Form->postLink($this->Common->icon(\'delete\')'
+				'/\$this-\>Html-\>link\(__\(\'Delete/',
+				'$this->Form->postLink(__(\'Delete'
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	/**
@@ -303,9 +344,9 @@ class CorrectShell extends UpgradeShell {
 		
 		$patterns = array(		
 			array(
-				'$this->AuthExt to $this->Auth',
-				'/\$this-\>AuthExt\b/',
-				'$this->Auth'
+				'->AuthExt to $this->Auth',
+				'/-\>AuthExt\b/',
+				'->Auth'
 			),
 			array(
 				'public $AuthExt to public $Auth',
@@ -339,6 +380,11 @@ class CorrectShell extends UpgradeShell {
 			array(
 				'$this->Email->from(...);',
 				'/\$this-\>Email-\>from\(Configure\:\:read\(\'Config\.no_reply_email\'\), Configure\:\:read\(\'Config\.no_reply_emailname\'\)\);/',
+				''
+			),
+			array(
+				'$this->Email->sendAs(...);',
+				'/\$this-\>Email-\>sendAs\(\'(.*?)\'\);/',
 				''
 			),
 		);
@@ -391,6 +437,28 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);						
 	}
 	
+	/**
+	 * mvoe some methods from CommonHelper to FormatHelper 
+	 */
+	public function helper() {
+		$this->params['ext'] = 'ctp';
+		$this->_getPaths();
+		
+		$methods = array(
+			'thumbs', 'neighbors', 'addIcon', 'genderIcon', 'customIcon', 'countryIcon', 'importantIcon', 
+			'icon', 'cIcon', 'showStars', 'languageFlags', 'encodeEmail', 'encodeEmailUrl', 'encodeText',
+			'yesNo'
+		);
+		$patterns = array();
+		foreach ($methods as $method) {
+			$patterns[] = array(
+				$method.'()',
+				'/-\>Common-\>'.$method.'\(/',
+				'->Format->'.$method.'(',
+			);
+		}
+		$this->_filesRegexpUpdate($patterns);					
+	}
 
 
 	public function reference() {
@@ -794,7 +862,25 @@ class CorrectShell extends UpgradeShell {
 			//die('FILE NOT EXISTS');
 		}
 	}
-
+	
+	/**
+	 * correct brackets: class x extends y {
+	 * 
+	 */
+	public function classes() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		$patterns = array(
+			array(
+				'class ... { (same row)',
+				'/\bclass\s+(.*?)\s+\s*{/',
+				'class \1 {'
+			),
+		);
+		$skipFiles = array();
+		$this->_filesRegexpUpdate($patterns, $skipFiles);		
+	}
+	
 	/**
 	 * Update legacy stuff for 2.0.
 	 *
@@ -993,8 +1079,21 @@ class CorrectShell extends UpgradeShell {
 				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
 				'parser' => $subcommandParser
 			))
+			# custom app stuff (not for anyone else)
+			->addSubcommand('helper', array(
+				'help' => __d('cake_console', 'helper fix'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('auth', array(
+				'help' => __d('cake_console', 'auth fix'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('classes', array(
+				'help' => __d('cake_console', 'classes'),
+				'parser' => $subcommandParser
+			))
 			->addSubcommand('mail', array(
-				'help' => __d('cake_console', 'mail'),
+				'help' => __d('cake_console', 'mail fix'),
 				'parser' => $subcommandParser
 			));
 	}
