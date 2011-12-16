@@ -30,3 +30,12 @@ Additionally you can use the CorrectShell to correct
 
 with
     cake Upgrade.Correct [command]
+ 
+Tip: Use 
+    cake Upgrade.Correct all
+to quickly apply all relevant correction commands
+  
+	  
+## Installation
+
+Copy this plugin into your /app/Plugin folder
