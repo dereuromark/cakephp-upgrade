@@ -38,4 +38,8 @@ to quickly apply all relevant correction commands
 	  
 ## Installation
 
-Copy this plugin into your /app/Plugin folder
+a) Copy this plugin into your /app/Plugin folder
+
+b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin is loaded
+
+c) Run any of the above commands
