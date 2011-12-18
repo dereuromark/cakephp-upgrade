@@ -1307,6 +1307,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'PHP5 constant',
 				'/\bPHP5\b/',
 			),
+			array(
+				'$this->Html->link($this->Html->url()) is now escaped twice!',
+				'/\$this-\>Html-\>link\(\$this-\>Html-\>url\(/',
+			),
 		);
 		$results = $this->_filesRegexpCheck($patterns);
 		

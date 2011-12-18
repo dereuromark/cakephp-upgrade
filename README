@@ -34,7 +34,14 @@ with
 Tip: Use 
     cake Upgrade.Correct all
 to quickly apply all relevant correction commands
-  
+
+Tip2: The probably most important feature for me is that my version cleanly separates
+app and plugins. Without -p PluginName it leaves them alone.
+If you want to upgrade plugins use
+    cake Upgrade.Upgrade [command] -p PluginName
+
+I wanted to support -p * to address all plugins at once. But this seems to be quite difficult and is not yet supported.
+
 	  
 ## Installation
 
