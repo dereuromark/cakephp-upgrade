@@ -173,6 +173,7 @@ class UpgradeShell extends AppShell {
 				continue;
 			}
 		}
+		$this->args = $this->_paths = array();
 		foreach($subCommands as $command) {
 			$name = $command->name();
 			if ($name === 'all' || $name === 'group' || !in_array($name, $commands)) {
@@ -180,7 +181,8 @@ class UpgradeShell extends AppShell {
 			}
 			$this->out(__d('cake_console', 'Running %s', $name));
 			if (empty($this->params['plugin']) || $this->params['plugin'] != '*') {
-				return $this->$name();
+				$this->$name();
+				continue;
 			}
 			# run all plugins
 			$plugins = CakePlugin::loaded();
@@ -193,6 +195,7 @@ class UpgradeShell extends AppShell {
 				$this->params['plugin'] = $plugin;
 				$this->$name();
 			}
+			
 		}
 	}
 

@@ -41,11 +41,16 @@ If you want to upgrade plugins use
     cake Upgrade.Upgrade [command] -p PluginName
 
 I also added support for -p * - to address all plugins at once. 
-This is only supported by the `group` command like so:
+This is only fully supported by the `group` command like so:
     cake Upgrade.Upgrade group [command1] [command2] ... -p *
 You need to supply at least two commands (if you want to use only one, type it twice:
 	  cake Upgrade.Upgrade group [command1] [command1] -p *
 This is necessary because 1 argument stands for a config group
+
+The not fully tested way of using the plugin wildcard would be
+    cake Upgrade.Upgrade [command] -p *
+which should just grab all files at once and process them
+
 	  
 ## Installation
 
@@ -53,4 +58,4 @@ a) Copy this plugin into your /app/Plugin folder
 
 b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin is loaded
 
-c) Run any of the above commands
+c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to fix the most important stuff.
