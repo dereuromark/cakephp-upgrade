@@ -151,6 +151,8 @@ class UpgradeShell extends AppShell {
  * and
  * cake upgrade group cc
  * NOTE: group names cannot be one of the commands to run!
+ * 
+ * the group method is the only one capable of understanding -p * (all plugins at once)
  *
  * @return void
  */
@@ -164,6 +166,7 @@ class UpgradeShell extends AppShell {
 		if (empty($commands)) {
 			$this->error(__d('cake_console', 'No group found. Please use args or Configure to define groups.'));
 		}
+		$commands = array_unique($commands);
 		foreach ($commands as $command) {
 			if (!in_array($command, $subCommandList)) {
 				$this->err(__d('cake_console', 'Invalid command \'%s\' - skipping', $command));
@@ -176,7 +179,20 @@ class UpgradeShell extends AppShell {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Running %s', $name));
-			$this->$name();
+			if (empty($this->params['plugin']) || $this->params['plugin'] != '*') {
+				return $this->$name();
+			}
+			# run all plugins
+			$plugins = CakePlugin::loaded();
+			foreach ($plugins as $plugin) {
+				if (in_array($plugin, array('Upgrade'))) {
+					continue;
+				}
+				$this->args = array();
+				$this->out(__d('cake_console', '- in plugin %s', $plugin), 1, Shell::VERBOSE);
+				$this->params['plugin'] = $plugin;
+				$this->$name();
+			}
 		}
 	}
 
@@ -1306,10 +1322,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			array(
 				'PHP5 constant',
 				'/\bPHP5\b/',
-			),
-			array(
-				'$this->Html->link($this->Html->url()) is now escaped twice!',
-				'/\$this-\>Html-\>link\(\$this-\>Html-\>url\(/',
 			),
 		);
 		$results = $this->_filesRegexpCheck($patterns);
