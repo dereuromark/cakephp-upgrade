@@ -17,10 +17,16 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
 
+App::uses('AppShell', 'Console/Command');
 App::uses('Folder', 'Utility');
 
 /**
  * A shell class to help developers upgrade applications to CakePHP 2.0
+ * 
+ * Necessary expecations for the shell to work flawlessly:
+ * - brackets must always be correct (`Class extends OtherClass {` in one line!)
+ * - all php files most NOT have a closing `?>` tag
+ * - 1 tab indentation (instead of spaces) as described in coding guidelines
  *
  * @package       Cake.Console.Command
  */
@@ -87,6 +93,20 @@ class UpgradeShell extends AppShell {
 		}
 		//TODO: .hg
 		
+		# check for commands - if not available exit immediately
+		if ($this->params['svn']) {
+			$res = exec('svn help', $array, $r);
+			if ($r) {
+				$this->error($res, 'The command `svn` is unknown (on Windows install SlikSVN)');
+			}
+		}
+		if ($this->params['tgit']) {
+			$res = exec('tgit help', $array, $r);
+			if ($r) {
+				$this->error($res, 'The command `tgit` is unknown (on Windows install TortoiseGit)');
+			}
+		}
+
 		// custom path overrides everything
 		if (!empty($this->params['custom'])) {
 			$this->_customPaths = array($this->params['custom']);
@@ -130,7 +150,7 @@ class UpgradeShell extends AppShell {
  * @return void
  */
 	public function all() {
-		foreach($this->OptionParser->subcommands() as $command) {
+		foreach ($this->OptionParser->subcommands() as $command) {
 			$name = $command->name();
 			if ($name === 'all' || $name === 'group') {
 				continue;
@@ -174,7 +194,7 @@ class UpgradeShell extends AppShell {
 			}
 		}
 		$this->args = $this->_paths = array();
-		foreach($subCommands as $command) {
+		foreach ($subCommands as $command) {
 			$name = $command->name();
 			if ($name === 'all' || $name === 'group' || !in_array($name, $commands)) {
 				continue;
@@ -274,7 +294,7 @@ class UpgradeShell extends AppShell {
 		if (is_dir('plugins') && !empty($this->params['plugin'])) {
 			$Folder = new Folder('plugins');
 			list($plugins) = $Folder->read();
-			foreach($plugins as $plugin) {
+			foreach ($plugins as $plugin) {
 				chdir($cwd . DS . 'plugins' . DS . $plugin);
 				$this->locations();
 			}
@@ -282,6 +302,7 @@ class UpgradeShell extends AppShell {
 			chdir($cwd);
 		}
 		$moves = array(
+			'locale' => 'Locale',
 			'config' => 'Config',
 			'Config' . DS . 'schema' => 'Config' . DS . 'Schema',
 			'libs' => 'Lib',
@@ -294,7 +315,7 @@ class UpgradeShell extends AppShell {
 			'Test' . DS . 'fixtures' => 'Test' . DS . 'Fixture',
 			'vendors' . DS . 'shells' . DS . 'templates' => 'Console' . DS . 'Templates',
 		);
-		foreach($moves as $old => $new) {
+		foreach ($moves as $old => $new) {
 			if (is_dir($old)) {
 				$this->out(__d('cake_console', 'Moving %s to %s', $old, $new));
 				if (!$this->params['dry-run']) {
@@ -325,7 +346,7 @@ class UpgradeShell extends AppShell {
 			'checkFolder' => true,
 			'regex' => '@class (\S*) .*{@i'
 		);
-		foreach($sourceDirs as $dir => $options) {
+		foreach ($sourceDirs as $dir => $options) {
 			if (is_numeric($dir)) {
 				$dir = $options;
 				$options = array();
@@ -333,7 +354,7 @@ class UpgradeShell extends AppShell {
 			$options = array_merge($defaultOptions, $options);
 			$this->_movePhpFiles($dir, $options);
 			
-			if(!$options['recursive']) {
+			if (!$options['recursive']) {
 				continue;
 			}
 			$Folder = new Folder($dir);
@@ -372,6 +393,7 @@ class UpgradeShell extends AppShell {
 		$plugins = App::objects('plugin');
 		$pluginHelpers = array();
 		foreach ($plugins as $plugin) {
+			CakePlugin::load($plugin);
 			$pluginHelpers = array_merge(
 				$pluginHelpers,
 				App::objects('helper', App::pluginPath($plugin) . DS . 'views' . DS . 'helpers' . DS, false)
@@ -586,9 +608,9 @@ class UpgradeShell extends AppShell {
 				$pluginPath . 'views' . DS,
 			);
 		} else {
-			$views = App::path('views');
-			$controllers = App::path('controllers');
-			$components = App::path('components');
+			$views = array_diff(App::path('views'), App::core('views'));
+			$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
+			$components = array_diff(App::path('components'), App::core('components'));
 			$this->_paths = array_merge($views, $controllers, $components);
 		}
 		
@@ -665,6 +687,11 @@ class UpgradeShell extends AppShell {
 				'/(\$this->action\b(?!\())/',
 				'$this->request->action'
 			),
+			array(
+				'\'type\'=>\'textfield\' to textarea',
+				'/\'type\'\s*=\>\s*\'textfield\'/',
+				'\'type\' => \'textarea\''
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -704,7 +731,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$changes = true;
 		}
 		if (!empty($changes)) {
-			file_put_contents($file, $content);
+			if (!$this->params['dry-run']) {
+				file_put_contents($file, $content);
+			}
 		}
 	}
 
@@ -1014,7 +1043,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		
 		$files = array('index.php', 'test.php');
 		foreach ($files as $file) {
-			copy($from . $file, $to . $file);
+			if (!$this->params['dry-run']) {
+				copy($from . $file, $to . $file);
+			}
 			$this->out(__d('cake_console', '%s updated', $file));
 		}
 	}
@@ -1505,7 +1536,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$this->_findFiles('php');
 		} else {
 			$this->_files = scandir($path);
-			foreach($this->_files as $i => $file) {
+			foreach ($this->_files as $i => $file) {
 				if (strlen($file) < 5 || substr($file, -4) !== '.php') {
 					unset($this->_files[$i]);
 				}
@@ -1560,7 +1591,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 			$dir = dirname($new);
 			if (!is_dir($dir)) {
-				$this->_create($dir);
+				if (!$this->params['dry-run']) {
+					$this->_create($dir);
+				}
 			}
 
 			$this->out(__d('cake_console', 'Moving %s to %s', $file, $new), 1, Shell::VERBOSE);

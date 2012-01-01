@@ -43,6 +43,8 @@ class CorrectShell extends UpgradeShell {
 
 
 	public function startup() {
+		parent::startup();
+		
 		$this->params['ext'] = 'php|ctp|thtml|inc|tpl';
 		$this->params['dry-run'] = false;
 	}
@@ -84,6 +86,16 @@ class CorrectShell extends UpgradeShell {
 				'function xyz ( to function xyz(',
 				array('/(function [a-zA-Z_\x7f\xff][a-zA-Z0-9_\x7f\xff]+) \(/'),
 				array('$1(')
+			),
+			array(
+				'else if => elseif',
+				array('/}\s*else\s+if\s*\(/'),
+				array('} elseif (')
+			),
+			array(
+				'else if => elseif',
+				array('/\belse\s+if\s*\(/'),
+				array('elseif (')
 			),
 		);
 			
@@ -231,6 +243,20 @@ class CorrectShell extends UpgradeShell {
 				', array(\'url\'=>\'/\'.$this->request->url)',
 				'/, array\(\'url\'=\>\'\/\'\.\$this-\>request-\>url\)/',
 				''
+			),
+		);
+			
+		$this->_filesRegexpUpdate($patterns);				
+		
+		
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		
+		$patterns = array(		
+			array(
+				'->read(null, $id);',
+				'/-\>read\(null, \$id\);/',
+				'->get($id);'
 			),
 		);
 			
