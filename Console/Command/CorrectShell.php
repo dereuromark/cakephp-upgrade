@@ -43,6 +43,9 @@ class CorrectShell extends UpgradeShell {
 
 
 	public function startup() {
+		$this->params['git'] = null;
+		$this->params['tgit'] = null;
+		$this->params['svn'] = null;
 		parent::startup();
 		
 		$this->params['ext'] = 'php|ctp|thtml|inc|tpl';
@@ -79,8 +82,8 @@ class CorrectShell extends UpgradeShell {
 			*/
 			array(
 				'if( to if (',
-				array('/\bif\(/', '/\bforeach\(/', '/\bfor\(/', '/\bwhile\(/', '/(?<!\>)\bswitch\(/', '/\)\{/'),
-				array('if (', 'foreach (', 'for (', 'while (', 'switch (', ') {')
+				array('/\bif\(/', '/\bforeach\(/', '/\bfor\(/', '/\bwhile\(/', '/(?<!\>)\bswitch\(/', '/\)\{/', '/\)\t\{/', '/\)\n\{/', '/\)\n\r\{/'),
+				array('if (', 'foreach (', 'for (', 'while (', 'switch (', ') {', ') {', ') {', ') {')
 			),
 			array(
 				'function xyz ( to function xyz(',
@@ -118,7 +121,7 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array(		
 			array(
 				'sprintf(__(\'... %s\'), __(\'...\'))',
-				'/sprintf\(__\(\'(.*?)\'\), __\(\'(.*?)\'\)\)/',
+				'/sprintf\(__\(\'(.*?)\'\),\s*__\(\'(.*?)\'\)\)/',
 				'__(\'\1\', __(\'\2\'))'
 			),
 			array(
@@ -241,8 +244,13 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array(		
 			array(
 				', array(\'url\'=>\'/\'.$this->request->url)',
-				'/, array\(\'url\'=\>\'\/\'\.\$this-\>request-\>url\)/',
+				'/, array\(\'url\'\s*=\>\s*\'\/\'\.\$this-\>request-\>url\)/',
 				''
+			),
+			array(
+				', array(\'url\'=>\'/\'.$this->request->url)',
+				'/, array\(\'url\'\s*=\>\s*\'\/\'\.\$this-\>request-\>url,\s*\'type\'\s*=>\s*\'file\'\)/',
+				', array(\'type\' => \'file\')'
 			),
 		);
 			
@@ -255,7 +263,7 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array(		
 			array(
 				'->read(null, $id);',
-				'/-\>read\(null, \$id\);/',
+				'/-\>read\(null,\s*\$id\);/',
 				'->get($id);'
 			),
 		);
@@ -307,14 +315,14 @@ class CorrectShell extends UpgradeShell {
 			),
 			array(
 				'if (!empty($this->request->data)) to if($this->request->is(\'post\'))',
-				'/\bif \(!empty\(\$this-\>request-\>data\)\)/',
+				'/\bif\s*\(!empty\(\$this-\>request-\>data\)\)/',
 				//'if ($this->request->is(\'post\'))'
 				'if ($this->Common->isPost())'
 			),
 			//TODO: test
 			array(
 				'delete post requirement',
-				'/\bfunction (.*?)delete\(\$id = null\) {\s*\s*\s*\if \(empty/',
+				'/\bfunction (.*?)delete\(\$id = null\)\s*{\s*\s*\s*\if \(empty/',
 				'function \1delete($id = null) {
 		if (!$this->Common->isPost()) {
 			throw new MethodNotAllowedException();
@@ -333,7 +341,7 @@ class CorrectShell extends UpgradeShell {
 			),
 			array(
 				'correct redirect',
-				'/\$this-\>Common-\>flashMessage\(__\(\'record (edit|add) %s saved\', h\(\$var\)\), \'success\'\);
+				'/\$this-\>Common-\>flashMessage\(__\(\'record (edit|add) %s saved\',\s*h\(\$var\)\),\s*\'success\'\);
 				\$this-\>Common-\>autoRedirect\(/',
 				'$this->Common->flashMessage(__(\'record \1 %s saved\', h($var)), \'success\');
 				$this->Common->postRedirect('
@@ -350,6 +358,11 @@ class CorrectShell extends UpgradeShell {
 				'Html->link() to Form->postLink()',
 				'/\$this-\>Html-\>link\(\$this-\>Common-\>icon\(\'delete\'/',
 				'$this->Form->postLink($this->Common->icon(\'delete\''
+			),
+			array(
+				'Html->link() to Form->postLink()',
+				'/\$this-\>Html-\>link\(\$this-\>Format-\>icon\(\'delete\'/',
+				'$this->Form->postLink($this->Format->icon(\'delete\''
 			),
 			array(
 				'Html->link() to Form->postLink()',
@@ -405,7 +418,7 @@ class CorrectShell extends UpgradeShell {
 			),
 			array(
 				'$this->Email->from(...);',
-				'/\$this-\>Email-\>from\(Configure\:\:read\(\'Config\.no_reply_email\'\), Configure\:\:read\(\'Config\.no_reply_emailname\'\)\);/',
+				'/\$this-\>Email-\>from\(Configure\:\:read\(\'Config\.no_reply_email\'\),\s*Configure\:\:read\(\'Config\.no_reply_emailname\'\)\);/',
 				''
 			),
 			array(
@@ -890,7 +903,7 @@ class CorrectShell extends UpgradeShell {
 	}
 	
 	/**
-	 * correct brackets: class x extends y {
+	 * correct brackets: class X extends y {
 	 * 
 	 */
 	public function classes() {

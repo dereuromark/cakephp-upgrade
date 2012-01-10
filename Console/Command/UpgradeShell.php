@@ -219,6 +219,36 @@ class UpgradeShell extends AppShell {
 		}
 	}
 
+	/**
+	 * cake2.1 upgrades
+	 * 2012-01-11 ms
+	 */
+	public function cake21() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'View' . DS . 'Layouts' . DS);
+		} else {
+			$this->_paths = array(APP . 'View' . DS . 'Layouts' . DS);
+		}
+		$patterns = array(
+			array(
+				'$content_for_layout replacement',
+				'/\$content_for_layout/',
+				'$this->fetch(\'content\')'
+			),
+			/*
+			array(
+				'$title_for_layout replacement',
+				'/\$title_for_layout/',
+				'$this->fetch(\'title\')'
+			),
+			*/
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
 /**
  * Update tests.
  *
@@ -491,9 +521,10 @@ class UpgradeShell extends AppShell {
 				'/\br\(/',
 				'str_replace('
 			),
+			//fix to look back and not convert `function up() {...}` etc
 			array(
 				'up(*) -> strtoupper(*)',
-				'/(?<!\>)\bup\(/',
+				'/(?<!function )(?<!\>)\bup\(/',
 				'strtoupper('
 			),
 			array(
@@ -1070,43 +1101,58 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$patterns = array(
 			array(
 				'App::import(\'Core\', \'Folder\') to App::uses(\'Folder\', \'Utility\')',
-				'/App\:\:import\(\'Core\', \'Folder\'\)/',
+				'/App\:\:import\(\'Core\',\s*\'Folder\'\)/',
 				'App::uses(\'Folder\', \'Utility\')'
 			),
 			array(
-				'App::import(\'Core\', \'File\') to App::uses(\'Folder\', \'File\')',
-				'/App\:\:import\(\'Core\', \'File\'\)/',
+				'App::import(\'Core\', \'File\') to App::uses(\'File\', \'Utility\')',
+				'/App\:\:import\(\'Core\',\s*\'File\'\)/',
 				'App::uses(\'File\', \'Utility\')'
 			),
 			array(
-				'App::import(\'Core\', \'HttpSocket\') to App::uses(\'HttpSocket\', \'Network/Http\')',
-				'/App\:\:import\(\'Core\', \'HttpSocket\'\)/',
-				'App::uses(\'HttpSocket\', \'Network/Http\')'
+				'App::import(\'Core\', \'Sanitize\') to App::uses(\'Sanitize\', \'Utility\')',
+				'/App\:\:import\(\'Core\',\s*\'Sanitize\'\)/',
+				'App::uses(\'Sanitize\', \'Utility\')'
 			),
 			array(
 				'App::import(\'Core\', \'Inflector\') to App::uses(\'Inflector\', \'Utility\')',
-				'/App\:\:import\(\'Core\', \'Inflector\'\)/',
+				'/App\:\:import\(\'Core\',\s*\'Inflector\'\)/',
 				'App::uses(\'Inflector\', \'Utility\')'
 			),
 			array(
 				'App::import(\'Core\', \'Validation\') to App::uses(\'Validation\', \'Utility\')',
-				'/App\:\:import\(\'Core\', \'Validation\'\)/',
+				'/App\:\:import\(\'Core\',\s*\'Validation\'\)/',
 				'App::uses(\'Validation\', \'Utility\')'
 			),
 			array(
 				'App::import(\'Core\', \'Security\') to App::uses(\'Security\', \'Utility\')',
-				'/App\:\:import\(\'Core\', \'Security\'\)/',
+				'/App\:\:import\(\'Core\',\s*\'Security\'\)/',
 				'App::uses(\'Security\', \'Utility\')'
 			),
 			array(
 				'App::import(\'Core\', \'Xml\') to App::uses(\'Xml\', \'Utility\')',
-				'/App\:\:import\(\'Core\', \'Xml\'\)/',
+				'/App\:\:import\(\'Core\',\s*\'Xml\'\)/',
 				'App::uses(\'Xml\', \'Utility\')'
 			),
 			array(
 				'App::import(\'Core\', \'Router\') to App::uses(\'Router\', \'Routing\')',
-				'/App\:\:import\(\'Core\', \'Router\'\)/',
+				'/App\:\:import\(\'Core\',\s*\'Router\'\)/',
 				'App::uses(\'Router\', \'Routing\')'
+			),
+			array(
+				'App::import(\'Core\', \'HttpSocket\') to App::uses(\'HttpSocket\', \'Network/Http\')',
+				'/App\:\:import\(\'Core\',\s*\'HttpSocket\'\)/',
+				'App::uses(\'HttpSocket\', \'Network/Http\')'
+			),
+			array(
+				'App::import(\'Core\', \'Object\') to App::uses(\'Object\', \'Core\')',
+				'/App\:\:import\(\'Core\',\s*\'Object\'\)/',
+				'App::uses(\'Object\', \'Core\')'
+			),
+			array(
+				'App::import(\'Core\', \'Controller\') to App::uses(\'Controller\', \'Controller\')',
+				'/App\:\:import\(\'Core\',\s*\'Controller\'\)/',
+				'App::uses(\'Controller\', \'Controller\')'
 			),
 		);
 
@@ -1863,6 +1909,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('report', array(
 				'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('cake21', array(
+				'help' => __d('cake_console', 'Upgrade to cake21 standards'),
 				'parser' => $subcommandParser
 			));
 	}
