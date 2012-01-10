@@ -233,18 +233,60 @@ class UpgradeShell extends AppShell {
 			$this->_paths = array(APP . 'View' . DS . 'Layouts' . DS);
 		}
 		$patterns = array(
+		  #	http://book.cakephp.org/2.0/en/views.html#layouts
 			array(
 				'$content_for_layout replacement',
 				'/\$content_for_layout/',
 				'$this->fetch(\'content\')'
 			),
+			# experimental:
 			/*
 			array(
 				'$title_for_layout replacement',
 				'/\$title_for_layout/',
 				'$this->fetch(\'title\')'
 			),
+			array(
+				'$scripts_for_layout replacement',
+				'/\$scripts_for_layout/',
+				'echo $this->fetch(\'css\'); echo $this->fetch(\'script\'); echo $this->fetch(\'meta\');'
+			),
+			# new element plugin syntax:
+			array(
+				'replacing $this->element(..., array(), array(\'plugin\'=>...))',
+				'/\$this-\>element\(\'(.*?)\',\s*array\(.*\),\s*array\((.*)\'plugin\'\s*=>\s*\'(.*?)\'(.*)\)\)/',
+				'$this->element(\'\2.\1\')'
+			),
 			*/
+		);
+		$this->_filesRegexpUpdate($patterns);
+		
+		
+		# create missing files (AppController / AppModel / AppHelper)
+		//TODO
+		
+		
+		# auth component allow('*')
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'Controller' . DS);
+		} else {
+			$this->_paths = array(APP . 'Controller' . DS);
+		}
+		$patterns = array(
+		  #	http://book.cakephp.org/2.0/en/views.html#layouts
+			array(
+				'remove * wildcard',
+				'/-\>Auth-\>allow\(\'\*\'\)/',
+				'->Auth->allow()'
+			),
+			array(
+				'remove * wildcard',
+				'/-\>Auth-\>allow\(array\(\'\*\'\)\)/',
+				'->Auth->allow()'
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}

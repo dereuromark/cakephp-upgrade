@@ -17,6 +17,11 @@ New functionally also supported now:
 - svn
 - group commands
 
+## UPDATE January 2012: Support for 2.1
+Now supports
+- cake21: Auth::allow(), Layout Stuff and more
+
+
 As this is a plugin, use it with:
     cake Upgrade.Upgrade [command]
 
