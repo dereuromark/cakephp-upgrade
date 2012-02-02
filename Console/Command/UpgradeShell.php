@@ -152,7 +152,7 @@ class UpgradeShell extends AppShell {
 	public function all() {
 		foreach ($this->OptionParser->subcommands() as $command) {
 			$name = $command->name();
-			if ($name === 'all' || $name === 'group') {
+			if ($name === 'all' || $name === 'group' || $name == 'cake21') {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Running %s', $name));
