@@ -29,6 +29,7 @@ App::uses('Folder', 'Utility');
  * - 1 tab indentation (instead of spaces) as described in coding guidelines
  *
  * @package       Cake.Console.Command
+ * @link http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
  */
 class UpgradeShell extends AppShell {
 
@@ -220,7 +221,101 @@ class UpgradeShell extends AppShell {
 	}
 
 	/**
+	 * some really old stuff
+	 * @link http://book.cakephp.org/2.0/en/appendices/migrating-from-cakephp-1-2-to-1-3.html
+	 * 2012-02-27 ms
+	 */
+	public function cake13() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'View' . DS);
+		} else {
+			$this->_paths = array(APP . 'View' . DS);
+		}		
+		
+		$patterns = array(
+		  array(
+				'$this->Form->text(\'Model/field\')',
+				'/\-\>Form-\>(\w+)\(\'(\w+)\/(\w+)\'/',
+				'->Form->\1(\'\2.\3\''
+			),
+		);
+		
+		$this->_filesRegexpUpdate($patterns);
+		die();
+		
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'Model' . DS);
+		} else {
+			$this->_paths = array(APP . 'Model' . DS);
+		}		
+		
+		$patterns = array(
+		  array(
+				'VALID contants',
+				'/\b\VALID_NOT_EMPTY\b/',
+				'\'notEmpty\''
+			),
+			array(
+				'VALID contants',
+				'/\b\VALID_EMAIL\b/',
+				'\'email\''
+			),
+			array(
+				'VALID contants',
+				'/\b\VALID_NUMBER\b/',
+				'\'number\''
+			),
+			array(
+				'VALID contants',
+				'/\b\VALID_YEAR\b/',
+				'\'year\''
+			),
+		);
+		
+		$this->_filesRegexpUpdate($patterns);
+		
+		$patterns = array(
+			array(
+				'del( to delete(',
+				'/\b\del\(/',
+				'delete('
+			),
+		);
+		
+		$this->_filesRegexpUpdate($patterns);
+		
+		
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath);
+		} else {
+			$this->_paths = array(APP);
+		}
+		
+		$patterns = array(
+			array(
+				'vendor()',
+				'/\bvendor\((.*)\)/',
+				'App::import(\'Vendor\', \1);'
+			),
+		);
+		
+		$this->_filesRegexpUpdate($patterns);
+				
+		
+	}
+
+	/**
 	 * cake2.1 upgrades
+	 * @link http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
 	 * 2012-01-11 ms
 	 */
 	public function cake21() {
@@ -635,12 +730,12 @@ class UpgradeShell extends AppShell {
 			);
 		} else {
 			$libs = App::path('Lib');
-			$views = App::path('views');
-			$controllers = App::path('controllers');
-			$components = App::path('components');
-			$models = App::path('models');
-			$helpers = App::path('helpers');
-			$behaviors = App::path('behaviors');
+			$views = App::path('View');
+			$controllers = App::path('Controller');
+			$components = App::path('Controller/Component');
+			$models = App::path('Model');
+			$helpers = App::path('View/Helper');
+			$behaviors = App::path('Model/Behavior');
 			$this->_paths = array_merge($libs, $views, $controllers, $components, $models, $helpers, $behaviors);
 			$this->_paths[] = TESTS . 'Fixture' . DS;
 			$this->_paths[] = APP . 'Config' . DS . 'Schema' . DS;
@@ -734,6 +829,11 @@ class UpgradeShell extends AppShell {
 				'$this->params -> $this->request->params',
 				'/(\$this->params\b(?!\())/',
 				'$this->request->params'
+			),
+			array(
+				'$this->params -> $this->request->params',
+				'/-\>request-\>params\[\'form\'\]/',
+				'->request->data'
 			),
 			array(
 				'$this->Controller->params -> $this->Controller->request->params',
@@ -930,9 +1030,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::Path('Controller', $this->params['plugin']);
+			$this->_paths = App::path('Controller', $this->params['plugin']);
 		} else {
-			$this->_paths = App::Path('Controller');
+			$this->_paths = App::path('Controller');
 		}
 		
 		$patterns = array(
@@ -962,9 +1062,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::Path('Controller/Component', $this->params['plugin']);
+			$this->_paths = App::path('Controller/Component', $this->params['plugin']);
 		} else {
-			$this->_paths = App::Path('Controller/Component');
+			$this->_paths = App::path('Controller/Component');
 		}
 		
 		$patterns = array(
@@ -1068,6 +1168,15 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		
 		$patterns = array(
 			array(
+				'$...-> to $this->...->',
+				'/\$\b(?!this)([a-z][a-zA-Z0-9_]+)\b-\>/',
+			),
+		);
+		$this->_filesRegexpUpdate($patterns, 'helperName');		
+		
+		
+		$patterns = array(
+			array(
 				'<cake:nocache> to <!--nocache-->',
 				'/\<cake\:nocache\>/',
 				'<!--nocache-->'
@@ -1077,9 +1186,35 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'/\<\/cake\:nocache\>/',
 				'<!--/nocache-->'
 			),
+			array(
+				'renderElement() to element()',
+				'/-\>renderElement\(/',
+				'->element('
+			),
+			array(
+				'renderElement() to element()',
+				'/-\>renderElement\(/',
+				'->element('
+			),
+			array(
+				'$this->Javascript->link() to $this->Html->script()',
+				'/\$this-\>Javascript-\>link\(/',
+				'$this->Html->script('
+			),
+			array(
+				'$this->Javascript() to $this->Js()',
+				'/\$this-\>Javascript-\>/',
+				'$this->Js->'
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
+	}
+	
+	protected function _helperName($matches) {
+		$name = $matches[1];
+		$name = Inflector::camelize(Inflector::underscore($name));
+		return '$this->'.ucfirst($name).'->';
 	}
 
 /**
@@ -1253,9 +1388,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::Path('View/Helper', $this->params['plugin']);
+			$this->_paths = App::path('View/Helper', $this->params['plugin']);
 		} else {
-			$this->_paths = App::Path('View/Helper');
+			$this->_paths = App::path('View/Helper');
 		}
 		
 		
@@ -1291,9 +1426,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::Path('Controller/Component', $this->params['plugin']);
+			$this->_paths = App::path('Controller/Component', $this->params['plugin']);
 		} else {
-			$this->_paths = App::Path('Controller/Component');
+			$this->_paths = App::path('Controller/Component');
 		}
 		
 		$patterns = array(
@@ -1699,13 +1834,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @param array $patterns Array of search and replacement patterns.
  * @return void
  */
-	protected function _filesRegexpUpdate($patterns) {
+	protected function _filesRegexpUpdate($patterns, $callback = null) {
 		$this->_findFiles($this->params['ext']);
 		foreach ($this->_files as $file) {
 			$this->out(__d('cake_console', 'Updating %s...', $file), 1, Shell::VERBOSE);
-			$this->_updateFile($file, $patterns);
+			$this->_updateFile($file, $patterns, $callback);
 		}
-	}
+	}	
 
 /**
  * checks files based on regular expressions.
@@ -1773,12 +1908,16 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @param array $patterns The replacement patterns to run.
  * @return void
  */
-	protected function _updateFile($file, $patterns) {
+	protected function _updateFile($file, $patterns, $callback = null) {
 		$contents = $fileContent = file_get_contents($file);
 
 		foreach ($patterns as $pattern) {
 			$this->out(__d('cake_console', ' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
-			$contents = preg_replace($pattern[1], $pattern[2], $contents);
+			if ($callback) {
+				$contents = preg_replace_callback($pattern[1], array($this, '_'.$callback), $contents);
+			} else {
+				$contents = preg_replace($pattern[1], $pattern[2], $contents);
+			}
 		}
 
 		$this->out(__d('cake_console', 'Done updating %s', $file), 1, Shell::VERBOSE);
@@ -1951,6 +2090,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('report', array(
 				'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('cake13', array(
+				'help' => __d('cake_console', 'Upgrade stuff older than cake13 (already deprecated in v13)'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake21', array(

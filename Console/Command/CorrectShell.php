@@ -52,6 +52,8 @@ class CorrectShell extends UpgradeShell {
 		$this->params['dry-run'] = false;
 	}
 	
+
+	
 	/**
 	 * //TODO: test and verify
 	 */
@@ -104,7 +106,40 @@ class CorrectShell extends UpgradeShell {
 			
 		$this->_filesRegexpUpdate($patterns);				
 	}
+
+	/**
+	 * //TODO: test and verify
+	 */
+	public function conventions2() {
+		$this->params['ext'] = 'php|ctp';
+		$this->_getPaths();
 	
+		$patterns = array(
+			array(
+				'function foo() {',
+				'/\bfunction\s+(\w+)\s*\((.*)\)\s+\s+\s+{/',
+				'function \1(\2) {',
+			),
+			array(
+				') {',
+				'/\)\s+\s+\s+{/',
+				') {',
+			),
+			array(
+				') else {',
+				'/}\s*else\s*{/',
+				'} else {',
+			),
+			array(
+				') elseif (',
+				'/}\s*elseif\s*\(/',
+				'} elseif (',
+			),
+		);
+		
+		$this->_filesRegexpUpdate($patterns);
+	}
+		
 	/**
 	 * In 2.0 i18n is easier!
 	 * 
@@ -205,6 +240,16 @@ class CorrectShell extends UpgradeShell {
 		$this->_getPaths();
 		
 		$patterns = array(
+		array(
+				'var $__ to private $__',
+				'/\bvar \$__/i',
+				'private $__'
+			),
+			array(
+				'var $_ to protected $_',
+				'/\bvar \$_/i',
+				'protected $_'
+			),
 			array(
 				'var $ to public $',
 				'/\bvar \$/i',
@@ -327,14 +372,14 @@ class CorrectShell extends UpgradeShell {
 				'if (!empty($this->request->data)) to if($this->request->is(\'post\'))',
 				'/\bif\s*\(!empty\(\$this-\>request-\>data\)\)/',
 				//'if ($this->request->is(\'post\'))'
-				'if ($this->Common->isPost())'
+				'if ($this->Common->isPosted())'
 			),
 			//TODO: test
 			array(
 				'delete post requirement',
 				'/\bfunction (.*?)delete\(\$id = null\)\s*{\s*\s*\s*\if \(empty/',
 				'function \1delete($id = null) {
-		if (!$this->Common->isPost()) {
+		if (!$this->Common->isPosted()) {
 			throw new MethodNotAllowedException();
 		}
 		if (empty'
@@ -342,12 +387,12 @@ class CorrectShell extends UpgradeShell {
 			array(
 				'revert $this->request->is(\'post\'))',
 				'/\$this-\>request-\>is\(\'post\'\)/',
-				'$this->Common->isPost()'
+				'$this->Common->isPosted()'
 			),
 			array(
 				'revert $this->request->is(\'put\'))',
 				'/\$this-\>request-\>is\(\'put\'\)/',
-				'$this->Common->isPost()'
+				'$this->Common->isPosted()'
 			),
 			array(
 				'correct redirect',
@@ -355,7 +400,12 @@ class CorrectShell extends UpgradeShell {
 				\$this-\>Common-\>autoRedirect\(/',
 				'$this->Common->flashMessage(__(\'record \1 %s saved\', h($var)), \'success\');
 				$this->Common->postRedirect('
-			)
+			),
+			array(
+				'update $this->Common->isPost()',
+				'/\$this-\>Common-\>isPost\(\)/',
+				'$this->Common->isPosted()'
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);				
 		
@@ -706,21 +756,23 @@ class CorrectShell extends UpgradeShell {
 				'Model $Model',
 			),
 			*/
+			/*
 			array(
 				'Model $linkModel',
 				'/Model \$linkModel/',
-				'Model $LinkModel',
+				'Model $linkModel',
 			),
 			array(
 				'$linkModel',
 				'/\$linkModel\b/',
-				'$LinkModel',
+				'$linkModel',
 			),
 			array(
 				', &$linkModel',
 				'/, \&\$linkModel/i',
-				', Model $LinkModel',
+				', Model $linkModel',
 			),
+			*/
 			array(
 				'function index(Model $Model',
 				'/function index\(Model \$Model/i',
@@ -1125,6 +1177,10 @@ class CorrectShell extends UpgradeShell {
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions', array(
+				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('conventions2', array(
 				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
 				'parser' => $subcommandParser
 			))
