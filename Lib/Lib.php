@@ -10,20 +10,26 @@
 class Lib {
 	
 	/**
-	 * e.g. "Lib", "Tools.SuperDuper" (from App::import)
+	 * Convert file inclusions to 2.x style
+	 * e.g. import("Lib", "Tools.SuperDuper") from App::import to uses("SuperDuper", "Tools.Lib")
+	 * 
 	 * @return Plugin.Misc (if in Misc Package), Plugin.Lib (if in lib root) or NULL on failure
+	 * 2012-04-10 ms
 	 */
 	public function match($name, $type = 'Lib') {
-		list($plugin, $x) = pluginSplit($name, true);
+		list($plugin, $tmp) = pluginSplit($name, true);
 		list($pluginName, $name) = pluginSplit($name);
 		
-		try {
-			CakePlugin::path($pluginName);
-		} catch (exception $e) {
-			//die($plugin. ' '.$name);
-			return null;
+		if ($pluginName = trim($pluginName)) {
+			# make sure plugin is available to avoid errors later on
+			try {
+				CakePlugin::path($pluginName);
+			} catch (exception $e) {
+				trigger_error($e->getMessage().' - '.$pluginName.' does not exists ('.$name.')');
+				return null;
+			}
 		}
-		# blacklist? bug in app::uses causes fatal errors in some libs that extend/import vendor files
+		# blacklist? lazyloading with app::uses causes fatal errors in some libs that extend/import vendor files
 		$blacklist = array('IcqLib');
 		if (in_array($name, $blacklist)) {
 			return null;
