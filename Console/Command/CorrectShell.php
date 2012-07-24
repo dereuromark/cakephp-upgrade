@@ -542,7 +542,7 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * mvoe some methods from CommonHelper to FormatHelper
+	 * move some methods from CommonHelper to FormatHelper
 	 */
 	public function helper() {
 		$this->params['ext'] = 'ctp';
@@ -564,6 +564,20 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);
 	}
 
+	/**
+	 * html5
+	 */
+	public function html5() {
+		$this->params['ext'] = 'ctp';
+		$this->_getPaths();
+
+		$patterns[] = array(
+			'doctypes',
+			'/\<!DOCTYPE\s*.*\>/i',
+			'<!DOCTYPE html>',
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
 
 	public function reference() {
 		$this->params['ext'] = 'php|rst';
@@ -1195,6 +1209,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('mail', array(
 				'help' => __d('cake_console', 'mail fix'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('html5', array(
+				'help' => __d('cake_console', 'html5 updates'),
 				'parser' => $subcommandParser
 			));
 	}
