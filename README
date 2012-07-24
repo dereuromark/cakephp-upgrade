@@ -32,6 +32,10 @@ Additionally you can use the CorrectShell to correct
 - vis
 - reference
 - i18n
+- forms
+- conventions
+- conventions2
+- html5
 
 with
     cake Upgrade.Correct [command]
