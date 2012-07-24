@@ -2,24 +2,24 @@
 
 /**
  * try to find locations for libs during the upgrade process
- * will match old 
+ * will match old
  * - App::import('Lib', 'PluginName.ClassName') to App::uses('ClassName', 'PluginName.Lib/Package')
  * - App::import('Core', 'Xml') to App::uses('Xml', 'Package')
  * 2011-11-09 ms
  */
 class Lib {
-	
+
 	/**
 	 * Convert file inclusions to 2.x style
 	 * e.g. import("Lib", "Tools.SuperDuper") from App::import to uses("SuperDuper", "Tools.Lib")
-	 * 
+	 *
 	 * @return Plugin.Misc (if in Misc Package), Plugin.Lib (if in lib root) or NULL on failure
 	 * 2012-04-10 ms
 	 */
 	public function match($name, $type = 'Lib') {
 		list($plugin, $tmp) = pluginSplit($name, true);
 		list($pluginName, $name) = pluginSplit($name);
-		
+
 		if ($pluginName = trim($pluginName)) {
 			# make sure plugin is available to avoid errors later on
 			try {
@@ -34,7 +34,7 @@ class Lib {
 		if (in_array($name, $blacklist)) {
 			return null;
 		}
-		
+
 		$libs = App::objects($plugin.$type, null, false);
 		if (in_array($name, $libs)) {
 			return $plugin.$type;
@@ -57,17 +57,17 @@ class Lib {
 		if (!empty($plugin)) {
 			return null;
 		}
-		
+
 		# check core
 		$type = 'Core';
 		$path = CAKE;
 		if ($res = $this->_match($path, $name, $plugin)) {
 			return $res;
 		}
-		
+
 		return null;
 	}
-	
+
 	/**
 	 * recursive match down the lib package paths
 	 */
@@ -91,11 +91,11 @@ class Lib {
 					$finalPath = dirname($finalPath);
 				}
 				$package = array_reverse($package);
-				
+
 				return $plugin.implode('/', $package);
 			}
 		}
 		return null;
 	}
-	
+
 }

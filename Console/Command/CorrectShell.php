@@ -1,11 +1,11 @@
-<?php 
+<?php
 
 App::uses('Folder', 'Utility');
 App::uses('UpgradeShell', 'Upgrade.Console/Command');
 
 /**
  * Misc. corrections for my cakephp2.0 app folders (after upgrading from 1.3)
- * 
+ *
  * They take care of deprecated code:
  * - request
  * - vis
@@ -13,16 +13,16 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * - reference
  * - i18n
  * - amp
- * 
+ *
  * not fully tested and therefore should not be used:
  * - php53
  * - objects
- * 
+ *
  * app specific (probably not useful for anybody else)
  * - mail
  * - auth
  * - helper
- * 
+ *
  * @cakephp 2
  * @php 5
  * @author Mark scherer
@@ -47,21 +47,21 @@ class CorrectShell extends UpgradeShell {
 		$this->params['tgit'] = null;
 		$this->params['svn'] = null;
 		parent::startup();
-		
-		$this->params['ext'] = 'php|ctp|thtml|inc|tpl';
+
+		$this->params['ext'] = 'php|ctp|thtml|inc|tpl|rst';
 		$this->params['dry-run'] = false;
 	}
-	
 
-	
+
+
 	/**
 	 * //TODO: test and verify
 	 */
 	public function conventions() {
-		$this->params['ext'] = 'php|ctp';
+		$this->params['ext'] = 'php|ctp|rst';
 		$this->_getPaths();
-		
-		$patterns = array(	
+
+		$patterns = array(
 			/*
 			array(
 				'...=>... to ... => ...',
@@ -103,17 +103,17 @@ class CorrectShell extends UpgradeShell {
 				array('elseif (')
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
+
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	/**
 	 * //TODO: test and verify
 	 */
 	public function conventions2() {
-		$this->params['ext'] = 'php|ctp';
+		$this->params['ext'] = 'php|ctp|rst';
 		$this->_getPaths();
-	
+
 		$patterns = array(
 			array(
 				'function foo() {',
@@ -136,24 +136,24 @@ class CorrectShell extends UpgradeShell {
 				'} elseif (',
 			),
 		);
-		
+
 		$this->_filesRegexpUpdate($patterns);
 	}
-		
+
 	/**
 	 * In 2.0 i18n is easier!
-	 * 
+	 *
 	 * sprintf(__('Edit %s'), __('Job'))
 	 * =>
 	 * __('Edit %s', __('Job'))
-	 * 
+	 *
 	 * 2011-11-17 ms
 	 */
 	public function i18n() {
-		$this->params['ext'] = 'php|ctp';
+		$this->params['ext'] = 'php|ctp|rst';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				'sprintf(__(\'... %s\'), __(\'...\'))',
 				'/\bsprintf\(__\(\'(.*?)\'\),\s*__\(\'(.*?)\'\)\)/',
@@ -175,10 +175,10 @@ class CorrectShell extends UpgradeShell {
 				'echo __(\'\1\', \2)'
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
+
+		$this->_filesRegexpUpdate($patterns);
 	}
-	
+
 	//TODO: move to MyUpgradeShell
 	public function domains() {
 		$this->params['ext'] = 'php';
@@ -199,11 +199,11 @@ class CorrectShell extends UpgradeShell {
 				'/__n\(\'(.*?)\'/',
 				'__dn(\'console\', \'\1\''
 			),
-			
+
 		);
 		$this->_filesRegexpUpdate($patterns);
-		
-		
+
+
 		$this->params['ext'] = 'php|ctp';
 		# only for non-shell files
 		$patterns = array(
@@ -223,9 +223,9 @@ class CorrectShell extends UpgradeShell {
 				'__n('
 			),
 		);
-		$this->_filesRegexpUpdate($patterns);				
+		$this->_filesRegexpUpdate($patterns);
 	}
-	
+
 
 	/**
 	 * in 2.0 all $var should be replaced by $public
@@ -236,9 +236,9 @@ class CorrectShell extends UpgradeShell {
 	 * - trying to get all __function calls back to _function
 	 */
 	public function vis() {
-		$this->params['ext'] = 'php';
+		$this->params['ext'] = 'php|rst';
 		$this->_getPaths();
-		
+
 		$patterns = array(
 		array(
 				'var $__ to private $__',
@@ -286,17 +286,17 @@ class CorrectShell extends UpgradeShell {
 			'Lib'.DS.'Vendor',
 			'Lib'.DS.'vendors',
 		);
-		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);			
+		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);
 	}
-	
+
 	/**
 	 * in 2.0 this is not needed anymore (thank god - forms post now to themselves per default^^)
 	 */
 	public function forms() {
 		$this->params['ext'] = 'ctp';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				', array(\'url\'=>\'/\'.$this->request->url)',
 				'/, array\(\'url\'\s*=\>\s*\'\/\'\.\$this-\>request-\>url\)/',
@@ -308,24 +308,24 @@ class CorrectShell extends UpgradeShell {
 				', array(\'type\' => \'file\')'
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
-		
-		
+
+		$this->_filesRegexpUpdate($patterns);
+
+
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				'->read(null, $id);',
 				'/-\>read\(null,\s*\$id\);/',
 				'->get($id);'
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
+
+		$this->_filesRegexpUpdate($patterns);
 	}
-	
+
 	/**
 	 * deprecated stuff in php5.3
 	 * 2011-11-15 ms
@@ -333,12 +333,12 @@ class CorrectShell extends UpgradeShell {
 	public function php53() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
-		
+
 		# maybe:
 		# - split => preg_split
-		# - ereg(i) => preg_match 
+		# - ereg(i) => preg_match
 		# - ereg(i)_replace => preg_replace
-		$patterns = array(		
+		$patterns = array(
 			array(
 				'call_user_method(',
 				'/\bcall_user_method\(/i',
@@ -350,10 +350,10 @@ class CorrectShell extends UpgradeShell {
 				'call_user_func_array('
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
+
+		$this->_filesRegexpUpdate($patterns);
 	}
-	
+
 	/**
 	 * RequestHandler stuff is now mainly handled by Request Object
 	 * 2011-11-15 ms
@@ -361,8 +361,8 @@ class CorrectShell extends UpgradeShell {
 	public function request() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				'RequestHandlerComponent::getClientIP() to CakeRequest::clientIP()',
 				'/\bRequestHandlerComponent\:\:getClientIP\(\)/i',
@@ -395,6 +395,11 @@ class CorrectShell extends UpgradeShell {
 				'$this->Common->isPosted()'
 			),
 			array(
+				'$this->Common->isPosted() || $this->Common->isPosted()',
+				'/\$this-\>Common-\>isPosted\(\) \|\| \$this-\>Common-\>isPosted\(\)/',
+				'$this->Common->isPosted()'
+			),
+			array(
 				'correct redirect',
 				'/\$this-\>Common-\>flashMessage\(__\(\'record (edit|add) %s saved\',\s*h\(\$var\)\),\s*\'success\'\);
 				\$this-\>Common-\>autoRedirect\(/',
@@ -407,13 +412,13 @@ class CorrectShell extends UpgradeShell {
 				'$this->Common->isPosted()'
 			),
 		);
-		$this->_filesRegexpUpdate($patterns);				
-		
-		
+		$this->_filesRegexpUpdate($patterns);
+
+
 		$this->params['ext'] = 'ctp';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				'Html->link() to Form->postLink()',
 				'/\$this-\>Html-\>link\(\$this-\>Common-\>icon\(\'delete\'/',
@@ -440,8 +445,8 @@ class CorrectShell extends UpgradeShell {
 	public function auth() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				'->AuthExt to $this->Auth',
 				'/-\>AuthExt\b/',
@@ -453,10 +458,10 @@ class CorrectShell extends UpgradeShell {
 				'public $Auth'
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
-	}	
-	
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
 	/**
 	 * from component to lib
 	 * 2011-11-15 ms
@@ -464,8 +469,8 @@ class CorrectShell extends UpgradeShell {
 	public function mail() {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
-		
-		$patterns = array(		
+
+		$patterns = array(
 			array(
 				'App::import(\'Component\', \'Tools.Mailer\');',
 				'/App\:\:import\(\'Component\',\s*\'Tools\.Mailer\'\)/',
@@ -487,9 +492,9 @@ class CorrectShell extends UpgradeShell {
 				''
 			),
 		);
-			
-		$this->_filesRegexpUpdate($patterns);				
-	}	
+
+		$this->_filesRegexpUpdate($patterns);
+	}
 
 	protected function _getPaths() {
 		if (!empty($this->args)) {
@@ -499,7 +504,7 @@ class CorrectShell extends UpgradeShell {
 		} else {
 			$this->_paths = APP;
 		}
-		
+
 		if (empty($this->_paths)) {
 			$this->error('Please pass working dir as param (cake reference /absDir)');
 		} else {
@@ -508,9 +513,9 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	public function amp() {
-		$this->params['ext'] = 'php';
+		$this->params['ext'] = 'php|rst';
 		$this->_getPaths();
-		
+
 		$patterns = array(
 			array(
 				'=& $this-> -> = $this->',
@@ -522,7 +527,7 @@ class CorrectShell extends UpgradeShell {
 				'/=\s*\&\s/',
 				'= '
 			),
-			
+
 			array(
 				'=& $ to = $',
 				'/=\s*\&\s*\$[A-Z]/',
@@ -533,18 +538,18 @@ class CorrectShell extends UpgradeShell {
 		);
 		$skipFolders = array(
 		);
-		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);						
+		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);
 	}
-	
+
 	/**
-	 * mvoe some methods from CommonHelper to FormatHelper 
+	 * mvoe some methods from CommonHelper to FormatHelper
 	 */
 	public function helper() {
 		$this->params['ext'] = 'ctp';
 		$this->_getPaths();
-		
+
 		$methods = array(
-			'thumbs', 'neighbors', 'addIcon', 'genderIcon', 'customIcon', 'countryIcon', 'importantIcon', 
+			'thumbs', 'neighbors', 'addIcon', 'genderIcon', 'customIcon', 'countryIcon', 'importantIcon',
 			'icon', 'cIcon', 'showStars', 'languageFlags', 'encodeEmail', 'encodeEmailUrl', 'encodeText',
 			'yesNo'
 		);
@@ -556,14 +561,14 @@ class CorrectShell extends UpgradeShell {
 				'->Format->'.$method.'(',
 			);
 		}
-		$this->_filesRegexpUpdate($patterns);					
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 
 	public function reference() {
-		$this->params['ext'] = 'php';
+		$this->params['ext'] = 'php|rst';
 		$this->_getPaths();
-		
+
 		$patterns = array(
 			array(
 				'(&$Model',
@@ -617,7 +622,7 @@ class CorrectShell extends UpgradeShell {
 				'function *($model',
 				'/function (.*)\(\$model\b/',
 				'function \1(Model $model'
-			),			
+			),
 			array(
 				'function *($Controller',
 				'/function (.*)\(\$Controller\b/',
@@ -627,7 +632,7 @@ class CorrectShell extends UpgradeShell {
 				'function *($controller',
 				'/function (.*)\(\$controller\b/',
 				'function \1(Controller $controller'
-			),			
+			),
 			array(
 				'function *($Component',
 				'/function (.*)\(\$Component\b/',
@@ -637,7 +642,7 @@ class CorrectShell extends UpgradeShell {
 				'function *($component',
 				'/function (.*)\(\$component\b/',
 				'function \1(Component $component'
-			),			
+			),
 			array(
 				'ComponentCollection $collection',
 				'/\ComponentCollection \$collection/',
@@ -654,7 +659,7 @@ class CorrectShell extends UpgradeShell {
 				'/parent\:\:\_\_construct\(\$collection/',
 				'parent::__construct($Collection'
 			),
-			
+
 			array(
 				'this->_Collection = $Collection;',
 				'/this-\>\_Collection = \$collection/i',
@@ -723,16 +728,7 @@ class CorrectShell extends UpgradeShell {
 				'if (is_object($Controller))',
 			),
 			*/
-			array(
-				'function describe($Model)',
-				'/function describe\(Model \$Model\)/',
-				'function describe($Model)',
-			),
-			array(
-				'function describe($model)',
-				'/function describe\(Model \$model\)/',
-				'function describe($model)',
-			),
+
 			/*
 			array(
 				'fetchAssociated($model',
@@ -749,7 +745,7 @@ class CorrectShell extends UpgradeShell {
 				'/\$model-\>/',
 				'$Model->',
 			),
-			
+
 			array(
 				'Model $model',
 				'/Model \$model/',
@@ -788,7 +784,7 @@ class CorrectShell extends UpgradeShell {
 				'$model = new',
 				'/\$model = new /',
 				'$Model = new ',
-			),			
+			),
 			array(
 				'$table = $model->tablePrefix . $model->table',
 				'/\$table = \$Model-\>tablePrefix . \$Model-\>table/',
@@ -931,12 +927,12 @@ class CorrectShell extends UpgradeShell {
 			'JsHelperTest.php',
 			'JqueryEngineHelperTest.php'
 		/*
-			
+
 			'Mysql.php',
 			'BakeShell.php',
 			'ConsoleShell.php',
-			
-		
+
+
 			'ContainableBehaviorTest.php'
 		*/
 		);
@@ -944,8 +940,8 @@ class CorrectShell extends UpgradeShell {
 			'TODO__'
 		);
 		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);
-		
-		
+
+
 		$file = $this->_paths[0].DS.'View'.DS.'View.php';
 		if (file_exists($file)) {
 			$content = file_get_contents($file);
@@ -963,13 +959,13 @@ class CorrectShell extends UpgradeShell {
 			//die('FILE NOT EXISTS');
 		}
 	}
-	
+
 	/**
 	 * correct brackets: class X extends y {
-	 * 
+	 *
 	 */
 	public function classes() {
-		$this->params['ext'] = 'php';
+		$this->params['ext'] = 'php|rst';
 		$this->_getPaths();
 		$patterns = array(
 			array(
@@ -979,9 +975,9 @@ class CorrectShell extends UpgradeShell {
 			),
 		);
 		$skipFiles = array();
-		$this->_filesRegexpUpdate($patterns, $skipFiles);		
+		$this->_filesRegexpUpdate($patterns, $skipFiles);
 	}
-	
+
 	/**
 	 * Update legacy stuff for 2.0.
 	 *
@@ -989,9 +985,9 @@ class CorrectShell extends UpgradeShell {
 	 *
 	 * @return void
 	 */
-	public function objects() {
+	public function _objects() {
 		$this->_getPaths();
-		
+
 		//die(print_r($this->_paths, true));
 		$patterns = array(
 			array(
@@ -1012,14 +1008,14 @@ class CorrectShell extends UpgradeShell {
 		);
 		$skipFiles = array(
 			'ControllerTask.php', 'BakeShell.php', 'ControllerTask',
-			'ControllerTaskTest.php', 'ViewTaskTest.php', 'AppTest.php', 
+			'ControllerTaskTest.php', 'ViewTaskTest.php', 'AppTest.php',
 			'ControllerTestCase.php', 'missing_action.ctp', 'private_action.ctp',
-			'controller.ctp', 'Router.php', 
+			'controller.ctp', 'Router.php',
 			'ComponentCollection.php', # !!!
 		);
 
-		$this->_filesRegexpUpdate($patterns, $skipFiles);		
-		
+		$this->_filesRegexpUpdate($patterns, $skipFiles);
+
 		# manually adjust dispatcher
 		$patterns = array(
 			array(
@@ -1042,11 +1038,11 @@ class CorrectShell extends UpgradeShell {
 				'/\$class = \$Controller \./',
 				'$class = $controller .'
 			),
-		);		
-		$this->_paths[0] = $this->_paths[0].DS.'Routing';		
+		);
+		$this->_paths[0] = $this->_paths[0].DS.'Routing';
 		//die(print_r($this->_paths, true));
 		$skipFiles = array('Router.php');
-		$this->_filesRegexpUpdate($patterns, $skipFiles);							
+		$this->_filesRegexpUpdate($patterns, $skipFiles);
 	}
 
 
@@ -1099,7 +1095,7 @@ class CorrectShell extends UpgradeShell {
 				}
 				$excludes = am($excludes, $skipFolders);
 				//echo returns($excludes); die();
-				
+
 				$isIllegalPath = false;
 				foreach ($excludes as $exclude) {
 					if (strpos($file->getPathname(), $path . $exclude . DS) === 0) {
@@ -1111,7 +1107,7 @@ class CorrectShell extends UpgradeShell {
 					continue;
 				}
 				//$this->out( $file->getPathname() ); continue;
-				
+
 				if ($file->isFile()) {
 					$this->_files[] = $file->getPathname();
 				}
@@ -1140,7 +1136,7 @@ class CorrectShell extends UpgradeShell {
 				)
 			)
 		);
-		
+
 		return parent::getOptionParser()
 			->description(__d('cake_console', "A shell to help automate upgrading from CakePHP 1.3 to 2.0. \n" .
 				"Be sure to have a backup of your application before running these commands."))
