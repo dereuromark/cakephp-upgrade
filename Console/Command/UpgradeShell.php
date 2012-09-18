@@ -96,7 +96,11 @@ class UpgradeShell extends AppShell {
 
 		# check for commands - if not available exit immediately
 		if ($this->params['svn']) {
-			$res = exec('svn help', $array, $r);
+			$this->params['svn'] = 'svn';
+			if (!empty($this->args[0])) {
+				$this->params['svn'] = rtrim($this->args[0], DS). DS . 'svn';
+			}
+			$res = exec('"' . $this->params['svn'] . '" help', $array, $r);
 			if ($r) {
 				$this->error($res, 'The command `svn` is unknown (on Windows install SlikSVN)');
 			}
@@ -1333,6 +1337,27 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			),
 		);
 
+		$legacyClasses = array(
+			'Folder' => 'Utility',
+			'File' => 'Utility',
+			'Sanitize' => 'Utility',
+			'Inflector' => 'Utility',
+			'Validation' => 'Utility',
+			'Security' => 'Utility',
+			'Xml' => 'Utility',
+			'Router' => 'Routing',
+			'HttpSocket' => 'Network/Http',
+			'Object' => 'Core',
+			'Controller' => 'Controller',
+		);
+		foreach ($legacyClasses as $legacyClass => $package) {
+			$patterns[] = array(
+				'App::import(\''.$legacyClass.'\') to App::uses(\''.$legacyClass.'\', \''.$package.'\')',
+				'/App\:\:import\(\''.$legacyClass.'\'\)/',
+				'App::uses(\''.$legacyClass.'\', \''.$package.'\')'
+			);
+		}
+
 		$this->_filesRegexpUpdate($patterns);
 	}
 
@@ -1363,11 +1388,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			if (strpos($row, '\'driver\'') === false) {
 			 	continue;
 			}
-			$content[$line] = preg_replace_callback('/\'driver\'\s*\=\>\s*\'(.*?)\'/', 'self::_prepDatasource', $row);
+			$content[$line] = trim(preg_replace_callback('/\'driver\'\s*\=\>\s*\'(.*?)\'/', 'self::_prepDatasource', $row));
 			$changes = true;
 		}
 		if ($changes) {
-			$content = implode("\n", $content);
+			$content = implode(PHP_EOL, $content);
 			file_put_contents($file, $content);
 			$this->out(__d('cake_console', '%s updated', 'database.php'));
 		} else {
@@ -1639,8 +1664,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			exec('tgit mv -f ' . escapeshellarg($from) . ' ' . escapeshellarg($from . $tmp));
 			exec('tgit mv -f ' . escapeshellarg($from . $tmp) . ' ' . escapeshellarg($to));
 		} elseif ($this->params['svn']) {
-			exec('svn move --force ' . escapeshellarg($from) . ' ' . escapeshellarg($from . $tmp));
-			exec('svn move --force ' . escapeshellarg($from . $tmp) . ' ' . escapeshellarg($to));
+			exec('"' . $this->params['svn'] . '" move --force ' . escapeshellarg($from) . ' ' . escapeshellarg($from . $tmp));
+			exec('"' . $this->params['svn'] . '" move --force ' . escapeshellarg($from . $tmp) . ' ' . escapeshellarg($to));
 		} elseif ($folder) {
 			$Folder = new Folder($from);
 			$Folder->move($to . $tmp);
@@ -1679,13 +1704,17 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * create and add file according to repository type
  */
 	protected function _create($path) {
+		while(!is_dir($subpath = dirname($path))) {
+			$this->_create($subpath);
+		}
+
 		new Folder($path, true);
 		if ($this->params['git']) {
 			exec('git add -f ' . escapeshellarg($path));
 		} elseif ($this->params['tgit']) {
 			exec('tgit add -f ' . escapeshellarg($path));
 		} elseif ($this->params['svn']) {
-			exec('svn add --force ' . escapeshellarg($path));
+			exec('"' . $this->params['svn'] . '" add --force ' . escapeshellarg($path));
 		}
 	}
 
@@ -1972,7 +2001,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'ext' => array(
 					'short' => 'e',
 					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
-					'default' => 'php|ctp|thtml|inc|tpl'
+					'default' => 'php|ctp|thtml|inc|tpl|rst'
 				),
 				'git' => array(
 					'short' => 'g',

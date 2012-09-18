@@ -1,0 +1,10 @@
+	/**
+	 * Saves the parsed CSS. This array is empty if preserve_css is on.
+	 * @var array
+	 * @access protected
+	 */
+	public $css = array();
+	/**
+
+
+

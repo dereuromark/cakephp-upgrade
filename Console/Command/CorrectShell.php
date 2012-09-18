@@ -174,6 +174,22 @@ class CorrectShell extends UpgradeShell {
 				'/\bprintf\(__\(\'(.*?)\'\),\s*(.*?)\)/',
 				'echo __(\'\1\', \2)'
 			),
+			// i18n in forms etc
+			array(
+				'__(\'Edit Foo\') => Edit %s, Foo',
+				'/__\(\'Edit (\w+)\'\)/',
+				'__(\'Edit %s\', __(\'\1\'))'
+			),
+			array(
+				'__(\'Add Foo\') => Add %s, Foo',
+				'/__\(\'Add (\w+)\'\)/',
+				'__(\'Add %s\', __(\'\1\'))'
+			),
+			array(
+				'__(\'List Foo\') => List %s, Foo',
+				'/__\(\'List (\w+)\'\)/',
+				'__(\'List %s\', __(\'\1\'))'
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -240,7 +256,7 @@ class CorrectShell extends UpgradeShell {
 		$this->_getPaths();
 
 		$patterns = array(
-		array(
+			array(
 				'var $__ to private $__',
 				'/\bvar \$__/i',
 				'private $__'
@@ -276,6 +292,11 @@ class CorrectShell extends UpgradeShell {
 				'/\bprivate function __(?!construct|destruct|sleep|wakeup|get|set|call|toString|invoke|set_state|clone|callStatic|isset|unset])\w+\b/i',
 				'protected function _\1'
 			),
+			array(
+				'respect $access doc info',
+				'/\/**(.*)@access ([public|private|protected])(.*)\/*\s*\s+public \$/i',
+				'/**\1'.PHP_EOL.TB.'@access'
+			),
 			*/
 		);
 		$skipFiles = array(
@@ -298,13 +319,13 @@ class CorrectShell extends UpgradeShell {
 
 		$patterns = array(
 			array(
-				', array(\'url\'=>\'/\'.$this->request->url)',
-				'/, array\(\'url\'\s*=\>\s*\'\/\'\.\$this-\>request-\>url\)/',
+				'array(\'url\'=>\'/\'.$this->params[\'url\'][\'url\'])',
+				'/,\s*array\(\'url\'\s*=\>\s*\'\/\'\s*\.\s*\$this-\>params\[\'url\'\]\[\'url\'\]\)/',
 				''
 			),
 			array(
-				', array(\'url\'=>\'/\'.$this->request->url)',
-				'/, array\(\'url\'\s*=\>\s*\'\/\'\.\$this-\>request-\>url,\s*\'type\'\s*=>\s*\'file\'\)/',
+				'array(\'url\'=>\'/\'.$this->params[\'url\'][\'url\'], array(\'type\'=>\'file\'))',
+				'/,\s*array\(\'url\'\s*=\>\s*\'\/\'\s*\.\s*\$this-\>params\[\'url\'\]\[\'url\'\],\s*\'type\'\s*=>\s*\'file\'\)/',
 				', array(\'type\' => \'file\')'
 			),
 		);
@@ -551,7 +572,7 @@ class CorrectShell extends UpgradeShell {
 		$methods = array(
 			'thumbs', 'neighbors', 'addIcon', 'genderIcon', 'customIcon', 'countryIcon', 'importantIcon',
 			'icon', 'cIcon', 'showStars', 'languageFlags', 'encodeEmail', 'encodeEmailUrl', 'encodeText',
-			'yesNo'
+			'yesNo', 'priorityIcon'
 		);
 		$patterns = array();
 		foreach ($methods as $method) {
@@ -975,6 +996,24 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * correct flash messages
+	 *
+	 */
+	public function flash() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+		$patterns = array(
+			array(
+				'$this->Session->setFlash(...)',
+				'/-\>Session-\>setFlash\((.*)\)/',
+				'->Common->flashMessage(\1)'
+			),
+		);
+		$skipFiles = array();
+		$this->_filesRegexpUpdate($patterns, $skipFiles);
+	}
+
+	/**
 	 * correct brackets: class X extends y {
 	 *
 	 */
@@ -1209,6 +1248,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('mail', array(
 				'help' => __d('cake_console', 'mail fix'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('flash', array(
+				'help' => __d('cake_console', 'flash messages'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('html5', array(

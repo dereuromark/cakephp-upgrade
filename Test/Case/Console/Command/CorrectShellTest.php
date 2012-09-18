@@ -8,7 +8,7 @@ class CorrectShellTest extends CakeTestCase {
 
  	public function setUp() {
  		parent::setUp();
- 		
+
  		$this->Correct = new TestCorrectShell();
  		$this->Correct->testPath = CakePlugin::path('Upgrade'). 'Test' . DS . 'test_files' . DS;
  	}
@@ -17,9 +17,16 @@ class CorrectShellTest extends CakeTestCase {
 		$this->Correct->file = 'html5';
 		$this->Correct->html5();
 		$result = $this->Correct->result;
-		debug($result);
-		$this->assertEquals($result['expected'], $result['is']);
+		//debug($result);
+		$this->assertTextEquals($result['expected'], $result['is']);
+	}
 
+	public function _testVis() {
+		$this->Correct->file = 'html5';
+		$this->Correct->html5();
+		$result = $this->Correct->result;
+		//debug($result);
+		$this->assertTextEquals($result['expected'], $result['is']);
 	}
 
 
@@ -28,7 +35,7 @@ class CorrectShellTest extends CakeTestCase {
 
 
 class TestCorrectShell extends CorrectShell {
-	
+
 	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array()) {
 		$this->_updateFile($this->file, $patterns);
 	}
@@ -36,7 +43,7 @@ class TestCorrectShell extends CorrectShell {
 	protected function _updateFile($file, $patterns) {
 		$isFile = $this->testPath . $file . '.txt';
 		$expectedFile = $this->testPath . $file . '_expected.txt';
-		
+
 		$contents = file_get_contents($isFile);
 		foreach ($patterns as $pattern) {
 			$contents = preg_replace($pattern[1], $pattern[2], $contents);
@@ -49,5 +56,5 @@ class TestCorrectShell extends CorrectShell {
 		}
 		$this->result = array('is' => $contents, 'expected' => $testContents);
 	}
-	
+
 }
