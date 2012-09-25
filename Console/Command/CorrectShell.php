@@ -22,6 +22,7 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * - mail
  * - auth
  * - helper
+ * - flash
  *
  * @cakephp 2
  * @php 5
@@ -282,9 +283,14 @@ class CorrectShell extends UpgradeShell {
 				'protected function'
 			),
 			array(
-				'	function __',
+				'function (.*)',
 				'/	function (.*)\(/',
 				'	public function \1('
+			),
+			array(
+				'static function (.*)',
+				'/	static function (.*)\(/',
+				'	public static function \1('
 			),
 			/*
 			array(
@@ -493,9 +499,19 @@ class CorrectShell extends UpgradeShell {
 
 		$patterns = array(
 			array(
+				'App::import(\'Component\', \'Email\');',
+				'/App\:\:import\(\'Component\',\s*\'Email\'\)/',
+				'App::uses(\'EmailLib\', \'Tools.Lib\')'
+			),
+			array(
 				'App::import(\'Component\', \'Tools.Mailer\');',
 				'/App\:\:import\(\'Component\',\s*\'Tools\.Mailer\'\)/',
 				'App::uses(\'EmailLib\', \'Tools.Lib\')'
+			),
+			array(
+				'$this->Email = new EmailComponent();',
+				'/\$this-\>Email\s*=\s*new EmailComponent\((.*?)\);/',
+				'$this->Email = new EmailLib();'
 			),
 			array(
 				'$this->Email = new MailerComponent($this);',
@@ -572,7 +588,7 @@ class CorrectShell extends UpgradeShell {
 		$methods = array(
 			'thumbs', 'neighbors', 'addIcon', 'genderIcon', 'customIcon', 'countryIcon', 'importantIcon',
 			'icon', 'cIcon', 'showStars', 'languageFlags', 'encodeEmail', 'encodeEmailUrl', 'encodeText',
-			'yesNo', 'priorityIcon'
+			'yesNo', 'priorityIcon', 'ok',
 		);
 		$patterns = array();
 		foreach ($methods as $method) {
@@ -582,6 +598,18 @@ class CorrectShell extends UpgradeShell {
 				'->Format->'.$method.'(',
 			);
 		}
+
+		$methods = array(
+			'url', 'link'
+		);
+		foreach ($methods as $method) {
+			$patterns[] = array(
+				$method.'()',
+				'/-\>GoogleMapV3-\>'.$method.'\(/',
+				'->GoogleMapV3->map'.ucfirst($method).'(',
+			);
+		}
+
 		$this->_filesRegexpUpdate($patterns);
 	}
 

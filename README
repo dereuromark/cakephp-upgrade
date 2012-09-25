@@ -1,10 +1,10 @@
-*** CakePHP2.0 upgrade shell - improved version ***
+*** CakePHP2.x upgrade shell - improved version ***
 
 The original one lacks a lot of things that could be done automatically.
 Changes have been reported as ticket, but so far it has not yet made it into the official version.
 
 This version supports now on top of the original commands/tasks:
-- paginator
+- paginator (run only once!)
 - database
 - legacy
 - name
@@ -14,12 +14,17 @@ This version supports now on top of the original commands/tasks:
 and many more
 
 New functionally also supported now:
-- svn
+- svn (linux/windows)
 - group commands
+- except command (all except for a few, e.g. `except paginator` to skip paginator method)
 
 ## UPDATE January 2012: Support for 2.1
 Now supports
-- cake21: Auth::allow(), Layout Stuff and more
+- Auth::allow(), Layout Stuff and more
+
+## UPDATE September 2012: Support up to 2.3 (and some 3.0)
+Now supports
+- request->query() and Set/Hash replacement
 
 
 As this is a plugin, use it with:
@@ -36,11 +41,12 @@ Additionally you can use the CorrectShell to correct
 - conventions
 - conventions2
 - html5
+- php53
 
 with
     cake Upgrade.Correct [command]
- 
-Tip: Use 
+
+Tip: Use
     cake Upgrade.Correct all
 to quickly apply all relevant correction commands
 
@@ -49,7 +55,7 @@ app and plugins. Without -p PluginName it leaves them alone.
 If you want to upgrade plugins use
     cake Upgrade.Upgrade [command] -p PluginName
 
-I also added support for -p * - to address all plugins at once. 
+I also added support for -p * - to address all plugins at once.
 This is only fully supported by the `group` command like so:
     cake Upgrade.Upgrade group [command1] [command2] ... -p *
 You need to supply at least two commands (if you want to use only one, type it twice:
@@ -60,7 +66,7 @@ The not fully tested way of using the plugin wildcard would be
     cake Upgrade.Upgrade [command] -p *
 which should just grab all files at once and process them
 
-	  
+
 ## Installation
 
 a) Copy this plugin into your /app/Plugin folder

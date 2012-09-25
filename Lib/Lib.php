@@ -20,7 +20,7 @@ class Lib {
 		list($plugin, $tmp) = pluginSplit($name, true);
 		list($pluginName, $name) = pluginSplit($name);
 
-		if ($pluginName = trim($pluginName)) {
+		if ($pluginName = Inflector::camelize(trim($pluginName))) {
 			# make sure plugin is available to avoid errors later on
 			try {
 				CakePlugin::path($pluginName);

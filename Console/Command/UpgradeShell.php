@@ -248,7 +248,6 @@ class UpgradeShell extends AppShell {
 		);
 
 		$this->_filesRegexpUpdate($patterns);
-		die();
 
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -386,6 +385,56 @@ class UpgradeShell extends AppShell {
 				'/-\>Auth-\>allow\(array\(\'\*\'\)\)/',
 				'->Auth->allow()'
 			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * cake22 and cake23 replacements
+	 * @link http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
+	 * @link http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
+	 * 2012-09-25 ms
+	 */
+	public function cake23() {
+		$patterns = array(
+			/*
+			array(
+				'->request[\'url\'][...] to ->request(...)',
+				'/-\>request[\'url\'][\'(.*?)\']/',
+				'->request->query(\'\1\')'
+			),
+			*/
+			array(
+				'->request[\'url\'][...] to ->request(...)',
+				'/-\>request[\'url\'][(.*?)]/',
+				'->request->query(\1)'
+			),
+			array(
+				'->request->query[...] to ->request(...)',
+				'/-\>request-\>query[(.*?)]/',
+				'->request->query(\1)'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * optional upgrades to prepare for 3.0
+	 * will remove/correct deprecated stuff
+	 * 2012-09-25 ms
+	 */
+	public function cake3() {
+		$patterns = array(
+			array(
+				'App::uses(\'Set\', \'Utility\')',
+				'/\bApp\:\:uses\(\'Set\',\s*\'Utility\'\)/',
+				'App::uses(\'Hash\', \'Utility\')'
+			),
+			array(
+				'Set to Hash',
+				'/\bSet\:\:/',
+				'Hash::'
+			)
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -1483,6 +1532,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 /**
  * Update paginator links
+ * Careful: run only once (the second time some could get switched back)
  *
  * - Reverse order of title and field in pagination sort
  *
