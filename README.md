@@ -1,4 +1,4 @@
-*** CakePHP2.x upgrade shell - improved version ***
+# CakePHP2.x upgrade shell - improved version
 
 The original one lacks a lot of things that could be done automatically.
 Changes have been reported as ticket, but so far it has not yet made it into the official version.
