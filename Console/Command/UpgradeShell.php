@@ -396,6 +396,15 @@ class UpgradeShell extends AppShell {
 	 * 2012-09-25 ms
 	 */
 	public function cake23() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'Test' . DS, $pluginpath . 'tests' . DS);
+		} else {
+			$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
+		}
+
 		$patterns = array(
 			/*
 			array(
@@ -414,6 +423,23 @@ class UpgradeShell extends AppShell {
 				'/-\>request-\>query[(.*?)]/',
 				'->request->query(\1)'
 			),
+			array(
+				'->Behaviors->attach to ->Behaviors->load',
+				'/-\>Behaviors-\>attach\(/',
+				'->Behaviors->load('
+			),
+			array(
+				'->Behaviors->detach to ->Behaviors->unload',
+				'/-\>Behaviors-\>detach\(/',
+				'->Behaviors->unload('
+			),
+			/*
+			array(
+				'->Behaviors->attached to ->Behaviors->loaded',
+				'/-\>Behaviors-\>attached\(/',
+				'->Behaviors->loaded('
+			),
+			*/
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -424,6 +450,15 @@ class UpgradeShell extends AppShell {
 	 * 2012-09-25 ms
 	 */
 	public function cake3() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'Test' . DS, $pluginpath . 'tests' . DS);
+		} else {
+			$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
+		}
+
 		$patterns = array(
 			array(
 				'App::uses(\'Set\', \'Utility\')',
@@ -435,6 +470,228 @@ class UpgradeShell extends AppShell {
 				'/\bSet\:\:/',
 				'Hash::'
 			)
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * try to auto-correct E_STRICT issues
+	 * 2012-11-16 ms
+	 */
+	public function estrict() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath);
+		} else {
+			$this->_paths = array(APP);
+		}
+
+		$patterns = array(
+			array(
+				'public function startTest()',
+				'/public function startTest\(\)/',
+				'public function setUp()'
+			),
+			array(
+				'public function endTest()',
+				'/public function endTest\(\)/',
+				'public function tearDown()'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'Model' . DS . 'Behavior' . DS);
+		} else {
+			$this->_paths = array(APP . 'Model' . DS . 'Behavior' . DS);
+		}
+		$patterns = array(
+			# beforeValidate
+			array(
+				'public function beforeValidate()',
+				'/public function beforeValidate\(\)/',
+				'public function beforeValidate(Model $Model)'
+			),
+			array(
+				'parent::beforeValidate()',
+				'/\bparent::beforeValidate\(\)/',
+				'parent::beforeValidate(Model $Model)'
+			),
+			/*
+			array(
+				'public function beforeValidate(Model $Model)',
+				'/public function beforeValidate\((\w+)\s*\$(\w+)\)/',
+				'public function beforeValidate(\1 $\2, $options = array())'
+			),
+			array(
+				'parent::beforeValidate(Model $Model)',
+				'/\bparent::beforeValidate\(\w+\s*\$(\w+)\)/',
+				'parent::beforeValidate($\1, $options)'
+			),
+			*/
+			# beforeSave
+			array(
+				'public function beforeSave()',
+				'/public function beforeSave\(\)/',
+				'public function beforeSave(Model $Model)'
+			),
+			array(
+				'parent::beforeSave()',
+				'/\bparent::beforeSave\(\)/',
+				'parent::beforeSave($Model)'
+			),
+			/*
+			array(
+				'public function beforeSave(Model $Model)',
+				'/public function beforeSave\((\w+)\s*\$(\w+)\)/',
+				'public function beforeSave(\1 $\2, $options = array())'
+			),
+			array(
+				'parent::beforeSave(Model $Model)',
+				'/\bparent::beforeSave\(\w+\s*\$(\w+)\)/',
+				'parent::beforeSave($\1, $options)'
+			),
+			*/
+			# afterSave
+			array(
+				'public function afterSave()',
+				'/public function afterSave\(\)/',
+				'public function afterSave(Model $Model, $created)'
+			),
+			array(
+				'public function afterSave(Model $Model)',
+				'/public function afterSave\((\w+)\s*\$(\w+)\)/',
+				'public function afterSave(\1 $\2, $created)'
+			),
+			array(
+				'parent::afterSave()',
+				'/\bparent::afterSave\(\)/',
+				'parent::afterSave($Model, $created)'
+			),
+			array(
+				'parent::afterSave(Model $Model)',
+				'/\bparent::afterSave\(\w+\s*\$(\w+)\)/',
+				'parent::afterSave($\1, $created)'
+			),
+
+			# beforeFind
+			array(
+				'public function beforeFind()',
+				'/public function beforeFind\(\)/',
+				'public function beforeFind(Model $Model, $query)'
+			),
+			array(
+				'parent::beforeFind()',
+				'/\bparent::beforeFind\(\)/',
+				'parent::beforeFind($Model, $query)'
+			),
+			array(
+				'public function beforeFind(Model $Model)',
+				'/public function beforeFind\((\w+)\s*\$(\w+)\)/',
+				'public function beforeFind(\1 $\2, $query)'
+			),
+
+			# afterFind
+			array(
+				'public function afterFind()',
+				'/public function afterFind\(\)/',
+				'public function afterFind(Model $Model, $results, $primary)'
+			),
+			array(
+				'parent::afterFind()',
+				'/\bparent::afterFind\(\)/',
+				'parent::afterFind($Model, $results, $primary)'
+			),
+			array(
+				'public function afterFind(Model $Model)',
+				'/public function afterFind\((\w+)\s*\$(\w+)\)/',
+				'public function afterFind(\1 $\2, $results, $primary)'
+			),
+			array(
+				'public function afterFind(Model $Model, $results)',
+				'/public function afterFind\((\w+)\s*\$(\w+),\s*\$results\)/',
+				'public function afterFind(\1 $\2, $results, $primary)'
+			),
+			/*
+			array(
+				'public function afterFind(Model $Model, $results)',
+				'/public function afterFind\((\w+),\s*\$results\)/',
+				'public function afterFind(\1, $results, $primary)'
+			),
+			*/
+			array(
+				'parent::afterFind(Model $Model, $results)',
+				'/\bparent::afterFind\(\w+\s*\$(\w+),\s*\$results\)/',
+				'parent::afterFind($\1, $results, $primary)'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+
+
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath . 'Model' . DS);
+		} else {
+			$this->_paths = array(APP . 'Model' . DS);
+		}
+		$patterns = array(
+			# beforeValidate
+			array(
+				'public function beforeValidate()',
+				'/public function beforeValidate\(\)/',
+				'public function beforeValidate($options = array())'
+			),
+			array(
+				'parent::beforeValidate()',
+				'/\bparent::beforeValidate\(\)/',
+				'parent::beforeValidate($options)'
+			),
+			# beforeSave
+			array(
+				'public function beforeSave()',
+				'/public function beforeSave\(\)/',
+				'public function beforeSave($options = array())'
+			),
+			# afterSave
+			array(
+				'public function afterSave()',
+				'/public function afterSave\(\)/',
+				'public function afterSave($created)'
+			),
+			array(
+				'parent::afterSave()',
+				'/\bparent::afterSave\(\)/',
+				'parent::afterSave($created)'
+			),
+			# beforeFind
+			array(
+				'public function beforeFind()',
+				'/public function beforeFind\(\)/',
+				'public function beforeFind($query)'
+			),
+			# afterFind
+			array(
+				'public function afterFind()',
+				'/public function afterFind\(\)/',
+				'public function afterFind($results, $primary = false)'
+			),
+			array(
+				'public function afterFind($results)',
+				'/public function afterFind\(\$results\)/',
+				'public function afterFind($results, $primary = false)'
+			),
+			array(
+				'parent::afterFind($results)',
+				'/\bparent::afterFind\(\$results\)/',
+				'parent::afterFind($results, $primary)'
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -478,14 +735,39 @@ class UpgradeShell extends AppShell {
 				'$this->assertEquals('
 			),
 			array(
+				'$this->assertNotEqual to $this->assertNotEquals',
+				'/\$this-\>assertNotEqual\(/i',
+				'$this->assertNotEquals('
+			),
+			array(
 				'$this->assertIdentical to $this->assertSame',
 				'/\$this-\>assertIdentical\(/i',
 				'$this->assertSame('
 			),
 			array(
+				'$this->assertNotIdentical to $this->assertNotSame',
+				'/\$this-\>assertNotIdentical\(/i',
+				'$this->assertNotSame('
+			),
+			array(
 				'$this->assertPattern to $this->assertRegExp',
 				'/\$this-\>assertPattern\(/i',
 				'$this->assertRegExp('
+			),
+			array(
+				'$this->assertNoPattern to $this->assertNotRegExp',
+				'/\$this-\>assertNoPattern\(/i',
+				'$this->assertNotRegExp('
+			),
+			array(
+				'$this->assertInstanceOf correct order',
+				'/\$this-\>assertInstanceOf\(\$(.*?),\s*\'(.*?)\'\)/i',
+				'$this->assertInstanceOf(\'\2\', $\1)'
+			),
+			array(
+				'$this->assertIsA to $this->assertInstanceOf',
+				'/\$this-\>assertIsA\(\$(.*?),\s*\'(.*?)\'\)/i',
+				'$this->assertInstanceOf(\'\2\', $\1)'
 			),
 		);
 
@@ -2177,6 +2459,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('cake21', array(
 				'help' => __d('cake_console', 'Upgrade to cake21 standards'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('cake23', array(
+				'help' => __d('cake_console', 'Upgrade to cake23 standards'),
+				'parser' => $subcommandParser
+			))
+				->addSubcommand('estrict', array(
+				'help' => __d('cake_console', 'Upgrade to E_STRICT standards'),
 				'parser' => $subcommandParser
 			));
 	}

@@ -94,29 +94,6 @@ class CorrectShell extends UpgradeShell {
 				array('$1(')
 			),
 			array(
-				'else if => elseif',
-				array('/}\s*else\s+if\s*\(/'),
-				array('} elseif (')
-			),
-			array(
-				'else if => elseif',
-				array('/\belse\s+if\s*\(/'),
-				array('elseif (')
-			),
-		);
-
-		$this->_filesRegexpUpdate($patterns);
-	}
-
-	/**
-	 * //TODO: test and verify
-	 */
-	public function conventions2() {
-		$this->params['ext'] = 'php|ctp|rst';
-		$this->_getPaths();
-
-		$patterns = array(
-			array(
 				'function foo() {',
 				'/\bfunction\s+(\w+)\s*\((.*)\)\s+\s+\s+{/',
 				'function \1(\2) {',
@@ -135,6 +112,114 @@ class CorrectShell extends UpgradeShell {
 				') elseif (',
 				'/}\s*elseif\s*\(/',
 				'} elseif (',
+			),
+			array(
+				'foreach ($x as $y => $z)',
+				'/\bforeach\s*\((.*?)\s+as\s+(.*?)\s*=\>\s*(.*?)\)/',
+				'foreach (\1 as \2 => \3)',
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * careful: not for JS in ctp files!
+	 *
+	 * //TODO: test and verify
+	 */
+	public function conventions2() {
+		$this->params['ext'] = 'php|ctp|rst';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'else if => elseif',
+				array('/}\s*else\s+if\s*\(/'),
+				array('} elseif (')
+			),
+			array(
+				'else if => elseif',
+				array('/\belse\s+if\s*\(/'),
+				array('elseif (')
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * careful: could break sth
+	 *
+	 * //TODO: test and verify
+	 */
+	public function conventions3() {
+		$this->params['ext'] = 'php|ctp|rst';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				',array( to , array(',
+				array('/,array\(/'),
+				array(', array(')
+			),
+			array(
+				',$ to , $',
+				array('/,\$/'),
+				array(', $')
+			),
+			array(
+				'multiple spaces to 1',
+				array('/ {2,}/'),
+				array(' ')
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 *
+	 */
+	public function umlauts() {
+		$this->params['ext'] = 'php|ctp|rst';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'&auml; to ä',
+				array('/&auml;/'),
+				array('ä')
+			),
+			array(
+				'&Auml; to Ä',
+				array('/&Auml;/'),
+				array('Ä')
+			),
+			array(
+				'&uuml; to ü',
+				array('/&uuml;/'),
+				array('ü')
+			),
+			array(
+				'&Uuml; to Ü',
+				array('/&Uuml;/'),
+				array('Ü')
+			),
+			array(
+				'&ouml; to ö',
+				array('/&ouml;/'),
+				array('ö')
+			),
+			array(
+				'&Ouml; to Ö',
+				array('/&Ouml;/'),
+				array('Ö')
+			),
+			array(
+				'&szlig; to ß',
+				array('/&szlig;/'),
+				array('ß')
 			),
 		);
 
@@ -333,6 +418,11 @@ class CorrectShell extends UpgradeShell {
 				'array(\'url\'=>\'/\'.$this->params[\'url\'][\'url\'], array(\'type\'=>\'file\'))',
 				'/,\s*array\(\'url\'\s*=\>\s*\'\/\'\s*\.\s*\$this-\>params\[\'url\'\]\[\'url\'\],\s*\'type\'\s*=>\s*\'file\'\)/',
 				', array(\'type\' => \'file\')'
+			),
+			array(
+				'\'url\'=>\'/\'.$this->params[\'url\'][\'url\']',
+				'/\'url\'\s*=\>\s*\'\/\'\s*\.\s*\$this-\>params\[\'url\'\]\[\'url\'\]/',
+				''
 			),
 		);
 
@@ -596,6 +686,18 @@ class CorrectShell extends UpgradeShell {
 				$method.'()',
 				'/-\>Common-\>'.$method.'\(/',
 				'->Format->'.$method.'(',
+			);
+		}
+
+		$methods = array(
+			'currency',
+		);
+		$patterns = array();
+		foreach ($methods as $method) {
+			$patterns[] = array(
+				$method.'()',
+				'/-\>Common-\>'.$method.'\(/',
+				'->Numeric->'.$method.'(',
 			);
 		}
 
@@ -1025,7 +1127,7 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * correct flash messages
-	 *
+	 * todo: move to MyUpgrade
 	 */
 	public function flash() {
 		$this->params['ext'] = 'php';
@@ -1035,6 +1137,27 @@ class CorrectShell extends UpgradeShell {
 				'$this->Session->setFlash(...)',
 				'/-\>Session-\>setFlash\((.*)\)/',
 				'->Common->flashMessage(\1)'
+			),
+			array(
+				'$this->Session->setFlash(...)',
+				'/-\>Common-\>flashMessage\(__\(\'Invalid (.*)\'\)\)/',
+				'->Common->flashMessage(__(\'Invalid \1\'), \'error\')'
+			),
+			array(
+				'$this->Session->setFlash(...)',
+				'/-\>Common-\>flashMessage\(__\(\'(.*) has been saved\'\)\)/',
+				'->Common->flashMessage(__(\'\1 has been saved\'), \'success\')'
+			),
+			array(
+				'$this->Session->setFlash(...)',
+				'/-\>Common-\>flashMessage\(__\(\'(.*) could not be saved(.*)\'\)\)/',
+				'->Common->flashMessage(__(\'\1 could not be saved\2\'), \'error\')'
+			),
+			# tmp to qickly find unmatching ones
+			array(
+				'$this->Session->setFlash(...)',
+				'/-\>Common-\>flashMessage\(__\(\'(.*)\'\)\)/',
+				'->Common->flashMessage(__(\'\1\'), \'xxxxx\')'
 			),
 		);
 		$skipFiles = array();
@@ -1261,6 +1384,10 @@ class CorrectShell extends UpgradeShell {
 				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
 				'parser' => $subcommandParser
 			))
+			->addSubcommand('conventions3', array(
+				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'parser' => $subcommandParser
+			))
 			# custom app stuff (not for anyone else)
 			->addSubcommand('helper', array(
 				'help' => __d('cake_console', 'helper fix'),
@@ -1280,6 +1407,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('flash', array(
 				'help' => __d('cake_console', 'flash messages'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('umlauts', array(
+				'help' => __d('cake_console', 'umlauts fixes in utf8'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('html5', array(
