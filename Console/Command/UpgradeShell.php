@@ -400,9 +400,9 @@ class UpgradeShell extends AppShell {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
 			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Test' . DS, $pluginpath . 'tests' . DS);
+			$this->_paths = array($pluginpath);
 		} else {
-			$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
+			$this->_paths = array(APP);
 		}
 
 		$patterns = array(
@@ -415,12 +415,12 @@ class UpgradeShell extends AppShell {
 			*/
 			array(
 				'->request[\'url\'][...] to ->request(...)',
-				'/-\>request[\'url\'][(.*?)]/',
+				'/-\>request\[\'url\'\]\[(.*?)\]/',
 				'->request->query(\1)'
 			),
 			array(
 				'->request->query[...] to ->request(...)',
-				'/-\>request-\>query[(.*?)]/',
+				'/-\>request-\>query\[(.*?)\]/',
 				'->request->query(\1)'
 			),
 			array(
@@ -617,21 +617,25 @@ class UpgradeShell extends AppShell {
 				'/public function afterFind\((\w+)\s*\$(\w+),\s*\$results\)/',
 				'public function afterFind(\1 $\2, $results, $primary)'
 			),
-			/*
-			array(
-				'public function afterFind(Model $Model, $results)',
-				'/public function afterFind\((\w+),\s*\$results\)/',
-				'public function afterFind(\1, $results, $primary)'
-			),
-			*/
 			array(
 				'parent::afterFind(Model $Model, $results)',
 				'/\bparent::afterFind\(\w+\s*\$(\w+),\s*\$results\)/',
 				'parent::afterFind($\1, $results, $primary)'
 			),
+			# beforeDelete
+			array(
+				'public function beforeDelete()',
+				'/public function beforeDelete\(\)/',
+				'public function beforeDelete($cascade = true)'
+			),
+			array(
+				'public function beforeDelete(Model $Model)',
+				'/public function beforeDelete\((\w+)\s*\$(\w+)\)/',
+				'public function beforeDelete(\1 $\2, $cascade = true)'
+			),
+			# afterDelete
 		);
 		$this->_filesRegexpUpdate($patterns);
-
 
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -658,6 +662,11 @@ class UpgradeShell extends AppShell {
 				'public function beforeSave()',
 				'/public function beforeSave\(\)/',
 				'public function beforeSave($options = array())'
+			),
+			array(
+				'parent::beforeSave()',
+				'/\bparent::beforeSave\(\)/',
+				'parent::beforeSave($options)'
 			),
 			# afterSave
 			array(
@@ -687,10 +696,18 @@ class UpgradeShell extends AppShell {
 				'/public function afterFind\(\$results\)/',
 				'public function afterFind($results, $primary = false)'
 			),
+			/*
 			array(
 				'parent::afterFind($results)',
 				'/\bparent::afterFind\(\$results\)/',
 				'parent::afterFind($results, $primary)'
+			),
+			*/
+			# beforeDelete
+			array(
+				'public function beforeDelete()',
+				'/public function beforeDelete\(\)/',
+				'public function beforeDelete($cascade = true)'
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
