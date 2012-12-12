@@ -13,7 +13,7 @@ c) Put `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this p
 
 d) Either put the cake shell from the downloaded 2.x repository in app/Console or use the lib/Cake one.
 
-e) Run any of the above commands.
+e) Run any of the above commands. The most important one is `locations` and should be run first.
 
 Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
 
