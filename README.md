@@ -124,9 +124,10 @@ So the ideal order might be:
 - make sure you got AppHelper and other now mandatory app classes
 - fix some more ESTRICT errors
 - apply missing configuration for new features
-- AND everything else that is meticulously documented in the migration guides
 
-http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
-http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
-http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
-http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
+AND everything else that is meticulously documented in the migration guides:
+
+- http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
