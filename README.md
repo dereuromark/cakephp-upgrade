@@ -7,9 +7,13 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 a) Copy this plugin into your /app/Plugin folder
 
-b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin is loaded
+b) Manually rename `config` folder to `Config` (we need the bootstrap.php here).
 
-c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to fix the most important stuff.
+c) Put `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this plugin is loaded
+
+d) Either put the cake shell from the downloaded 2.x repository in app/Console or use the lib/Cake one.
+
+e) Run any of the above commands.
 
 Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
 
@@ -21,6 +25,18 @@ As this is a plugin, use it with:
     cake Upgrade.Upgrade [command]
 
 Running it without any command will get you a list of possible commands to chose from.
+
+Note: If you use windows the full command (from your app dir!) would be:
+
+    ..\lib\Cake\Console\cake Upgrade.Upgrade [command]
+
+On unix:
+
+	../lib/Cake/Console/cake Upgrade.Upgrade [command]
+
+and if you use the app/Console shell instead (I never do that, though):
+
+    ./Console/cake Upgrade.Upgrade [command]
 
 This version supports now on top of the original commands/tasks:
 - webroot (important)
