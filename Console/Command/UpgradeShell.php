@@ -5,12 +5,12 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2011, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Console.Command
  * @since         CakePHP(tm) v 2.0
@@ -29,7 +29,6 @@ App::uses('Folder', 'Utility');
  * - 1 tab indentation (instead of spaces) as described in coding guidelines
  *
  * @package       Cake.Console.Command
- * @link http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
  */
 class UpgradeShell extends AppShell {
 
@@ -74,7 +73,6 @@ class UpgradeShell extends AppShell {
 		'Fixture' => 'Test/Fixture',
 		'Error' => 'Lib/Error',
 	);
-
 
 /**
  * Shell startup, prints info message about dry run.
@@ -786,6 +784,11 @@ class UpgradeShell extends AppShell {
 				'/\$this-\>assertIsA\(\$(.*?),\s*\'(.*?)\'\)/i',
 				'$this->assertInstanceOf(\'\2\', $\1)'
 			),
+			array( //$this->assertTrue(is_a($this->Qlogin, 'Qlogin'));
+				'$this->assertTrue(is_a()) to $this->assertInstanceOf()',
+				'/\$this-\>assertTrue\(is_a\(\$(.*?),\s*\'(.*?)\'\)\)/i',
+				'$this->assertInstanceOf(\'\2\', $\1)'
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -815,10 +818,12 @@ class UpgradeShell extends AppShell {
 			list($plugins) = $Folder->read();
 			foreach ($plugins as $plugin) {
 				chdir($cwd . DS . 'plugins' . DS . $plugin);
+				$this->out(__d('cake_console', 'Upgrading locations for plugin %s', $plugin));
 				$this->locations();
 			}
 			$this->_files = array();
 			chdir($cwd);
+			$this->out(__d('cake_console', 'Upgrading locations for app directory'));
 		}
 		$moves = array(
 			'locale' => 'Locale',
@@ -842,7 +847,10 @@ class UpgradeShell extends AppShell {
 				}
 			}
 		}
+
 		$this->_moveViewFiles();
+		$this->_moveAppClasses();
+
 		$sourceDirs = array(
 			'.' => array('recursive' => false),
 			'Console',
@@ -863,7 +871,7 @@ class UpgradeShell extends AppShell {
 		$defaultOptions = array(
 			'recursive' => true,
 			'checkFolder' => true,
-			'regex' => '@class (\S*) .*{@i'
+			'regex' => '@class (\S*) .*(\s|\v)*{@i'
 		);
 		foreach ($sourceDirs as $dir => $options) {
 			if (is_numeric($dir)) {
@@ -886,7 +894,6 @@ class UpgradeShell extends AppShell {
 		}
 	}
 
-
 /**
  * Update helpers.
  *
@@ -902,7 +909,6 @@ class UpgradeShell extends AppShell {
 		} else {
 			$this->_paths = array_diff(App::path('views'), App::core('views'));
 		}
-
 
 		$patterns = array();
 		App::build(array(
@@ -921,7 +927,8 @@ class UpgradeShell extends AppShell {
 		$helpers = array_merge($pluginHelpers, $helpers);
 		foreach ($helpers as $helper) {
 			$helper = preg_replace('/Helper$/', '', $helper);
-			$oldHelper = strtolower(substr($helper, 0, 1)).substr($helper, 1);
+			$oldHelper = $helper;
+			$oldHelper{0} = strtolower($oldHelper{0});
 			$patterns[] = array(
 				"\${$oldHelper} to \$this->{$helper}",
 				"/\\\${$oldHelper}->/",
@@ -1010,7 +1017,7 @@ class UpgradeShell extends AppShell {
 				'/\br\(/',
 				'str_replace('
 			),
-			//fix to look back and not convert `function up() {...}` etc
+			// fix to look back and not convert `function up() {...}` or `$this->up()` etc
 			array(
 				'up(*) -> strtoupper(*)',
 				'/(?<!function )(?<!\>)\bup\(/',
@@ -1018,7 +1025,7 @@ class UpgradeShell extends AppShell {
 			),
 			array(
 				'low(*) -> strtolower(*)',
-				'/(?<!\>)\blow\(/',
+				'/(?<!function )(?<!\>)\blow\(/',
 				'strtolower('
 			),
 			array(
@@ -1046,6 +1053,12 @@ class UpgradeShell extends AppShell {
 				'/\bRequestHandlerComponent\:\:getClientIP\(\)/i',
 				'CakeRequest::clientIP()'
 			),
+			// new in cake2.x
+			array(
+				'am() to array_merge',
+				'/\bam\(/i',
+				'array_merge('
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -1063,7 +1076,7 @@ class UpgradeShell extends AppShell {
 			$this->_paths = array(
 				$pluginPath . 'Lib' . DS,
 				$pluginPath . 'Controller' . DS,
-				$pluginPath . 'Controller' . DS . 'Component' .DS,
+				$pluginPath . 'Controller' . DS . 'Component' . DS,
 				$pluginPath . 'View' . DS,
 				$pluginPath . 'View' . DS . 'Helper' . DS,
 				$pluginPath . 'Model' . DS,
@@ -1072,9 +1085,9 @@ class UpgradeShell extends AppShell {
 				$pluginPath . 'Config' . DS . 'Schema' . DS,
 				$pluginPath . 'libs' . DS,
 				$pluginPath . 'controllers' . DS,
-				$pluginPath . 'controllers' . DS . 'components' .DS,
+				$pluginPath . 'controllers' . DS . 'components' . DS,
 				$pluginPath . 'views' . DS,
-				$pluginPath . 'views' . DS . 'helpers' .DS,
+				$pluginPath . 'views' . DS . 'helpers' . DS,
 				$pluginPath . 'models' . DS,
 				$pluginPath . 'models' . DS . 'behaviors' . DS,
 				$pluginPath . 'tests' . DS . 'fixtures' . DS,
@@ -1121,10 +1134,10 @@ class UpgradeShell extends AppShell {
 			$pluginPath = App::pluginPath($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'Controller' . DS,
-				$pluginPath . 'Controller' . DS . 'Component' .DS,
+				$pluginPath . 'Controller' . DS . 'Component' . DS,
 				$pluginPath . 'View' . DS,
 				$pluginPath . 'controllers' . DS,
-				$pluginPath . 'controllers' . DS . 'components' .DS,
+				$pluginPath . 'controllers' . DS . 'components' . DS,
 				$pluginPath . 'views' . DS,
 			);
 		} else {
@@ -1221,7 +1234,6 @@ class UpgradeShell extends AppShell {
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-
 /**
  * Add new cake routes
  *
@@ -1235,7 +1247,7 @@ class UpgradeShell extends AppShell {
 			return;
 		}
 
-		$file = APP.'Config'.DS.'routes.php';
+		$file = APP . 'Config' . DS . 'routes.php';
 		if (!file_exists($file)) {
 			$this->out(__d('cake_console', 'no routes.php found in Config - abort adding missing routes'));
 			return;
@@ -1470,7 +1482,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$pluginPath = App::pluginPath($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'controllers' . DS,
-				$pluginPath . 'controllers' . DS . 'components' .DS,
+				$pluginPath . 'controllers' . DS . 'components' . DS,
 			);
 		} else {
 			$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
@@ -2115,13 +2127,37 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
+ * Move the AppController, and AppModel classes.
+ *
+ * @return void
+ */
+	protected function _moveAppClasses() {
+		$files = array(
+			APP . 'app_controller.php' => APP . 'Controller' . DS . 'AppController.php',
+			APP . 'controllers' . DS . 'app_controller.php' => APP . 'Controller' . DS . 'AppController.php',
+			APP . 'app_model.php' => APP . 'Model' . DS . 'AppModel.php',
+			APP . 'models' . DS . 'app_model.php' => APP . 'Model' . DS . 'AppModel.php',
+		);
+		foreach ($files as $old => $new) {
+			if (file_exists($old)) {
+				$this->out(__d('cake_console', 'Moving %s to %s', $old, $new));
+
+				if ($this->params['dry-run']) {
+					continue;
+				}
+				$this->_move($old, $new);
+			}
+		}
+	}
+
+/**
  * Move application php files to where they now should be
  *
  * Find all php files in the folder (honoring recursive) and determine where cake expects the file to be
  * If the file is not exactly where cake expects it - move it.
  *
- * @param mixed $path
- * @param mixed $options array(recursive, checkFolder)
+ * @param string $path
+ * @param array $options array(recursive, checkFolder)
  * @return void
  */
 	protected function _movePhpFiles($path, $options) {
@@ -2340,7 +2376,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'plugin' => array(
 					'short' => 'p',
 					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
-					'default' => ''
+					'default' => '',
 				),
 				'custom' => array(
 					'short' => 'c',
@@ -2350,7 +2386,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'ext' => array(
 					'short' => 'e',
 					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
-					'default' => 'php|ctp|thtml|inc|tpl|rst'
+					'default' => 'php|ctp|thtml|inc|tpl'
 				),
 				'git' => array(
 					'short' => 'g',
@@ -2487,4 +2523,5 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'parser' => $subcommandParser
 			));
 	}
+
 }
