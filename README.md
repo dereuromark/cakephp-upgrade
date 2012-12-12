@@ -23,14 +23,14 @@ As this is a plugin, use it with:
 Running it without any command will get you a list of possible commands to chose from.
 
 This version supports now on top of the original commands/tasks:
-- paginator (run only once!)
-- database
+- webroot (important)
+- database (important)
 - legacy
 - name
 - constructors
-- webroot
 - report
 - estrict
+- paginator (run only once!)
 and many more
 
 New functionally also supported now:
