@@ -76,6 +76,8 @@ b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin i
 
 c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to fix the most important stuff.
 
+Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
+
 ## Disclaimer
 
 Use this script ONLY after backing up your app folder.
