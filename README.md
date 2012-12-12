@@ -3,6 +3,25 @@
 The original one lacks a lot of things that could be done automatically.
 Changes have been reported as ticket, but so far it has not yet made it into the official version.
 
+## Installation
+
+a) Copy this plugin into your /app/Plugin folder
+
+b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin is loaded
+
+c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to fix the most important stuff.
+
+Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
+
+Remember: At this point you are already using the shell as 2.x shell. "cake1.x" or whatever you used before is now officially dead.
+
+## Usage
+
+As this is a plugin, use it with:
+    cake Upgrade.Upgrade [command]
+
+Running it without any command will get you a list of possible commands to chose from.
+
 This version supports now on top of the original commands/tasks:
 - paginator (run only once!)
 - database
@@ -18,19 +37,6 @@ New functionally also supported now:
 - svn (linux/windows)
 - group commands
 - except command (all except for a few, e.g. `except paginator` to skip paginator method)
-
-## UPDATE January 2012: Support for 2.1
-Now supports
-- Auth::allow(), Layout Stuff and more
-
-## UPDATE September 2012: Support up to 2.3 (and some 3.0)
-Now supports
-- request->query() and Set/Hash replacement
-
-
-As this is a plugin, use it with:
-    cake Upgrade.Upgrade [command]
-
 
 Additionally you can use the CorrectShell to correct
 - request
@@ -67,18 +73,14 @@ The not fully tested way of using the plugin wildcard would be
     cake Upgrade.Upgrade [command] -p *
 which should just grab all files at once and process them
 
+### UPDATE January 2012: Support for 2.1
+Now supports
+- Auth::allow(), Layout Stuff and more
 
-## Installation
+### UPDATE September 2012: Support up to 2.3 (and some 3.0)
+Now supports
+- request->query() and Set/Hash replacement
 
-a) Copy this plugin into your /app/Plugin folder
-
-b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin is loaded
-
-c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to fix the most important stuff.
-
-Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
-
-Remember: At this point you are already using the shell as 2.x shell. "cake1.x" or whatever you used before is now officially dead.
 
 ## Disclaimer
 
