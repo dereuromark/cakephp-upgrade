@@ -78,6 +78,8 @@ c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to
 
 Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
 
+Remember: At this point you are already using the shell as 2.x shell. "cake1.x" or whatever you used before is now officially dead.
+
 ## Disclaimer
 
 Use this script ONLY after backing up your app folder.
