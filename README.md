@@ -111,4 +111,11 @@ Use this script ONLY after backing up your app folder.
 ### My recommendation
 Either use git or svn or some other version control to verify the changes made.
 This way you are able to detect wrong replacements right away. So better use every upgrade command separatly and commit/push after each successful run.
-If sth goes wrong with one command you can easily revert to the last step this way.
+If sth goes wrong with one command you can easily revert to the last step this way. The `regexp` commands sometimes can be too eager and have not been tested to their full extend. So please be careful.
+
+So the ideal order might be:
+- locations
+- webroot
+- routes
+- database
+- [the rest - the application might already be browsable again at this point]
