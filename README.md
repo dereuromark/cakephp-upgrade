@@ -25,6 +25,7 @@ Remember: At this point you are already using the shell as 2.x shell. "cake1.x" 
 ## Usage
 
 As this is a plugin, use it with:
+
     cake Upgrade.Upgrade [command]
 
 Running it without any command will get you a list of possible commands to chose from. Make sure to check on this first.
@@ -75,7 +76,7 @@ Additionally you can use the CorrectShell to correct
 with
     cake Upgrade.Correct [command]
 
-Tip: Use
+Tip: You can use
     cake Upgrade.Correct all
 to quickly apply all relevant correction commands
 
@@ -125,7 +126,7 @@ So the ideal order might be:
 - fix some more ESTRICT errors
 - apply missing configuration for new features
 
-AND everything else that is meticulously documented in the migration guides:
+AND everything else that is not yet covered and meticulously documented in the migration guides:
 
 - http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
 - http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
