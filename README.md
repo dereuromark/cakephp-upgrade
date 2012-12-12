@@ -75,3 +75,12 @@ a) Copy this plugin into your /app/Plugin folder
 b) Put `CakePlugin::loadAll();` in your app bootstrap to make sure this plugin is loaded
 
 c) Run any of the above commands. You should start with "Upgrade.Upgrade all" to fix the most important stuff.
+
+## Disclaimer
+
+Use this script ONLY after backing up your app folder.
+
+### My recommendation
+Either use git or svn or some other version control to verify the changes made.
+This way you are able to detect wrong replacements right away. So better use every upgrade command separatly and commit/push after each successful run.
+If sth goes wrong with one command you can easily revert to the last step this way.
