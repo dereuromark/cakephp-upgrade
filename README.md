@@ -17,6 +17,9 @@ e) Run any of the above commands. The most important one is `locations` and shou
 
 Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
 
+I never had to manually replace my core.php with the new 2.x core.php. But as there are many new features introduced, it might make sense to do that.
+Just don't forget to merge your existing settings like salt and cache/session/cookie settings.
+
 Remember: At this point you are already using the shell as 2.x shell. "cake1.x" or whatever you used before is now officially dead.
 
 ## Usage
@@ -24,7 +27,8 @@ Remember: At this point you are already using the shell as 2.x shell. "cake1.x" 
 As this is a plugin, use it with:
     cake Upgrade.Upgrade [command]
 
-Running it without any command will get you a list of possible commands to chose from.
+Running it without any command will get you a list of possible commands to chose from. Make sure to check on this first.
+You might have to set the executable rights for your cake shell first in order to run any shell (on unix anyway).
 
 Note: If you use windows the full command (from your app dir!) would be:
 
