@@ -25,11 +25,13 @@ Running it without any command will get you a list of possible commands to chose
 This version supports now on top of the original commands/tasks:
 - webroot (important)
 - database (important)
+- routes (important)
 - legacy
 - name
 - constructors
 - report
 - estrict
+- views
 - paginator (run only once!)
 and many more
 
