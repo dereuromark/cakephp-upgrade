@@ -155,7 +155,7 @@ class UpgradeShell extends AppShell {
 	public function all() {
 		foreach ($this->OptionParser->subcommands() as $command) {
 			$name = $command->name();
-			if ($name === 'all' || $name === 'group' || $name == 'cake21') {
+			if ($name === 'all' || $name === 'group') {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Running %s', $name));
@@ -320,6 +320,71 @@ class UpgradeShell extends AppShell {
 	 * 2012-01-11 ms
 	 */
 	public function cake21() {
+		# create missing files (AppController / AppModel / AppHelper)
+		# http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html#appcontroller-apphelper-appmodel-and-appshell
+		$appFiles = array(
+			'AppHelper' => array(
+				'namespace' => 'View/Helper',
+			),
+			'AppController' => array(
+				'namespace' => 'Controller',
+			),
+			'AppModel' => array(
+				'namespace' => 'Model',
+			),
+			'AppShell' => array(
+				'namespace' => 'Console/Command',
+			)
+		);
+		$appFiles['AppHelper']['content'] = <<<EOL
+<?php
+App::uses('Helper', 'View');
+class AppHelper extends Helper {
+}
+
+EOL;
+
+		$appFiles['AppModel']['content'] = <<<EOL
+<?php
+App::uses('Model', 'Model');
+class AppModel extends Model {
+}
+
+EOL;
+
+		$appFiles['AppController']['content'] = <<<EOL
+<?php
+App::uses('Controller', 'Controller');
+class AppController extends Controller {
+}
+
+EOL;
+
+		$appFiles['AppShell']['content'] = <<<EOL
+<?php
+App::uses('Shell', 'Console');
+class AppShell extends Shell {
+}
+
+EOL;
+
+		# right now the AppShell is not required yet
+		unset($appFiles['AppShell']);
+
+		foreach ($appFiles as $filename => $appFile) {
+			$path = APP . $appFile['namespace'] . DS;
+			if (!file_exists($path . $filename . '.php')) {
+				if (!is_dir($path)) {
+					mkdir($path, 0770, true);
+				}
+				if (!$this->params['dry-run']) {
+					file_put_contents($path . $filename . '.php', $appFile['content']);
+				}
+				$this->out(__d('cake_console', 'Creating %s in %s', $filename, $appFile['namespace']), 1, Shell::VERBOSE);
+			}
+		}
+		return;
+
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
@@ -356,11 +421,6 @@ class UpgradeShell extends AppShell {
 			*/
 		);
 		$this->_filesRegexpUpdate($patterns);
-
-
-		# create missing files (AppController / AppModel / AppHelper)
-		//TODO
-
 
 		# auth component allow('*')
 		if (!empty($this->_customPaths)) {

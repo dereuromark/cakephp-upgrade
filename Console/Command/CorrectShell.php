@@ -1165,7 +1165,7 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * correct brackets: class X extends y {
+	 * correct brackets: class X extends Y {
 	 *
 	 */
 	public function classes() {
