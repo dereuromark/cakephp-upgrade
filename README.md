@@ -104,6 +104,10 @@ Now supports
 Now supports
 - request->query() and Set/Hash replacement
 
+### UPDATE December 2012:
+Now creates missing App classes that are required since 2.1
+- AppHelper, AppModel and AppController (AppShell is not yet required)
+
 
 ## Disclaimer
 
