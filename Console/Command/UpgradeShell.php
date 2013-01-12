@@ -115,7 +115,7 @@ class UpgradeShell extends AppShell {
 			$this->_customPaths = array($this->params['custom']);
 			//$this->_paths = array($this->params['custom']);
 			$this->params['plugin'] = '';
-		} elseif ($this->params['plugin'] == '*') {
+		} elseif ($this->params['plugin'] === '*') {
 			$plugins = App::objects('plugins');
 			$plugins = array_unique($plugins);
 			$paths = array();
@@ -138,7 +138,7 @@ class UpgradeShell extends AppShell {
 		}
 		//check if parent folders contain .type
 		$path = APP;
-		while ($path != ($newPath = dirname($path))) {
+		while ($path !== ($newPath = dirname($path))) {
 			$path = $newPath;
 			if (is_dir($path . DS . '.'.$type)) {
 				return true;
@@ -203,7 +203,7 @@ class UpgradeShell extends AppShell {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Running %s', $name));
-			if (empty($this->params['plugin']) || $this->params['plugin'] != '*') {
+			if (empty($this->params['plugin']) || $this->params['plugin'] !== '*') {
 				$this->$name();
 				continue;
 			}
@@ -383,7 +383,6 @@ EOL;
 				$this->out(__d('cake_console', 'Creating %s in %s', $filename, $appFile['namespace']), 1, Shell::VERBOSE);
 			}
 		}
-		return;
 
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -2148,7 +2147,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  */
 	protected function _prepDatasource($x) {
 		$driver = $x[1];
-		if ($driver == 'mysqli') {
+		if ($driver === 'mysqli') {
 			$driver = 'mysql';
 		}
 		$driver = ucfirst($driver);
@@ -2175,7 +2174,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 			$new = 'View' . DS . Inflector::camelize($old);
 			$old = 'View' . DS . $old;
-			if ($new == $old) {
+			if ($new === $old) {
 				continue;
 			}
 

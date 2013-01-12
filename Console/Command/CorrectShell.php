@@ -445,6 +445,7 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * deprecated stuff in php5.3
+	 * or new features/fixed introduced in php5.3
 	 * 2011-11-15 ms
 	 */
 	public function php53() {
@@ -466,6 +467,12 @@ class CorrectShell extends UpgradeShell {
 				'/\bcall_user_method_array\(/i',
 				'call_user_func_array('
 			),
+			# careful: sometimes self:: can actually be used on purpose!
+			array(
+				'self:: to new static::',
+				'/\bself\:\:/',
+				'static::',
+			)
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -1276,7 +1283,7 @@ class CorrectShell extends UpgradeShell {
  */
 	protected function _findFiles($extensions = '', $skipFolders = array()) {
 		foreach ($this->_paths as $path) {
-			if (substr($path, -1) != DS) {
+			if (substr($path, -1) !== DS) {
 				$path .= DS;
 			}
 			if (!is_dir($path)) {
