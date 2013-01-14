@@ -73,15 +73,9 @@ Additionally you can use the CorrectShell to correct
 - html5
 - php53
 
-with
+with `cake Upgrade.Correct [command]`
 
-    cake Upgrade.Correct [command]
-
-Tip: You can use
-
-    cake Upgrade.Correct all
-
-to quickly apply all relevant correction commands
+Tip: You can use `cake Upgrade.Correct all` to quickly apply all relevant correction commands.
 
 Tip2: The probably most important feature for me is that my version cleanly separates
 app and plugins. Without -p PluginName it leaves them alone.
