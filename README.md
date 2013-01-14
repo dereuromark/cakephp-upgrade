@@ -74,26 +74,36 @@ Additionally you can use the CorrectShell to correct
 - php53
 
 with
+
     cake Upgrade.Correct [command]
 
 Tip: You can use
+
     cake Upgrade.Correct all
+
 to quickly apply all relevant correction commands
 
 Tip2: The probably most important feature for me is that my version cleanly separates
 app and plugins. Without -p PluginName it leaves them alone.
 If you want to upgrade plugins use
+
     cake Upgrade.Upgrade [command] -p PluginName
 
 I also added support for -p * - to address all plugins at once.
 This is only fully supported by the `group` command like so:
+
     cake Upgrade.Upgrade group [command1] [command2] ... -p *
+
 You need to supply at least two commands (if you want to use only one, type it twice:
+
 	  cake Upgrade.Upgrade group [command1] [command1] -p *
+
 This is necessary because 1 argument stands for a config group
 
 The not fully tested way of using the plugin wildcard would be
+
     cake Upgrade.Upgrade [command] -p *
+
 which should just grab all files at once and process them
 
 ### UPDATE January 2012: Support for 2.1
@@ -126,11 +136,11 @@ So the ideal order might be:
 - [the rest - the application might already be browsable again at this point]
 
 ### Stuff you REALLY have to do on your own (imagine that^^)
-- make sure you got AppHelper and other now mandatory app classes
+- make sure you add missing App::uses() statements to your class files
 - fix some more ESTRICT errors
 - apply missing configuration for new features
 
-AND everything else that is not yet covered and meticulously documented in the migration guides:
+AND everything else that is not yet covered but meticulously documented in the migration guides:
 
 - http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
 - http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
