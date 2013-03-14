@@ -17,7 +17,7 @@ e) Either put the cake shell from the downloaded 2.x repository in app/Console o
 
 f) Ready to go! Run any of the available commands (see details below). The most important one is `locations` and should be run first.
 
-Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
+Don't forget to remove the old (1.x) `/cake` folder and manually clear the (persistent) cache before running the shell.
 
 I never had to manually replace my core.php with the new 2.x core.php. But as there are many new features introduced, it might make sense to do that.
 Just don't forget to merge your existing settings like salt and cache/session/cookie settings.
