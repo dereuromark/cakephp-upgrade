@@ -7,7 +7,7 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 a) Copy the current Cake master branch into a new `/lib` folder (besides your `/app` dir) as `/lib/Cake`
 
-b) Copy this plugin into your /app/Plugin folder as `/app/Plugin/Tools`
+b) Copy this plugin into your /app/Plugin folder as `/app/Plugin/Upgrade`
 
 c) Manually rename `app/config` folder to `app/Config` (we need the bootstrap.php here).
 
