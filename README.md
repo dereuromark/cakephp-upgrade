@@ -5,13 +5,13 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 ## Installation
 
-a) Copy the current Cake master branch into a new `/lib` folder (besides your `/app` dir) as `/lib/Cake`
+a) Copy the `/lib` folder of the current Cake master branch into a new folder next to your `/app` dir as `/lib` containing the new Cake core.
 
-b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`
+b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`.
 
 c) Manually rename `/app/config` folder to `/app/Config` (we need the bootstrap.php here).
 
-d) Put `CakePlugin::load('Upgrade')` or `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this plugin is loaded
+d) Put `CakePlugin::load('Upgrade')` or `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this plugin is loaded.
 
 e) Either put the cake shell from the downloaded 2.x repository in app/Console or use the lib/Cake one.
 
