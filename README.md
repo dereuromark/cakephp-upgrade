@@ -5,15 +5,17 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 ## Installation
 
-a) Copy this plugin into your /app/Plugin folder
+a) Copy the current Cake master branch into a new `/lib` folder (besides your `/app` dir) as `/lib/Cake`
 
-b) Manually rename `config` folder to `Config` (we need the bootstrap.php here).
+b) Copy this plugin into your /app/Plugin folder as `/app/Plugin/Tools`
 
-c) Put `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this plugin is loaded
+c) Manually rename `app/config` folder to `app/Config` (we need the bootstrap.php here).
 
-d) Either put the cake shell from the downloaded 2.x repository in app/Console or use the lib/Cake one.
+d) Put `CakePlugin::load('Upgrade')` or `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this plugin is loaded
 
-e) Run any of the above commands. The most important one is `locations` and should be run first.
+e) Either put the cake shell from the downloaded 2.x repository in app/Console or use the lib/Cake one.
+
+f) Run any of the above commands. The most important one is `locations` and should be run first.
 
 Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
 
@@ -116,6 +118,8 @@ Now creates missing App classes that are required since 2.1
 ## Disclaimer
 
 Use this script ONLY after backing up your app folder.
+
+Also: This powerful plugin is not for N00bs. Do not use it if you don't know at least some Cake basics.
 
 ### My recommendation
 Either use git or svn or some other version control to verify the changes made.

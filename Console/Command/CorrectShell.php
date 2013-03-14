@@ -179,6 +179,46 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * careful: could break sth
+	 *
+	 * //TODO: test and verify
+	 */
+	public function conventions4() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				' != to !== for strings',
+				array('/\s+\!\=\s+"/'),
+				array(' !== "')
+			),
+			array(
+				' != to !== for strings',
+				array('/\s+\!\=\s+\'/'),
+				array(' !== \'')
+			),
+			array(
+				' == to === for strings',
+				array('/\s+\=\=\s+"/'),
+				array(' === "')
+			),
+			array(
+				' == to === for strings',
+				array('/\s+\=\=\s+\'/'),
+				array(' === \'')
+			),
+			array(
+				'double quote strings to single quote strings for comparison',
+				array('/\=\s+"(\w*)"/'),
+				array('= \'\1\'')
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
 	 *
 	 */
 	public function umlauts() {
@@ -1392,6 +1432,10 @@ class CorrectShell extends UpgradeShell {
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions3', array(
+				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('conventions4', array(
 				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
 				'parser' => $subcommandParser
 			))

@@ -1660,7 +1660,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			array(
 				'index.php?url=$1 => index.php?/$1',
 				'/index.php\?url=\$1/',
-				'index.php?/\\$1'
+				'index.php'
+			),
+			array(
+				'index.php?/$1',
+				'/index.php\?\/\$1/',
+				'index.php'
 			),
 		);
 
