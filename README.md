@@ -5,7 +5,7 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 ## Installation
 
-a) Copy the `/lib` folder of the current Cake master branch into a new folder next to your `/app` dir as `/lib` containing the new Cake core.
+a) Copy the `/lib` folder of the current Cake master branch into a new folder next to your `/app` dir as `/lib` (containing the new Cake core).
 
 b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`.
 
@@ -23,6 +23,8 @@ I never had to manually replace my core.php with the new 2.x core.php. But as th
 Just don't forget to merge your existing settings like salt and cache/session/cookie settings.
 
 Remember: At this point you are already using the shell as 2.x shell. "cake1.x" or whatever you used before is now officially dead.
+
+Also: Mind the casing! Uppercase/lowercase is important.
 
 ## Usage
 
@@ -119,7 +121,7 @@ Now creates missing App classes that are required since 2.1
 
 Use this script ONLY after backing up your app folder.
 
-Also: This powerful plugin is not for N00bs. Do not use it if you don't know at least some Cake basics.
+Also: This powerful plugin is not for N00bs. Do NOT use it if you don't know at least some Cake basics.
 
 ### My recommendation
 Either use git or svn or some other version control to verify the changes made.
