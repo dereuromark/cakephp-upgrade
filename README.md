@@ -7,15 +7,15 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 a) Copy the current Cake master branch into a new `/lib` folder (besides your `/app` dir) as `/lib/Cake`
 
-b) Copy this plugin into your /app/Plugin folder as `/app/Plugin/Upgrade`
+b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`
 
-c) Manually rename `app/config` folder to `app/Config` (we need the bootstrap.php here).
+c) Manually rename `/app/config` folder to `/app/Config` (we need the bootstrap.php here).
 
 d) Put `CakePlugin::load('Upgrade')` or `CakePlugin::loadAll();` in your app/Config bootstrap to make sure this plugin is loaded
 
 e) Either put the cake shell from the downloaded 2.x repository in app/Console or use the lib/Cake one.
 
-f) Run any of the above commands. The most important one is `locations` and should be run first.
+f) Ready to go! Run any of the available commands (see details below). The most important one is `locations` and should be run first.
 
 Don't forget to remove the old 1.3 cake folder and manually clear the (persistent) cache before running the shell.
 
