@@ -5,7 +5,7 @@ Changes have been reported as ticket, but so far it has not yet made it into the
 
 ## Installation
 
-a) Copy the `/lib` folder of the current Cake master branch into a new folder next to your `/app` dir as `/lib` (containing the new Cake core).
+a) Make sure you got the lastest stable 2.x version of the CakePHP core. Usually you just copy the `/lib` folder of the current Cake master branch into a folder next to your `/app` dir as `/lib`.
 
 b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`.
 
