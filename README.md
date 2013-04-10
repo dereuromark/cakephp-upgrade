@@ -3,9 +3,12 @@
 The original one lacks a lot of things that could be done automatically.
 Changes have been reported as ticket, but so far it has not yet made it into the official version.
 
+Note: Some of the following "installation" steps are only necessary upgrading from 1.x (like folder renaming). Do not think of them as a perfectly adjusted worklist (also don't mind the order).
+Every app, every setup is different. It is more a small guide to get the basics straight.
+
 ## Installation
 
-a) Make sure you got the lastest stable 2.x version of the CakePHP core. Usually you just copy the `/lib` folder of the current Cake master branch into a folder next to your `/app` dir as `/lib`.
+a) Make sure you got the lastest stable 2.x version of the CakePHP core. Usually you just copy the `/lib` folder of the current Cake master branch into a `/lib` folder next to your `/app` dir.
 
 b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`.
 
