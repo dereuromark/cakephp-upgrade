@@ -528,11 +528,6 @@ class CorrectShell extends UpgradeShell {
 
 		$patterns = array(
 			array(
-				'RequestHandlerComponent::getClientIP() to CakeRequest::clientIP()',
-				'/\bRequestHandlerComponent\:\:getClientIP\(\)/i',
-				'CakeRequest::clientIP()'
-			),
-			array(
 				'if (!empty($this->request->data)) to if($this->request->is(\'post\'))',
 				'/\bif\s*\(!empty\(\$this-\>request-\>data\)\)/',
 				//'if ($this->request->is(\'post\'))'

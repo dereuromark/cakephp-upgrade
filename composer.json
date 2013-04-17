@@ -1,0 +1,26 @@
+{
+	"name": "dereuromark/upgrade-cakephp",
+	"type": "cakephp-plugin",
+	"description": "A CakePHP plugin helping in the upgrade process from 1.x or 2.x to the latest stable release",
+	"keywords": ["cakephp", "plugin", "upgrade", "automate", "batch"],
+	"homepage": "https://github.com/dereuromark/upgrade",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Mark Scherer",
+			"homepage": "http://www.dereuromark.de"
+		}
+	],
+	"require": {
+		"php": ">=5.3",
+		"composer/installers": "*"
+	},
+	"support": {
+		"source": "https://github.com/dereuromark/upgrade"
+	},
+	"extra": {
+		"installer-paths": {
+			"Plugin/Upgrade/": ["dereuromark/upgrade-cakephp"]
+		}
+	}
+}

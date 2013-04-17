@@ -447,7 +447,7 @@ EOL;
 	}
 
 	/**
-	 * cake22 and cake23 replacements
+	 * cake2.2 and cake2.3 replacements
 	 * @link http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
 	 * @link http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
 	 * 2012-09-25 ms
@@ -497,6 +497,44 @@ EOL;
 				'->Behaviors->loaded('
 			),
 			*/
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * cake2.4 replacements
+	 * @link https://github.com/cakephp/docs/blob/2.4/en/appendices/2-4-migration-guide.rst
+	 * @link http://book.cakephp.org/2.0/en/appendices/2-4-migration-guide.html
+	 * (as soon as 2.4 becomes beta)
+	 *
+	 * 2013-04-12 ms
+	 */
+	public function cake24() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$pluginpath = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($pluginpath);
+		} else {
+			$this->_paths = array(APP);
+		}
+
+		$patterns = array(
+			array(
+				'$this->request->is(\'post\') || $this->request->is(\'put\')',
+				'/\$this-\>request-\>is\(\'post\'\) \|\| \$this-\>request-\>is\(\'put\'\)/',
+				'$this->request->is(\'post\', \'put\')'
+			),
+			array(
+				'$this->request->is(\'put\') || $this->request->is(\'post\')',
+				'/\$this-\>request-\>is\(\'put\'\) \|\| \$this-\>request-\>is\(\'post\'\)/',
+				'$this->request->is(\'post\', \'put\')'
+			),
+			array(
+				'$this->request->is(\'post\') && $this->request->is(\'ajax\')',
+				'/\$this-\>request-\>is\(\'post\'\) \&\& \$this-\>request-\>is\(\'ajax\'\)/',
+				'$this->request->isAll(\'post\', \'ajax\')'
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -1468,6 +1506,41 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'$this->view is now $this->viewClass',
 				'/\$this-\>view\s*=\s*\'(.*?)\'/i',
 				'$this->viewClass = \'\1\''
+			),
+			array(
+				'$this->RequestHandler->isPost()',
+				'/\$this-\>RequestHandler-\>isPost\(\)/',
+				'$this->request->is(\'post\')'
+			),
+			array(
+				'$this->RequestHandler->isPut()',
+				'/\$this-\>RequestHandler-\>isPut\(\)/',
+				'$this->request->is(\'put\')'
+			),
+			array(
+				'$this->RequestHandler->isDelete()',
+				'/\$this-\>RequestHandler-\>isDelete\(\)/',
+				'$this->request->is(\'delete\')'
+			),
+			array(
+				'$this->RequestHandler->isGet()',
+				'/\$this-\>RequestHandler-\>isGet\(\)/',
+				'$this->request->is(\'get\')'
+			),
+			array(
+				'$this->RequestHandler->isAjax()',
+				'/\$this-\>RequestHandler-\>isAjax\(\)/',
+				'$this->request->is(\'ajax\')'
+			),
+			array(
+				'$this->RequestHandler->getReferer()',
+				'/\$this-\>RequestHandler-\>getReferer\(\)/',
+				'$this->request->referer()'
+			),
+			array(
+				'$this->RequestHandler->getClientIP()',
+				'/\$this-\>RequestHandler-\>getClientIP\(\)/',
+				'$this->request->clientIp()'
 			),
 		);
 
@@ -2575,14 +2648,18 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake21', array(
-				'help' => __d('cake_console', 'Upgrade to cake21 standards'),
+				'help' => __d('cake_console', 'Upgrade to cake2.1 standards'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake23', array(
-				'help' => __d('cake_console', 'Upgrade to cake23 standards'),
+				'help' => __d('cake_console', 'Upgrade to cake2.3 standards'),
 				'parser' => $subcommandParser
 			))
-				->addSubcommand('estrict', array(
+			->addSubcommand('cake24', array(
+				'help' => __d('cake_console', 'Upgrade to cake2.4 standards'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('estrict', array(
 				'help' => __d('cake_console', 'Upgrade to E_STRICT standards'),
 				'parser' => $subcommandParser
 			));
