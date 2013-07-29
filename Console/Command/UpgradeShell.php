@@ -1064,7 +1064,18 @@ EOL;
 				'/<\?php\s*(__[a-z]*\(.*?)(,\s*true)(\))/',
 				'<?php echo \1\3'
 			),
-			array('__*(*, true) to __*(*)', '/(__[a-z]*\(.*?)(,\s*true)(\))/', '\1\3')
+			array(
+				'__*(*, true) to __*(*)',
+				'/(__[a-z]*\(.*?)(,\s*true)(\))/',
+				'\1\3'),
+			/*
+			//2.4
+			array(
+				'Upgrade default validation error message',
+				'/\bThis field cannot be left blank\b/',
+				'This field is invalid'
+			)
+			*/
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -1541,6 +1552,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'$this->RequestHandler->getClientIP()',
 				'/\$this-\>RequestHandler-\>getClientIP\(\)/',
 				'$this->request->clientIp()'
+			),
+			array(
+				'$this->redirect( ... return $this-redirect(',
+				'/\t\$this-\>redirect\(/',
+				"\t" . 'return $this->redirect('
 			),
 		);
 
