@@ -1554,9 +1554,36 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'$this->request->clientIp()'
 			),
 			array(
-				'$this->redirect( ... return $this-redirect(',
+				'$this->redirect( ... return $this->redirect(',
 				'/\t\$this-\>redirect\(/',
 				"\t" . 'return $this->redirect('
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+/**
+ * Update console stuff.
+ *
+ * - Shells and tasks.
+ *
+ * @return void
+ */
+	public function console() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$this->_paths = App::path('Console/Command', $this->params['plugin']);
+		} else {
+			$this->_paths = App::path('Console/Command');
+		}
+
+		$patterns = array(
+			array(
+				'$this->error( ... return $this->error(',
+				'/\t\$this-\>error\(/',
+				"\t" . 'return $this->error('
 			),
 		);
 
@@ -2609,6 +2636,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('constants', array(
 				'help' => __d('cake_console', "Replace Obsolete constants"),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('console', array(
+				'help' => __d('cake_console', 'Update console (shells and tasks)'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('controllers', array(
