@@ -1558,6 +1558,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'/\t\$this-\>redirect\(/',
 				"\t" . 'return $this->redirect('
 			),
+			array(
+				'$this->flash( ... return $this->flash(',
+				'/\t\$this-\>flash\(/',
+				"\t" . 'return $this->flash('
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
