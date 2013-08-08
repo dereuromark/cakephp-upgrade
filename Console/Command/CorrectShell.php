@@ -680,10 +680,9 @@ class CorrectShell extends UpgradeShell {
 		}
 
 		if (empty($this->_paths)) {
-			$this->error('Please pass working dir as param (cake reference /absDir)');
-		} else {
-			$this->_paths = (array)$this->_paths;
+			return $this->error('Please pass working dir as param (cake reference /absDir)');
 		}
+		$this->_paths = (array)$this->_paths;
 	}
 
 	public function amp() {

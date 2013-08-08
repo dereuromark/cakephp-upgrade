@@ -100,13 +100,13 @@ class UpgradeShell extends AppShell {
 			}
 			$res = exec('"' . $this->params['svn'] . '" help', $array, $r);
 			if ($r) {
-				$this->error($res, 'The command `svn` is unknown (on Windows install SlikSVN)');
+				return $this->error($res, 'The command `svn` is unknown (on Windows install SlikSVN)');
 			}
 		}
 		if ($this->params['tgit']) {
 			$res = exec('tgit help', $array, $r);
 			if ($r) {
-				$this->error($res, 'The command `tgit` is unknown (on Windows install TortoiseGit)');
+				return $this->error($res, 'The command `tgit` is unknown (on Windows install TortoiseGit)');
 			}
 		}
 
@@ -187,7 +187,7 @@ class UpgradeShell extends AppShell {
 			$commands = (array)Configure::read('UpgradeGroup' . $commands[0]);
 		}
 		if (empty($commands)) {
-			$this->error(__d('cake_console', 'No group found. Please use args or Configure to define groups.'));
+			return $this->error(__d('cake_console', 'No group found. Please use args or Configure to define groups.'));
 		}
 		$commands = array_unique($commands);
 		foreach ($commands as $command) {
@@ -1176,7 +1176,7 @@ EOL;
  *
  * @return void
  */
-	public function name() {
+	public function name_attribute() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
@@ -2678,8 +2678,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'help' => __d('cake_console', 'Update paginator'),
 				'parser' => $subcommandParser
 			))
-			->addSubcommand('name', array(
-				'help' => __d('cake_console', 'Remove name var'),
+			->addSubcommand('name_attribute', array(
+				'help' => __d('cake_console', 'Remove name attribute var (PHP4 leftover)'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('methods', array(
