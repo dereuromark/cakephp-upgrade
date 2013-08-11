@@ -5,16 +5,17 @@
  * PHP 5
  *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
  * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright 2005-2012, Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
  * @package       Cake.Console.Command
  * @since         CakePHP(tm) v 2.0
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 App::uses('AppShell', 'Console/Command');
@@ -222,11 +223,12 @@ class UpgradeShell extends AppShell {
 		}
 	}
 
-	/**
-	 * some really old stuff
-	 * @link http://book.cakephp.org/2.0/en/appendices/migrating-from-cakephp-1-2-to-1-3.html
-	 * 2012-02-27 ms
-	 */
+/**
+ * some really old stuff
+ * @link http://book.cakephp.org/2.0/en/appendices/migrating-from-cakephp-1-2-to-1-3.html
+ *
+ * @return void
+ */
 	public function cake13() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -291,7 +293,6 @@ class UpgradeShell extends AppShell {
 
 		$this->_filesRegexpUpdate($patterns);
 
-
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
@@ -310,14 +311,13 @@ class UpgradeShell extends AppShell {
 		);
 
 		$this->_filesRegexpUpdate($patterns);
-
-
 	}
 
 	/**
 	 * cake2.1 upgrades
 	 * @link http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
-	 * 2012-01-11 ms
+	 *
+	 * @return void
 	 */
 	public function cake21() {
 		# create missing files (AppController / AppModel / AppHelper)
@@ -450,7 +450,8 @@ EOL;
 	 * cake2.2 and cake2.3 replacements
 	 * @link http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
 	 * @link http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
-	 * 2012-09-25 ms
+	 *
+	 * @return void
 	 */
 	public function cake23() {
 		if (!empty($this->_customPaths)) {
@@ -507,7 +508,7 @@ EOL;
 	 * @link http://book.cakephp.org/2.0/en/appendices/2-4-migration-guide.html
 	 * (as soon as 2.4 becomes beta)
 	 *
-	 * 2013-04-12 ms
+	 * @return void
 	 */
 	public function cake24() {
 		if (!empty($this->_customPaths)) {
@@ -534,6 +535,26 @@ EOL;
 				'$this->request->is(\'post\') && $this->request->is(\'ajax\')',
 				'/\$this-\>request-\>is\(\'post\'\) \&\& \$this-\>request-\>is\(\'ajax\'\)/',
 				'$this->request->isAll(\'post\', \'ajax\')'
+			),
+			array(
+				'App.fullBaseURL ... App.fullBaseUrl',
+				'/\bApp\.fullBaseURL\b/',
+				'App.fullBaseUrl'
+			),
+			array(
+				'IMAGES_URL',
+				'/\bIMAGES_URL\b/',
+				'Configure::read(\'App.imageBaseUrl\')'
+			),
+			array(
+				'JS_URL',
+				'/\bJS_URL\b/',
+				'Configure::read(\'App.jsBaseUrl\')'
+			),
+			array(
+				'CSS_URL',
+				'/\bCSS_URL\b/',
+				'Configure::read(\'App.cssBaseUrl\')'
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
@@ -2032,6 +2053,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  *
  * - Reverse order of title and field in pagination sort
  *
+ * @return void
  */
 	public function paginator() {
 		if (!empty($this->_customPaths)) {
@@ -2101,6 +2123,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * - APP_PATH and CORE_PATH changed and might need manual adjustment
  * - report missing default routes `CakePlugin::routes()` and `require CAKE . 'Config' . DS . 'routes.php';`
  * - check if the core.php is up to date or what is missing/deprecated
+ *
  * @return void
  */
 	public function report() {
@@ -2125,6 +2148,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 /**
  * generate report
+ *
  * @return string $report
  */
 	protected function _report() {
@@ -2185,6 +2209,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	/**
 	 * automatically set the path according to custom paths or plugin given
 	 * defaults to $path
+	 *
+	 * @return void
 	 */
 	protected function _setPath($path, $pluginPath) {
 		if (!empty($this->_customPaths)) {
@@ -2200,6 +2226,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 /**
  * move file with 2 step process to avoid collisions on case insensitive systems
+ *
+ * @return void
  */
 	protected function _move($from, $to, $folder = true) {
 		$tmp = '_tmp';
@@ -2224,6 +2252,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 /**
  * delete file according to repository type
+ *
+ * @return void
  */
 	protected function _delete($path, $folder = true) {
 		//problems on windows due to case insensivity (Config/config etc)
@@ -2248,6 +2278,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 /**
  * create and add file according to repository type
+ *
+ * @return void
  */
 	protected function _create($path) {
 		while(!is_dir($subpath = dirname($path))) {
@@ -2338,8 +2370,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 /**
  * Move application php files to where they now should be
  *
- * Find all php files in the folder (honoring recursive) and determine where cake expects the file to be
- * If the file is not exactly where cake expects it - move it.
+ * Find all php files in the folder (honoring recursive) and determine where CakePHP expects the file to be
+ * If the file is not exactly where CakePHP expects it - move it.
  *
  * @param string $path
  * @param array $options array(recursive, checkFolder)

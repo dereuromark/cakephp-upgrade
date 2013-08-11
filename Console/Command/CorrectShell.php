@@ -442,6 +442,34 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * CorrectShell::doc_blocks()
+	 *
+	 * @return void
+	 */
+	public function doc_blocks() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'\'@param string $string. Some string ... @param string $string Some string.',
+				'/\@param (\w+) \$(\w+)\. (.+)\b/',
+				'@param \1 $\2 \3'
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlock');
+	}
+
+	protected function _docBlock($matches) {
+		$desc = ucfirst($matches[3]);
+		if (substr($desc, -1, 1) !== '.') {
+			//$desc .= '.';
+		}
+		return '@param ' . $matches[1] . ' $' . $matches[2] . ' ' . $desc;
+	}
+
+	/**
 	 * in 2.0 this is not needed anymore (thank god - forms post now to themselves per default^^)
 	 */
 	public function forms() {
@@ -1302,14 +1330,14 @@ class CorrectShell extends UpgradeShell {
 	 * @param array $patterns Array of search and replacement patterns.
 	 * @return void
 	 */
-	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array()) {
+	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array(), $callback = null) {
 		$this->_findFiles($this->params['ext'], $skipFolders);
 		foreach ($this->_files as $file) {
 			if (in_array(pathinfo($file, PATHINFO_BASENAME), $skipFiles)) {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Updating %s...', $file), 1, Shell::VERBOSE);
-			$this->_updateFile($file, $patterns);
+			$this->_updateFile($file, $patterns, $callback);
 		}
 	}
 
@@ -1463,6 +1491,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('umlauts', array(
 				'help' => __d('cake_console', 'umlauts fixes in utf8'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('doc_blocks', array(
+				'help' => __d('cake_console', 'doc block updates'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('html5', array(
