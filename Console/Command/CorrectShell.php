@@ -32,7 +32,11 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  */
 class CorrectShell extends UpgradeShell {
 
-
+	/**
+	 * CorrectShell::all()
+	 *
+	 * @return void
+	 */
 	public function all() {
 		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n', 'forms');
 		foreach ($all as $name) {
@@ -42,7 +46,11 @@ class CorrectShell extends UpgradeShell {
 		$this->out(__d('cake_console', 'Done!'));
 	}
 
-
+	/**
+	 * CorrectShell::startup()
+	 *
+	 * @return void
+	 */
 	public function startup() {
 		$this->params['git'] = null;
 		$this->params['tgit'] = null;
@@ -53,10 +61,9 @@ class CorrectShell extends UpgradeShell {
 		$this->params['dry-run'] = false;
 	}
 
-
-
 	/**
 	 * //TODO: test and verify
+	 * @return void
 	 */
 	public function conventions() {
 		$this->params['ext'] = 'php|ctp|rst';
@@ -127,6 +134,7 @@ class CorrectShell extends UpgradeShell {
 	 * careful: not for JS in ctp files!
 	 *
 	 * //TODO: test and verify
+	 * @return void
 	 */
 	public function conventions2() {
 		$this->params['ext'] = 'php|ctp|rst';
@@ -152,6 +160,7 @@ class CorrectShell extends UpgradeShell {
 	 * careful: could break sth
 	 *
 	 * //TODO: test and verify
+	 * @return void
 	 */
 	public function conventions3() {
 		$this->params['ext'] = 'php|ctp|rst';
@@ -182,6 +191,7 @@ class CorrectShell extends UpgradeShell {
 	 * careful: could break sth
 	 *
 	 * //TODO: test and verify
+	 * @return void
 	 */
 	public function conventions4() {
 		$this->params['ext'] = 'php';
@@ -219,7 +229,7 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 *
+	 * @return void
 	 */
 	public function umlauts() {
 		$this->params['ext'] = 'php|ctp|rst';
@@ -273,6 +283,7 @@ class CorrectShell extends UpgradeShell {
 	 * =>
 	 * __('Edit %s', __('Job'))
 	 *
+	 * @return void
 	 * 2011-11-17 ms
 	 */
 	public function i18n() {
@@ -368,6 +379,30 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);
 	}
 
+	/**
+	 * Some speed improvements
+	 * - strict null checks should be used instead of is_null()
+	 *
+	 * @return void
+	 */
+	public function performance() {
+		$this->params['ext'] = 'php|ctp';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'\b!is_null() to !==',
+				'/(\!is_null\()(.+?)(\))/i',
+				'\2 !== null'
+			),
+			array(
+				'\bis_null() to ===',
+				'/\b(is_null\()(.+?)(\))/i',
+				'\2 === null'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
 
 	/**
 	 * in 2.0 all $var should be replaced by $public
@@ -376,6 +411,8 @@ class CorrectShell extends UpgradeShell {
 	 * user files should also follow this principle.
 	 * Experimental/TODO:
 	 * - trying to get all __function calls back to _function
+	 *
+	 * @return void
 	 */
 	public function vis() {
 		$this->params['ext'] = 'php|rst';
@@ -452,13 +489,28 @@ class CorrectShell extends UpgradeShell {
 
 		$patterns = array(
 			array(
-				'\'@param string $string. Some string ... @param string $string Some string.',
+				'@param string $string. Some string ... @param string $string Some string.',
 				'/\@param (\w+) \$(\w+)\. (.+)\b/',
 				'@param \1 $\2 \3'
 			),
 		);
 
 		$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlock');
+
+		$patterns = array(
+			array(
+				'@param bool $foo ... @param boolean $foo',
+				'/\@param bool \$/i',
+				'@param boolean $'
+			),
+			array(
+				'@param int $foo ... @param integer $foo',
+				'/\@param int \$/i',
+				'@param integer $'
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	protected function _docBlock($matches) {
@@ -471,6 +523,8 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * in 2.0 this is not needed anymore (thank god - forms post now to themselves per default^^)
+	 *
+	 * @return void
 	 */
 	public function forms() {
 		$this->params['ext'] = 'ctp';
@@ -514,6 +568,8 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * deprecated stuff in php5.3
 	 * or new features/fixed introduced in php5.3
+	 *
+	 * @return void
 	 * 2011-11-15 ms
 	 */
 	public function php53() {
@@ -548,6 +604,8 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * RequestHandler stuff is now mainly handled by Request Object
+	 *
+	 * @return void
 	 * 2011-11-15 ms
 	 */
 	public function request() {
@@ -632,6 +690,8 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * AuthExt back to Auth (thx to aliasing!)
+	 *
+	 * @return void
 	 * 2011-11-17 ms
 	 */
 	public function auth() {
@@ -655,7 +715,9 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * from component to lib
+	 * From component to lib
+	 *
+	 * @return void
 	 * 2011-11-15 ms
 	 */
 	public function mail() {
@@ -744,6 +806,8 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * move some methods from CommonHelper to FormatHelper
+	 *
+	 * @return void
 	 */
 	public function helper() {
 		$this->params['ext'] = 'ctp';
@@ -791,6 +855,8 @@ class CorrectShell extends UpgradeShell {
 
 	/**
 	 * html5
+	 *
+	 * @return void
 	 */
 	public function html5() {
 		$this->params['ext'] = 'ctp';
@@ -804,6 +870,11 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);
 	}
 
+	/**
+	 * CorrectShell::reference()
+	 *
+	 * @return void
+	 */
 	public function reference() {
 		$this->params['ext'] = 'php|rst';
 		$this->_getPaths();
@@ -1202,6 +1273,8 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * correct flash messages
 	 * todo: move to MyUpgrade
+	 *
+	 * @return void
 	 */
 	public function flash() {
 		$this->params['ext'] = 'php';
@@ -1241,6 +1314,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * correct brackets: class X extends Y {
 	 *
+	 * @return void
 	 */
 	public function classes() {
 		$this->params['ext'] = 'php|rst';
@@ -1393,7 +1467,11 @@ class CorrectShell extends UpgradeShell {
 		}
 	}
 
-
+	/**
+	 * CorrectShell::getOptionParser()
+	 *
+	 * @return ConsoleOptionParser
+	 */
 	public function getOptionParser() {
 		$subcommandParser = array(
 			'options' => array(
@@ -1499,6 +1577,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('html5', array(
 				'help' => __d('cake_console', 'html5 updates'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('performance', array(
+				'help' => __d('cake_console', 'performance updates'),
 				'parser' => $subcommandParser
 			));
 	}
