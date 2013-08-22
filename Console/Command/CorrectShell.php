@@ -38,6 +38,29 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function all() {
+		$except = get_class_methods('UpgradeShell');
+
+		$all = get_class_methods($this);
+		$all = array_diff($all, $except);
+		foreach ($all as $key => $name) {
+			if (strpos($name, '_') === 0 || in_array($name, array('stable', 'conventions_experimental'))) {
+				unset($all[$key]);
+			}
+		}
+
+		foreach ($all as $name) {
+			$this->out(__d('cake_console', 'Running %s', $name));
+			$this->{$name}();
+		}
+		$this->out(__d('cake_console', 'Done!'));
+	}
+
+	/**
+	 * CorrectShell::stable()
+	 *
+	 * @return void
+	 */
+	public function stable() {
 		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n', 'forms');
 		foreach ($all as $name) {
 			$this->out(__d('cake_console', 'Running %s', $name));
@@ -177,11 +200,6 @@ class CorrectShell extends UpgradeShell {
 				array('/,\$/'),
 				array(', $')
 			),
-			array(
-				'multiple spaces to 1',
-				array('/ {2,}/'),
-				array(' ')
-			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -222,6 +240,26 @@ class CorrectShell extends UpgradeShell {
 				'double quote strings to single quote strings for comparison',
 				array('/\=\s+"(\w*)"/'),
 				array('= \'\1\'')
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * CorrectShell::conventions_experimental()
+	 *
+	 * @return void
+	 */
+	public function conventions_experimental() {
+		$this->params['ext'] = 'php|ctp|rst';
+		$this->_getPaths();
+
+		$pattern = array(
+			array(
+				'multiple spaces to 1',
+				array('/ {2,}/'),
+				array(' ')
 			),
 		);
 
@@ -356,7 +394,6 @@ class CorrectShell extends UpgradeShell {
 		);
 		$this->_filesRegexpUpdate($patterns);
 
-
 		$this->params['ext'] = 'php|ctp';
 		# only for non-shell files
 		$patterns = array(
@@ -479,6 +516,37 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * CorrectShell::whitespace()
+	 *
+	 * @return void
+	 */
+	public function whitespace() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'3 or more newlines to 2',
+				"/\n\n+/",
+				"\n\n"
+				//"\r\r", // "\n\n", "\r\n\r\n")
+			),
+			array(
+				'3 or more newlines to 2',
+				"/\r\r+/",
+				"\r\r"
+			),
+			array(
+				'3 or more newlines to 2',
+				"/\r\n[\r\n]+/",
+				"\r\n\r\n"
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
 	 * CorrectShell::doc_blocks()
 	 *
 	 * @return void
@@ -549,7 +617,6 @@ class CorrectShell extends UpgradeShell {
 		);
 
 		$this->_filesRegexpUpdate($patterns);
-
 
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
@@ -663,7 +730,6 @@ class CorrectShell extends UpgradeShell {
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
-
 
 		$this->params['ext'] = 'ctp';
 		$this->_getPaths();
@@ -1242,7 +1308,6 @@ class CorrectShell extends UpgradeShell {
 			'BakeShell.php',
 			'ConsoleShell.php',
 
-
 			'ContainableBehaviorTest.php'
 		*/
 		);
@@ -1250,7 +1315,6 @@ class CorrectShell extends UpgradeShell {
 			'TODO__'
 		);
 		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);
-
 
 		$file = $this->_paths[0].DS.'View'.DS.'View.php';
 		if (file_exists($file)) {
@@ -1397,7 +1461,6 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns, $skipFiles);
 	}
 
-
 	/**
 	 * Updates files based on regular expressions.
 	 *
@@ -1415,13 +1478,12 @@ class CorrectShell extends UpgradeShell {
 		}
 	}
 
-
-/**
- * Searches the paths and finds files based on extension.
- *
- * @param string $extensions
- * @return void
- */
+	/**
+	 * Searches the paths and finds files based on extension.
+	 *
+	 * @param string $extensions
+	 * @return void
+	 */
 	protected function _findFiles($extensions = '', $skipFolders = array()) {
 		foreach ($this->_paths as $path) {
 			if (substr($path, -1) !== DS) {
@@ -1506,6 +1568,10 @@ class CorrectShell extends UpgradeShell {
 				'parser' => $subcommandParser
 			))
 			*/
+			->addSubcommand('stable', array(
+				'help' => __d('cake_console', 'Run all stable Correct commands.'),
+				'parser' => $subcommandParser
+			))
 			->addSubcommand('reference', array(
 				'help' => __d('cake_console', 'Update reference'),
 				'parser' => $subcommandParser
@@ -1546,6 +1612,10 @@ class CorrectShell extends UpgradeShell {
 				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
 				'parser' => $subcommandParser
 			))
+			->addSubcommand('conventions_experimental', array(
+				'help' => __d('cake_console', 'experimental conventions (careful!)'),
+				'parser' => $subcommandParser
+			))
 			# custom app stuff (not for anyone else)
 			->addSubcommand('helper', array(
 				'help' => __d('cake_console', 'helper fix'),
@@ -1582,8 +1652,11 @@ class CorrectShell extends UpgradeShell {
 			->addSubcommand('performance', array(
 				'help' => __d('cake_console', 'performance updates'),
 				'parser' => $subcommandParser
+			))
+			->addSubcommand('whitespace', array(
+				'help' => __d('cake_console', 'Resolve whitespace issues'),
+				'parser' => $subcommandParser
 			));
 	}
-
 
 }

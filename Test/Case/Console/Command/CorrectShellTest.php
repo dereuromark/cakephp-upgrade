@@ -29,10 +29,7 @@ class CorrectShellTest extends CakeTestCase {
 		$this->assertTextEquals($result['expected'], $result['is']);
 	}
 
-
 }
-
-
 
 class TestCorrectShell extends CorrectShell {
 

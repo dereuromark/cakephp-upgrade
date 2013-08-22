@@ -4,7 +4,6 @@ App::uses('Lib', 'Upgrade.Lib');
 
 class LibTest extends CakeTestCase {
 
-
  	public function startTest() {
  		$this->Lib = new Lib();
  	}
@@ -22,7 +21,6 @@ class LibTest extends CakeTestCase {
 	}
 
 	public function testCoreLibs() {
-
 
 		$res = $this->Lib->match('Multibyte');
 		pr($res);

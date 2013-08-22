@@ -1250,7 +1250,6 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-
 /**
  * Update the properties moved to CakeRequest.
  *
@@ -1402,7 +1401,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			}
 		}
 	}
-
 
 /**
  * Update Configure::read() calls with no params.
@@ -1670,7 +1668,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-
 /**
  * Replace cakeError with built-in exceptions.
  * NOTE: this ignores calls where you've passed your own secondary parameters to cakeError().
@@ -1738,7 +1735,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			),
 		);
 		$this->_filesRegexpUpdate($patterns, 'helperName');
-
 
 		$patterns = array(
 			array(
@@ -1844,7 +1840,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$this->_paths = array(APP);
 		}
 
-
 		$patterns = array(
 			array(
 				'App::import(\'Core\', \'Folder\') to App::uses(\'Folder\', \'Utility\')',
@@ -1927,7 +1922,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-
 /**
  * Update database config file.
  *
@@ -1966,8 +1960,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-
-
 /**
  * Update constructors.
  *
@@ -1983,7 +1975,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		} else {
 			$this->_paths = App::path('View/Helper');
 		}
-
 
 		$patterns = array(
 			array(
@@ -2068,7 +2059,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			);
 		}
 
-
 		$patterns = array(
 			/*
 			array(
@@ -2135,7 +2125,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		} else {
 			$this->_paths = array(APP);
 		}
-
 
 		$content = $this->_report();
 		if ($content) {
@@ -2295,7 +2284,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			exec('"' . $this->params['svn'] . '" add --force ' . escapeshellarg($path));
 		}
 	}
-
 
 /**
  * corrects name of database engine
