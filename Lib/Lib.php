@@ -74,7 +74,7 @@ class Lib {
 	protected function _match($path, $name, $plugin, $loop = 0) {
 		$Iterator = new RecursiveDirectoryIterator($path);
 		foreach ($Iterator as $File) {
-			if (substr(basename($File->getPathname()), 0, 1) == '.') {
+			if (substr(basename($File->getPathname()), 0, 1) === '.') {
 				continue;
 			}
 			if (!$File->isFile()) {

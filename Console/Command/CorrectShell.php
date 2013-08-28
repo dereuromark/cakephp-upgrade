@@ -370,52 +370,6 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-	//TODO: move to MyUpgradeShell
-	public function domains() {
-		$this->params['ext'] = 'php';
-		# only for shell files
-		$patterns = array(
-			array(
-				'add console domain to __()',
-				'/__\(\'(.*?)\'/',
-				'__d(\'console\', \'\1\''
-			),
-			array(
-				'add console domain to __()',
-				'/__c\(\'(.*?)\'/',
-				'__dc(\'console\', \'\1\''
-			),
-			array(
-				'add console domain to __()',
-				'/__n\(\'(.*?)\'/',
-				'__dn(\'console\', \'\1\''
-			),
-
-		);
-		$this->_filesRegexpUpdate($patterns);
-
-		$this->params['ext'] = 'php|ctp';
-		# only for non-shell files
-		$patterns = array(
-			array(
-				'remove cake domain from __()',
-				'/__d\(\'(.*?)\',\s*/',
-				'__('
-			),
-			array(
-				'remove cake domain from __()',
-				'/__dc\(\'(.*?)\',\s*/',
-				'__c('
-			),
-			array(
-				'remove cake domain from __()',
-				'/__dn\(\'(.*?)\',\s*/',
-				'__n('
-			),
-		);
-		$this->_filesRegexpUpdate($patterns);
-	}
-
 	/**
 	 * Some speed improvements
 	 * - strict null checks should be used instead of is_null()
@@ -568,13 +522,23 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array(
 			array(
 				'@param bool $foo ... @param boolean $foo',
-				'/\@param bool \$/i',
-				'@param boolean $'
+				'/\@param bool /i',
+				'@param boolean '
 			),
 			array(
 				'@param int $foo ... @param integer $foo',
-				'/\@param int \$/i',
-				'@param integer $'
+				'/\@param int /i',
+				'@param integer '
+			),
+			array(
+				'@param bool',
+				'/\@param bool\b/i',
+				'@param boolean'
+			),
+			array(
+				'@param int $foo ... @param integer $foo',
+				'/\@param int\b/i',
+				'@param integer'
 			),
 		);
 
@@ -659,6 +623,7 @@ class CorrectShell extends UpgradeShell {
 				'call_user_func_array('
 			),
 			# careful: sometimes self:: can actually be used on purpose!
+			# FIXME: "static::" is not allowed in compile-time constants in: look back for = as in "function x($y = self::FOO)"
 			array(
 				'self:: to new static::',
 				'/\bself\:\:/',
@@ -1329,50 +1294,9 @@ class CorrectShell extends UpgradeShell {
 			);
 			$this->_updateFile($file, $patterns);
 			*/
-		}	else {
+		} else {
 			//die('FILE NOT EXISTS');
 		}
-	}
-
-	/**
-	 * correct flash messages
-	 * todo: move to MyUpgrade
-	 *
-	 * @return void
-	 */
-	public function flash() {
-		$this->params['ext'] = 'php';
-		$this->_getPaths();
-		$patterns = array(
-			array(
-				'$this->Session->setFlash(...)',
-				'/-\>Session-\>setFlash\((.*)\)/',
-				'->Common->flashMessage(\1)'
-			),
-			array(
-				'$this->Session->setFlash(...)',
-				'/-\>Common-\>flashMessage\(__\(\'Invalid (.*)\'\)\)/',
-				'->Common->flashMessage(__(\'Invalid \1\'), \'error\')'
-			),
-			array(
-				'$this->Session->setFlash(...)',
-				'/-\>Common-\>flashMessage\(__\(\'(.*) has been saved\'\)\)/',
-				'->Common->flashMessage(__(\'\1 has been saved\'), \'success\')'
-			),
-			array(
-				'$this->Session->setFlash(...)',
-				'/-\>Common-\>flashMessage\(__\(\'(.*) could not be saved(.*)\'\)\)/',
-				'->Common->flashMessage(__(\'\1 could not be saved\2\'), \'error\')'
-			),
-			# tmp to qickly find unmatching ones
-			array(
-				'$this->Session->setFlash(...)',
-				'/-\>Common-\>flashMessage\(__\(\'(.*)\'\)\)/',
-				'->Common->flashMessage(__(\'\1\'), \'xxxxx\')'
-			),
-		);
-		$skipFiles = array();
-		$this->_filesRegexpUpdate($patterns, $skipFiles);
 	}
 
 	/**
@@ -1631,10 +1555,6 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('mail', array(
 				'help' => __d('cake_console', 'mail fix'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('flash', array(
-				'help' => __d('cake_console', 'flash messages'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('umlauts', array(

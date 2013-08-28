@@ -2271,7 +2271,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	protected function _create($path) {
-		while(!is_dir($subpath = dirname($path))) {
+		while (!is_dir($subpath = dirname($path))) {
 			$this->_create($subpath);
 		}
 
