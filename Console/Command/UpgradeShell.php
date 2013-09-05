@@ -631,48 +631,44 @@ EOL;
 			array(
 				'public function beforeValidate()',
 				'/public function beforeValidate\(\)/',
-				'public function beforeValidate(Model $Model)'
+				'public function beforeValidate(Model $Model, $options = array())'
 			),
 			array(
 				'parent::beforeValidate()',
 				'/\bparent::beforeValidate\(\)/',
-				'parent::beforeValidate(Model $Model)'
+				'parent::beforeValidate($Model, $options)'
 			),
-			/*
 			array(
 				'public function beforeValidate(Model $Model)',
 				'/public function beforeValidate\((\w+)\s*\$(\w+)\)/',
 				'public function beforeValidate(\1 $\2, $options = array())'
 			),
 			array(
-				'parent::beforeValidate(Model $Model)',
-				'/\bparent::beforeValidate\(\w+\s*\$(\w+)\)/',
+				'parent::beforeValidate($Model)',
+				'/\bparent::beforeValidate\(\$(\w+)\)/',
 				'parent::beforeValidate($\1, $options)'
 			),
-			*/
 			# beforeSave
 			array(
 				'public function beforeSave()',
 				'/public function beforeSave\(\)/',
-				'public function beforeSave(Model $Model)'
+				'public function beforeSave(Model $Model, $options = array())'
 			),
 			array(
 				'parent::beforeSave()',
 				'/\bparent::beforeSave\(\)/',
-				'parent::beforeSave($Model)'
+				'parent::beforeSave($Model, $options)'
 			),
-			/*
 			array(
 				'public function beforeSave(Model $Model)',
 				'/public function beforeSave\((\w+)\s*\$(\w+)\)/',
 				'public function beforeSave(\1 $\2, $options = array())'
 			),
 			array(
-				'parent::beforeSave(Model $Model)',
-				'/\bparent::beforeSave\(\w+\s*\$(\w+)\)/',
+				'parent::beforeSave($Model)',
+				'/\bparent::beforeSave\(\$(\w+)\)/',
 				'parent::beforeSave($\1, $options)'
 			),
-			*/
 			# afterSave
 			array(
 				'public function afterSave()',
@@ -690,11 +686,10 @@ EOL;
 				'parent::afterSave($Model, $created)'
 			),
 			array(
-				'parent::afterSave(Model $Model)',
-				'/\bparent::afterSave\(\w+\s*\$(\w+)\)/',
+				'parent::afterSave($Model)',
+				'/\bparent::afterSave\(\$(\w+)\)/',
 				'parent::afterSave($\1, $created)'
 			),
-
 			# beforeFind
 			array(
 				'public function beforeFind()',
@@ -711,17 +706,16 @@ EOL;
 				'/public function beforeFind\((\w+)\s*\$(\w+)\)/',
 				'public function beforeFind(\1 $\2, $query)'
 			),
-
+			array(
+				'parent::beforeFind($Model)',
+				'/\bparent::beforeFind\(\$(\w+)\)/',
+				'parent::beforeFind(\1, $query)'
+			),
 			# afterFind
 			array(
 				'public function afterFind()',
 				'/public function afterFind\(\)/',
 				'public function afterFind(Model $Model, $results, $primary)'
-			),
-			array(
-				'parent::afterFind()',
-				'/\bparent::afterFind\(\)/',
-				'parent::afterFind($Model, $results, $primary)'
 			),
 			array(
 				'public function afterFind(Model $Model)',
@@ -734,8 +728,18 @@ EOL;
 				'public function afterFind(\1 $\2, $results, $primary)'
 			),
 			array(
-				'parent::afterFind(Model $Model, $results)',
-				'/\bparent::afterFind\(\w+\s*\$(\w+),\s*\$results\)/',
+				'parent::afterFind()',
+				'/\bparent::afterFind\(\)/',
+				'parent::afterFind($Model, $results, $primary)'
+			),
+			array(
+				'parent::afterFind($Model)',
+				'/\bparent::afterFind\(\$(\w+)\)/',
+				'parent::afterFind($\1, $results, $primary)'
+			),
+			array(
+				'parent::afterFind($Model, $results)',
+				'/\bparent::afterFind\(\$(\w+),\s*\$results\)/',
 				'parent::afterFind($\1, $results, $primary)'
 			),
 			# beforeDelete
@@ -748,6 +752,16 @@ EOL;
 				'public function beforeDelete(Model $Model)',
 				'/public function beforeDelete\((\w+)\s*\$(\w+)\)/',
 				'public function beforeDelete(\1 $\2, $cascade = true)'
+			),
+			array(
+				'parent::beforeDelete()',
+				'/\bparent::beforeDelete\(\)/',
+				'parent::beforeDelete($Model, $cascade)'
+			),
+			array(
+				'parent::beforeDelete($Model)',
+				'/\bparent::beforeDelete\(\$(\w+)\)/',
+				'parent::beforeDelete($\1, $cascade)'
 			),
 			# afterDelete
 		);
@@ -801,6 +815,11 @@ EOL;
 				'/public function beforeFind\(\)/',
 				'public function beforeFind($query)'
 			),
+			array(
+				'parent::beforeFind()',
+				'/\bparent::beforeFind\(\)/',
+				'parent::beforeFind($query)'
+			),
 			# afterFind
 			array(
 				'public function afterFind()',
@@ -812,18 +831,21 @@ EOL;
 				'/public function afterFind\(\$results\)/',
 				'public function afterFind($results, $primary = false)'
 			),
-			/*
 			array(
 				'parent::afterFind($results)',
 				'/\bparent::afterFind\(\$results\)/',
 				'parent::afterFind($results, $primary)'
 			),
-			*/
 			# beforeDelete
 			array(
 				'public function beforeDelete()',
 				'/public function beforeDelete\(\)/',
 				'public function beforeDelete($cascade = true)'
+			),
+			array(
+				'parent::beforeDelete()',
+				'/\bparent::beforeDelete\(\)/',
+				'parent::beforeDelete($cascade)'
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
