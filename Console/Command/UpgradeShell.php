@@ -153,7 +153,9 @@ class UpgradeShell extends AppShell {
 
 		$paths = array();
 		foreach ($path as $p) {
-			$paths[] = App::path($p, $this->params['plugin']);
+			$p = str_replace(DS, '/', $p);
+			$p = trim($p, '/');
+			$paths = array_merge($paths, App::path($p, $this->params['plugin']));
 		}
 		$this->_paths = $paths;
 	}
