@@ -129,6 +129,35 @@ class UpgradeShell extends AppShell {
 		}
 	}
 
+	/**
+	 * UpgradeShell::_buildPaths()
+	 *
+	 * @param string|array $path Path relative to plugin or APP and with trailing DS.
+	 * @return void
+	 */
+	protected function _buildPaths($path = null) {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+			return;
+		}
+		$path = (array)$path;
+
+		if (empty($path)) {
+			if (!empty($this->params['plugin'])) {
+				$this->_paths = array(App::pluginPath($this->params['plugin']));
+			} else {
+				$this->_paths = array(APP);
+			}
+			return;
+		}
+
+		$paths = array();
+		foreach ($path as $p) {
+			$paths[] = App::path($p, $this->params['plugin']);
+		}
+		$this->_paths = $paths;
+	}
+
 /**
  * @param string %type (svn, git, ...)
  * @return boolean $success
@@ -230,14 +259,7 @@ class UpgradeShell extends AppShell {
  * @return void
  */
 	public function cake13() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'View' . DS);
-		} else {
-			$this->_paths = array(APP . 'View' . DS);
-		}
+		$this->_buildPaths('View' . DS);
 
 		$patterns = array(
 			array(
@@ -249,14 +271,7 @@ class UpgradeShell extends AppShell {
 
 		$this->_filesRegexpUpdate($patterns);
 
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Model' . DS);
-		} else {
-			$this->_paths = array(APP . 'Model' . DS);
-		}
+		$this->_buildPaths('Model' . DS);
 
 		$patterns = array(
 			array(
@@ -293,14 +308,7 @@ class UpgradeShell extends AppShell {
 
 		$this->_filesRegexpUpdate($patterns);
 
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath);
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -384,14 +392,8 @@ EOL;
 			}
 		}
 
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'View' . DS . 'Layouts' . DS);
-		} else {
-			$this->_paths = array(APP . 'View' . DS . 'Layouts' . DS);
-		}
+		$this->_buildPaths('View' . DS . 'Layouts' . DS);
+
 		$patterns = array(
 			#	http://book.cakephp.org/2.0/en/views.html#layouts
 			array(
@@ -422,14 +424,7 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 
 		# auth component allow('*')
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Controller' . DS);
-		} else {
-			$this->_paths = array(APP . 'Controller' . DS);
-		}
+		$this->_buildPaths('Controller' . DS);
 		$patterns = array(
 			#	http://book.cakephp.org/2.0/en/views.html#layouts
 			array(
@@ -454,15 +449,7 @@ EOL;
 	 * @return void
 	 */
 	public function cake23() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath);
-		} else {
-			$this->_paths = array(APP);
-		}
-
+		$this->_buildPaths();
 		$patterns = array(
 			/*
 			array(
@@ -511,14 +498,7 @@ EOL;
 	 * @return void
 	 */
 	public function cake24() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath);
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -566,15 +546,7 @@ EOL;
 	 * 2012-09-25 ms
 	 */
 	public function cake3() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Test' . DS, $pluginpath . 'tests' . DS);
-		} else {
-			$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
-		}
-
+		$this->_buildPaths('Test' . DS, $pluginpath . 'tests' . DS);
 		$patterns = array(
 			array(
 				'App::uses(\'Set\', \'Utility\')',
@@ -591,19 +563,13 @@ EOL;
 	}
 
 	/**
-	 * try to auto-correct E_STRICT issues
+	 * Try to auto-correct E_STRICT issues.
+	 * Mainly for Cake2.4.
+	 *
 	 * 2012-11-16 ms
 	 */
 	public function estrict() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath);
-		} else {
-			$this->_paths = array(APP);
-		}
-
+		$this->_buildPaths();
 		$patterns = array(
 			array(
 				'public function startTest()',
@@ -618,14 +584,7 @@ EOL;
 		);
 		$this->_filesRegexpUpdate($patterns);
 
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Model' . DS . 'Behavior' . DS);
-		} else {
-			$this->_paths = array(APP . 'Model' . DS . 'Behavior' . DS);
-		}
+		$this->_buildPaths('Model' . DS . 'Behavior' . DS);
 		$patterns = array(
 			# beforeValidate
 			array(
@@ -640,7 +599,7 @@ EOL;
 			),
 			array(
 				'public function beforeValidate(Model $Model)',
-				'/public function beforeValidate\((\w+)\s*\$(\w+)\)/',
+				'/public function beforeValidate\((\w+)\s+\$(\w+)\)/',
 				'public function beforeValidate(\1 $\2, $options = array())'
 			),
 			array(
@@ -661,7 +620,7 @@ EOL;
 			),
 			array(
 				'public function beforeSave(Model $Model)',
-				'/public function beforeSave\((\w+)\s*\$(\w+)\)/',
+				'/public function beforeSave\((\w+)\s+\$(\w+)\)/',
 				'public function beforeSave(\1 $\2, $options = array())'
 			),
 			array(
@@ -673,22 +632,32 @@ EOL;
 			array(
 				'public function afterSave()',
 				'/public function afterSave\(\)/',
-				'public function afterSave(Model $Model, $created)'
+				'public function afterSave(Model $Model, $created, $options = array())'
 			),
 			array(
 				'public function afterSave(Model $Model)',
-				'/public function afterSave\((\w+)\s*\$(\w+)\)/',
-				'public function afterSave(\1 $\2, $created)'
+				'/public function afterSave\((\w+)\s+\$(\w+)\)/',
+				'public function afterSave(\1 $\2, $created, $options = array())'
+			),
+			array(
+				'public function afterSave(Model $Model, $created)',
+				'/public function afterSave\((\w+)\s+\$(\w+),\s*\$created\)/',
+				'public function afterSave(\1 $\2, $created, $options = array())'
 			),
 			array(
 				'parent::afterSave()',
 				'/\bparent::afterSave\(\)/',
-				'parent::afterSave($Model, $created)'
+				'parent::afterSave($Model, $created, $options)'
 			),
 			array(
 				'parent::afterSave($Model)',
 				'/\bparent::afterSave\(\$(\w+)\)/',
-				'parent::afterSave($\1, $created)'
+				'parent::afterSave($\1, $created, $options)'
+			),
+			array(
+				'parent::afterSave($Model, $created)',
+				'/\bparent::afterSave\(\$(\w+)\,\s*\$created\)/',
+				'parent::afterSave($\1, $created, $options)'
 			),
 			# beforeFind
 			array(
@@ -703,7 +672,7 @@ EOL;
 			),
 			array(
 				'public function beforeFind(Model $Model)',
-				'/public function beforeFind\((\w+)\s*\$(\w+)\)/',
+				'/public function beforeFind\((\w+)\s+\$(\w+)\)/',
 				'public function beforeFind(\1 $\2, $query)'
 			),
 			array(
@@ -715,17 +684,17 @@ EOL;
 			array(
 				'public function afterFind()',
 				'/public function afterFind\(\)/',
-				'public function afterFind(Model $Model, $results, $primary)'
+				'public function afterFind(Model $Model, $results, $primary = false)'
 			),
 			array(
 				'public function afterFind(Model $Model)',
-				'/public function afterFind\((\w+)\s*\$(\w+)\)/',
-				'public function afterFind(\1 $\2, $results, $primary)'
+				'/public function afterFind\((\w+)\s+\$(\w+)\)/',
+				'public function afterFind(\1 $\2, $results, $primary = false)'
 			),
 			array(
 				'public function afterFind(Model $Model, $results)',
-				'/public function afterFind\((\w+)\s*\$(\w+),\s*\$results\)/',
-				'public function afterFind(\1 $\2, $results, $primary)'
+				'/public function afterFind\((\w+)\s+\$(\w+),\s*\$results\)/',
+				'public function afterFind(\1 $\2, $results, $primary = false)'
 			),
 			array(
 				'parent::afterFind()',
@@ -750,7 +719,7 @@ EOL;
 			),
 			array(
 				'public function beforeDelete(Model $Model)',
-				'/public function beforeDelete\((\w+)\s*\$(\w+)\)/',
+				'/public function beforeDelete\((\w+)\s+\$(\w+)\)/',
 				'public function beforeDelete(\1 $\2, $cascade = true)'
 			),
 			array(
@@ -767,14 +736,7 @@ EOL;
 		);
 		$this->_filesRegexpUpdate($patterns);
 
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Model' . DS);
-		} else {
-			$this->_paths = array(APP . 'Model' . DS);
-		}
+		$this->_buildPaths('Model' . DS);
 		$patterns = array(
 			# beforeValidate
 			array(
@@ -802,12 +764,22 @@ EOL;
 			array(
 				'public function afterSave()',
 				'/public function afterSave\(\)/',
-				'public function afterSave($created)'
+				'public function afterSave($created, $options = array())'
 			),
 			array(
 				'parent::afterSave()',
 				'/\bparent::afterSave\(\)/',
-				'parent::afterSave($created)'
+				'parent::afterSave($created, $options)'
+			),
+			array(
+				'public function afterSave($created)',
+				'/public function afterSave\(\$created\)/',
+				'public function afterSave($created, $options = array())'
+			),
+			array(
+				'parent::afterSave($created)',
+				'/\bparent::afterSave\(\$created\)/',
+				'parent::afterSave($created, $options)'
 			),
 			# beforeFind
 			array(
@@ -2027,13 +1999,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		);
 		$this->_filesRegexpUpdate($patterns);
 
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Controller/Component', $this->params['plugin']);
-		} else {
-			$this->_paths = App::path('Controller/Component');
-		}
+		$this->_buildPaths('Controller/Component');
 
 		$patterns = array(
 			array(
@@ -2069,17 +2035,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function paginator() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$path = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($path . 'View' . DS, $path . 'views' . DS);
-		} else {
-			$this->_paths = array(
-				APP . 'View' . DS,
-				APP . 'views' . DS
-			);
-		}
+		$this->_buildPaths(array('View' . DS, 'views' . DS));
 
 		$patterns = array(
 			/*
@@ -2140,13 +2096,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  */
 	public function report() {
 		$file = TMP.'report.txt';
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$content = $this->_report();
 		if ($content) {
