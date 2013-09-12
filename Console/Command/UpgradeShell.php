@@ -716,6 +716,11 @@ EOL;
 				'public function afterFind(\1 $\2, $results, $primary = false)'
 			),
 			array(
+				'public function afterFind(Model $Model, $results, $primary)',
+				'/public function afterFind\((\w+)\s+\$(\w+),\s*\$results,\s*\$primary\)/',
+				'public function afterFind(\1 $\2, $results, $primary = false)'
+			),
+			array(
 				'parent::afterFind()',
 				'/\bparent::afterFind\(\)/',
 				'parent::afterFind($Model, $results, $primary)'
@@ -821,6 +826,16 @@ EOL;
 				'public function afterFind($results)',
 				'/public function afterFind\(\$results\)/',
 				'public function afterFind($results, $primary = false)'
+			),
+			array(
+				'public function afterFind($results, $primary)',
+				'/public function afterFind\(\$results,\s*\$primary\)/',
+				'public function afterFind($results, $primary = false)'
+			),
+			array(
+				'parent::afterFind()',
+				'/\bparent::afterFind\(\)/',
+				'parent::afterFind($results, $primary)'
 			),
 			array(
 				'parent::afterFind($results)',
