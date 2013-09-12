@@ -97,7 +97,7 @@ class UpgradeShell extends AppShell {
 		if ($this->params['svn']) {
 			$this->params['svn'] = 'svn';
 			if (!empty($this->args[0])) {
-				$this->params['svn'] = rtrim($this->args[0], DS). DS . 'svn';
+				$this->params['svn'] = rtrim($this->args[0], DS) . DS . 'svn';
 			}
 			$res = exec('"' . $this->params['svn'] . '" help', $array, $r);
 			if ($r) {
@@ -165,14 +165,14 @@ class UpgradeShell extends AppShell {
  * @return boolean $success
  */
 	protected function _isType($type) {
-		if (is_dir('.'.$type)) {
+		if (is_dir('.' . $type)) {
 			return true;
 		}
 		//check if parent folders contain .type
 		$path = APP;
 		while ($path !== ($newPath = dirname($path))) {
 			$path = $newPath;
-			if (is_dir($path . DS . '.'.$type)) {
+			if (is_dir($path . DS . '.' . $type)) {
 				return true;
 			}
 		}
@@ -506,18 +506,35 @@ EOL;
 			array(
 				'$this->request->is(\'post\') || $this->request->is(\'put\')',
 				'/\$this-\>request-\>is\(\'post\'\) \|\| \$this-\>request-\>is\(\'put\'\)/',
-				'$this->request->is(\'post\', \'put\')'
+				'$this->request->is(array(\'post\', \'put\'))'
 			),
 			array(
 				'$this->request->is(\'put\') || $this->request->is(\'post\')',
 				'/\$this-\>request-\>is\(\'put\'\) \|\| \$this-\>request-\>is\(\'post\'\)/',
-				'$this->request->is(\'post\', \'put\')'
+				'$this->request->is(array(\'post\', \'put\'))'
 			),
 			array(
 				'$this->request->is(\'post\') && $this->request->is(\'ajax\')',
 				'/\$this-\>request-\>is\(\'post\'\) \&\& \$this-\>request-\>is\(\'ajax\'\)/',
 				'$this->request->isAll(\'post\', \'ajax\')'
 			),
+			array(
+				'$this->request->is(\'ajax\') && $this->request->is(\'post\')',
+				'/\$this-\>request-\>is\(\'ajax\'\) \&\& \$this-\>request-\>is\(\'post\'\)/',
+				'$this->request->isAll(\'post\', \'ajax\')'
+			),
+			# fix wrong ones
+			array(
+				'$this->request->is(\'post\', \'put\')',
+				'/\$this-\>request-\>is\(\'post\', \'put\'\)/',
+				'$this->request->is(array(\'post\', \'put\'))'
+			),
+			array(
+				'$this->request->isAll(\'post\', \'ajax\')',
+				'/\$this-\>request-\>isAll\(\'post\', \'ajax\'\)/',
+				'$this->request->isAll(array(\'post\', \'ajax\'))'
+			),
+			# constants to Configure
 			array(
 				'App.fullBaseURL ... App.fullBaseUrl',
 				'/\bApp\.fullBaseURL\b/',
@@ -833,14 +850,7 @@ EOL;
  * @return void
  */
 	public function tests() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$pluginpath = App::pluginPath($this->params['plugin']);
-			$this->_paths = array($pluginpath . 'Test' . DS, $pluginpath . 'tests' . DS);
-		} else {
-			$this->_paths = array(APP . 'Test' . DS, APP . 'tests' . DS);
-		}
+		$this->_buildPaths(array('Test' . DS, 'tests' . DS));
 
 		$patterns = array(
 			array(
@@ -1062,13 +1072,7 @@ EOL;
  * @return void
  */
 	public function i18n() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -1113,13 +1117,7 @@ EOL;
  * @return void
  */
 	public function basics() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -1404,13 +1402,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function configure() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -1428,13 +1420,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function constants() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -1514,13 +1500,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function controllers() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Controller', $this->params['plugin']);
-		} else {
-			$this->_paths = App::path('Controller');
-		}
+		$this->_buildPaths('Controller');
 
 		$patterns = array(
 			array(
@@ -1591,13 +1571,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function console() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Console/Command', $this->params['plugin']);
-		} else {
-			$this->_paths = App::path('Console/Command');
-		}
+		$this->_buildPaths('Console/Command');
 
 		$patterns = array(
 			array(
@@ -1618,13 +1592,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function components() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Controller/Component', $this->params['plugin']);
-		} else {
-			$this->_paths = App::path('Controller/Component');
-		}
+		$this->_buildPaths('Controller/Component');
 
 		$patterns = array(
 			array(
@@ -1645,13 +1613,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function methods() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -1828,13 +1790,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function legacy() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']));
-		} else {
-			$this->_paths = array(APP);
-		}
+		$this->_buildPaths();
 
 		$patterns = array(
 			array(
@@ -1964,13 +1920,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function constructors() {
-		if (!empty($this->_customPaths)) {
-			$this->_paths = $this->_customPaths;
-		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('View/Helper', $this->params['plugin']);
-		} else {
-			$this->_paths = App::path('View/Helper');
-		}
+		$this->_buildPaths('View/Helper');
 
 		$patterns = array(
 			array(
@@ -2145,17 +2095,17 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$data = '';
 			foreach ($result['matches'] as $pattern) {
 				$data = 'Deprecated code: ' . $pattern['pattern'][0];
-				$data .= PHP_EOL.print_r($pattern['matches'], true);
+				$data .= PHP_EOL . print_r($pattern['matches'], true);
 			}
 			$content .= $this->_newIssue($result['file'], $data);
 		}
 
 		// deprecated files
-		$deprecatedFiles = array('Config'.DS.'inflections.php', 'config'.DS.'inflections.php');
+		$deprecatedFiles = array('Config' . DS . 'inflections.php', 'config' . DS . 'inflections.php');
 		foreach ($this->_files as $file) {
 			foreach ($deprecatedFiles as $deprecatedFile) {
 				if (strpos($file, $deprecatedFile) !== false) {
-					$data = 'Deprecated file \''.$deprecatedFile.'\' (can be removed)';
+					$data = 'Deprecated file \'' . $deprecatedFile . '\' (can be removed)';
 					$content .= $this->_newIssue($file, $data);
 				}
 			}
@@ -2166,7 +2116,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 	protected function _newIssue($path, $data) {
 		$path = str_replace(APP, DS, $path);
-		return '*** '.$path.' ***'.PHP_EOL.print_r($data, true).PHP_EOL.PHP_EOL;
+		return '*** ' . $path . ' ***' . PHP_EOL . print_r($data, true) . PHP_EOL . PHP_EOL;
 	}
 
 	/**
@@ -2271,7 +2221,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$driver = 'mysql';
 		}
 		$driver = ucfirst($driver);
-		return '\'datasource\' => \'Database/'.$driver.'\'';
+		return '\'datasource\' => \'Database/' . $driver . '\'';
 	}
 
 /**
@@ -2507,7 +2457,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		foreach ($patterns as $pattern) {
 			$this->out(__d('cake_console', ' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
 			if ($callback) {
-				$contents = preg_replace_callback($pattern[1], array($this, '_'.$callback), $contents);
+				$contents = preg_replace_callback($pattern[1], array($this, '_' . $callback), $contents);
 			} else {
 				$contents = preg_replace($pattern[1], $pattern[2], $contents);
 			}
@@ -2685,10 +2635,6 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'help' => __d('cake_console', 'Correct method calls'),
 				'parser' => $subcommandParser
 			))
-			->addSubcommand('report', array(
-				'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
-				'parser' => $subcommandParser
-			))
 			->addSubcommand('cake13', array(
 				'help' => __d('cake_console', 'Upgrade stuff older than cake13 (already deprecated in v13)'),
 				'parser' => $subcommandParser
@@ -2707,6 +2653,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('estrict', array(
 				'help' => __d('cake_console', 'Upgrade to E_STRICT standards'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('report', array(
+				'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
 				'parser' => $subcommandParser
 			));
 	}
