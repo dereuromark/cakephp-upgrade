@@ -509,6 +509,28 @@ class CorrectShell extends UpgradeShell {
 		$this->params['ext'] = 'php';
 		$this->_getPaths();
 
+		// Removal of @package etc
+		$patterns = array(
+			array(
+				'@filesource ... removal',
+				'/\s+\@filesource\s*\*/',
+				''
+			),
+			array(
+				'@package ... removal',
+				'/\s+\@package\s+\s*([a-z.-_ ]+)\s*\*/i',
+				''
+			),
+			array(
+				'@subpackage ... removal',
+				'/\s+\@subpackage\s+\s*([a-z.-_ ]+)\s*\*/i',
+				''
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+
+		// Unification of @param
 		$patterns = array(
 			array(
 				'@param string $string. Some string ... @param string $string Some string.',
