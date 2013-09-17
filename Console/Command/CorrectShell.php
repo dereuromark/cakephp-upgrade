@@ -80,8 +80,21 @@ class CorrectShell extends UpgradeShell {
 		$this->params['svn'] = null;
 		parent::startup();
 
-		$this->params['ext'] = 'php|ctp|thtml|inc|tpl|rst';
+		//$this->params['ext'] = 'php|ctp|thtml|inc|tpl|rst';
 		$this->params['dry-run'] = false;
+	}
+
+	/**
+	 * CorrectShell::_setExt()
+	 *
+	 * @param string $ext Extensions separated by |, e.g. 'php|ctp'
+	 * @return void
+	 */
+	protected function _setExt($ext = null) {
+		if ($ext === null) {
+			$ext = 'php|ctp';
+		}
+		$this->params['ext'] = $ext;
 	}
 
 	/**
@@ -506,7 +519,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function doc_blocks() {
-		$this->params['ext'] = 'php';
+		$this->params['ext'] = 'php|ctp|css|js|bat|ini';
 		$this->_getPaths();
 
 		// Removal of @package etc
@@ -531,6 +544,7 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns);
 
 		// Unification of @param
+		$this->params['ext'] = 'php|ctp';
 		$patterns = array(
 			array(
 				'@param string $string. Some string ... @param string $string Some string.',
@@ -561,6 +575,31 @@ class CorrectShell extends UpgradeShell {
 				'@param int $foo ... @param integer $foo',
 				'/\@param int\b/i',
 				'@param integer'
+			),
+			array(
+				'@return bool',
+				'/\@return bool\b/i',
+				'@return boolean'
+			),
+			array(
+				'@return int',
+				'/\@return int\b/i',
+				'@return integer'
+			),
+			array(
+				'@var bool true/false',
+				'/\@var bool (true|false)\b/i',
+				'@var boolean'
+			),
+			array(
+				'@var bool',
+				'/\@var bool\b/i',
+				'@var boolean'
+			),
+			array(
+				'@var int',
+				'/\@var int\b/i',
+				'@var integer'
 			),
 		);
 
@@ -1497,7 +1536,12 @@ class CorrectShell extends UpgradeShell {
 					'short' => 'l',
 					'help' => __d('cake_console', 'Log all ouput to file log.txt in TMP dir'),
 					'boolean' => true
-				)
+				),
+				'ext' => array(
+					'short' => 'e',
+					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
+					'default' => 'php|ctp'
+				),
 			)
 		);
 
