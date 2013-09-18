@@ -80,7 +80,7 @@ class CorrectShell extends UpgradeShell {
 		$this->params['svn'] = null;
 		parent::startup();
 
-		//$this->params['ext'] = 'php|ctp|thtml|inc|tpl|rst';
+		//$this->params['ext'] = 'php|ctp|rst';
 		$this->params['dry-run'] = false;
 	}
 
@@ -95,6 +95,36 @@ class CorrectShell extends UpgradeShell {
 			$ext = 'php|ctp';
 		}
 		$this->params['ext'] = $ext;
+	}
+
+	public function tests() {
+		$this->params['ext'] = 'php';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'assertSame(..., true) => assertTrue(...)',
+				array('/\bassertSame\((.*?),\s*true\)/i'),
+				array('assertTrue(\1)')
+			),
+			array(
+				'assertSame(..., false) => assertFalse(...)',
+				array('/\bassertSame\((.*?),\s*false\)/i'),
+				array('assertFalse(\1)')
+			),
+			array(
+				'assertSame(..., null) => assertNull(...)',
+				array('/\bassertSame\((.*?),\s*null\)/i'),
+				array('assertNull(\1)')
+			),
+			array(
+				'$this->assertNotSame(..., true) => assertFalse(...)',
+				array('/\bassertNotSame\((.*?),\s*true\)/i'),
+				array('assertFalse(\1)')
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	/**
@@ -600,6 +630,11 @@ class CorrectShell extends UpgradeShell {
 				'@var int',
 				'/\@var int\b/i',
 				'@var integer'
+			),
+			array(
+				'@return \w+ $...',
+				'/\@return (\w+) \$(\w+)\b/i',
+				'@return \1 \2'
 			),
 		);
 
@@ -1540,7 +1575,7 @@ class CorrectShell extends UpgradeShell {
 				'ext' => array(
 					'short' => 'e',
 					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
-					'default' => 'php|ctp'
+					'default' => 'php|ctp|rst'
 				),
 			)
 		);
@@ -1629,6 +1664,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('doc_blocks', array(
 				'help' => __d('cake_console', 'doc block updates'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('tests', array(
+				'help' => __d('cake_console', 'test case updates'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('html5', array(
