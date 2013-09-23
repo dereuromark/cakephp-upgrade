@@ -117,11 +117,13 @@ class CorrectShell extends UpgradeShell {
 				array('/\bassertSame\((.*?),\s*null\)/i'),
 				array('assertNull(\1)')
 			),
+			/*
 			array(
 				'$this->assertNotSame(..., true) => assertFalse(...)',
 				array('/\bassertNotSame\((.*?),\s*true\)/i'),
 				array('assertFalse(\1)')
 			),
+			*/
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -567,6 +569,11 @@ class CorrectShell extends UpgradeShell {
 			array(
 				'@subpackage ... removal',
 				'/\s+\@subpackage\s+\s*([a-z.-_ ]+)\s*\*/i',
+				''
+			),
+			array(
+				'@access ... removal',
+				'/\s+\@access\s+\s*\w*\s*\*/i',
 				''
 			),
 		);
@@ -1415,6 +1422,53 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * CorrectShell::functions()
+	 *
+	 * @return void
+	 */
+	public function functions() {
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'is_integer() to is_int()',
+				'/\bis\_integer\(/',
+				'is_int('
+			),
+			array(
+				'is_writable() to is_writable()',
+				'/\bis\_writable\(/',
+				'is_writable('
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns, array(), array(), 'variables');
+	}
+
+	/**
+	 * CorrectShell::variables()
+	 *
+	 * @return void
+	 */
+	public function variables() {
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'$some_thing to $someThing',
+				'/\$[a-z]+\_[a-z_]+\b/',
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns, array(), array(), 'variables');
+	}
+
+	protected function _variables($matches) {
+		$variable = Inflector::camelize($matches[0]);
+		return $variable;
+	}
+
+	/**
 	 * Update legacy stuff for 2.0.
 	 *
 	 * - Replaces App::import() with App::uses() - mainly Utility classes.
@@ -1606,7 +1660,15 @@ class CorrectShell extends UpgradeShell {
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('request', array(
-				'help' => __d('cake_console', 'clientIp correction'),
+				'help' => __d('cake_console', 'clientIp corrections'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('variables', array(
+				'help' => __d('cake_console', 'variables corrections'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('functions', array(
+				'help' => __d('cake_console', 'function name corrections'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('i18n', array(
