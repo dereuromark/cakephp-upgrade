@@ -1436,13 +1436,18 @@ class CorrectShell extends UpgradeShell {
 				'is_int('
 			),
 			array(
-				'is_writable() to is_writable()',
-				'/\bis\_writable\(/',
+				'is_writeable() to is_writable()',
+				'/\bis\_writeable\(/',
 				'is_writable('
+			),
+			array(
+				'is_a($foo, \'CakeFoo\') to instance of',
+				'/\bis\_a\(\$(\w+)\,\s*\\\'(\w+)\\\'\)/',
+				'$\1 instanceof \2'
 			),
 		);
 
-		$this->_filesRegexpUpdate($patterns, array(), array(), 'variables');
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	/**
