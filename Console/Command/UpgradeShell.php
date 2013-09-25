@@ -923,10 +923,15 @@ EOL;
 				'/\$this-\>assertIsA\(\$(.*?),\s*\'(.*?)\'\)/i',
 				'$this->assertInstanceOf(\'\2\', $\1)'
 			),
-			array( //$this->assertTrue(is_a($this->Qlogin, 'Qlogin'));
+			array(
 				'$this->assertTrue(is_a()) to $this->assertInstanceOf()',
 				'/\$this-\>assertTrue\(is_a\(\$(.*?),\s*\'(.*?)\'\)\)/i',
 				'$this->assertInstanceOf(\'\2\', $\1)'
+			),
+			array(
+				'assertReference() to assertSame()',
+				'/\$this-\>assertReference\(\$(.*?),\s*\'(.*?)\'\)/i',
+				'$this->assertSame($\1, $\2)'
 			),
 		);
 
