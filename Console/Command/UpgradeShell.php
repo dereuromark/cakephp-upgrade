@@ -1750,6 +1750,34 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
+	/**
+	 * UpgradeShell::stylesheets()
+	 *
+	 * @return void
+	 */
+	public function stylesheets() {
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$path = App::pluginPath($this->params['plugin']);
+			$this->_paths = array($path . 'View' . DS, $path . 'views' . DS);
+		} else {
+			$this->_paths = array(
+				APP . 'View' . DS,
+				APP . 'views' . DS
+			);
+		}
+
+		$patterns = array(
+			array(
+				'$this->Html->css($path, $rel, $options) to $this->Html->css($path, $options)',
+				'/\$this-\>Html-\>css\((.*?),\s*(.*?),\s*(.*?)\)/',
+				'$this->Html->css(\1, \3)'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
 	protected function _helperName($matches) {
 		$name = $matches[1];
 		$name = Inflector::camelize(Inflector::underscore($name));
@@ -2625,6 +2653,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('views', array(
 				'help' => __d('cake_console', 'Update views and replace nocache tag'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('stylesheets', array(
+				'help' => __d('cake_console', 'Update CSS style tag'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('webroot', array(
