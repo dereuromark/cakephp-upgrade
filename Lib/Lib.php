@@ -1,11 +1,10 @@
 <?php
 
 /**
- * try to find locations for libs during the upgrade process
+ * Try to find locations for libs during the upgrade process
  * will match old
  * - App::import('Lib', 'PluginName.ClassName') to App::uses('ClassName', 'PluginName.Lib/Package')
  * - App::import('Core', 'Xml') to App::uses('Xml', 'Package')
- * 2011-11-09 ms
  */
 class Lib {
 
@@ -13,8 +12,7 @@ class Lib {
 	 * Convert file inclusions to 2.x style
 	 * e.g. import("Lib", "Tools.SuperDuper") from App::import to uses("SuperDuper", "Tools.Lib")
 	 *
-	 * @return Plugin.Misc (if in Misc Package), Plugin.Lib (if in lib root) or NULL on failure
-	 * 2012-04-10 ms
+	 * @return string Plugin.Misc (if in Misc Package), Plugin.Lib (if in lib root) or NULL on failure
 	 */
 	public function match($name, $type = 'Lib') {
 		list($plugin, $tmp) = pluginSplit($name, true);
@@ -25,7 +23,7 @@ class Lib {
 			try {
 				CakePlugin::path($pluginName);
 			} catch (exception $e) {
-				trigger_error($e->getMessage().' - '.$pluginName.' does not exists ('.$name.')');
+				trigger_error($e->getMessage() . ' - ' . $pluginName . ' does not exists (' . $name . ')');
 				return null;
 			}
 		}
@@ -69,7 +67,9 @@ class Lib {
 	}
 
 	/**
-	 * recursive match down the lib package paths
+	 * Recursive match down the lib package paths
+	 *
+	 * @return string
 	 */
 	protected function _match($path, $name, $plugin, $loop = 0) {
 		$Iterator = new RecursiveDirectoryIterator($path);
@@ -78,11 +78,11 @@ class Lib {
 				continue;
 			}
 			if (!$File->isFile()) {
-				if ($res = $this->_match($File->getPathname(), $name, $plugin, $loop+1)) {
+				if ($res = $this->_match($File->getPathname(), $name, $plugin, $loop + 1)) {
 					return $res;
 				}
 			}
-			if (basename($File->getPathname(), '.php') == $name) {
+			if (basename($File->getPathname(), '.php') === $name) {
 				$finalPath = dirname($File->getPathname());
 				$package = array();
 				while ($loop) {
@@ -92,7 +92,7 @@ class Lib {
 				}
 				$package = array_reverse($package);
 
-				return $plugin.implode('/', $package);
+				return $plugin . implode('/', $package);
 			}
 		}
 		return null;

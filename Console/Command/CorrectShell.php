@@ -28,7 +28,6 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * @php 5
  * @author Mark scherer
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- * 2011-11-18 ms
  */
 class CorrectShell extends UpgradeShell {
 
@@ -367,7 +366,6 @@ class CorrectShell extends UpgradeShell {
 	 * __('Edit %s', __('Job'))
 	 *
 	 * @return void
-	 * 2011-11-17 ms
 	 */
 	public function i18n() {
 		$this->params['ext'] = 'php|ctp|rst';
@@ -441,7 +439,7 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * in 2.0 all $var should be replaced by $public
+	 * In 2.0 all $var should be replaced by $public
 	 * also - a framework shouldnt have ANY private methods or attributes
 	 * this makes so sense at all. this is covered in the current core
 	 * user files should also follow this principle.
@@ -495,11 +493,6 @@ class CorrectShell extends UpgradeShell {
 				'private function __',
 				'/\bprivate function __(?!construct|destruct|sleep|wakeup|get|set|call|toString|invoke|set_state|clone|callStatic|isset|unset])\w+\b/i',
 				'protected function _\1'
-			),
-			array(
-				'respect $access doc info',
-				'/\/**(.*)@access ([public|private|protected])(.*)\/*\s*\s+public \$/i',
-				'/**\1'.PHP_EOL.TB.'@access'
 			),
 			*/
 		);
@@ -592,6 +585,17 @@ class CorrectShell extends UpgradeShell {
 
 		$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlock');
 
+		// Unification of doc block beginnings
+		$this->params['ext'] = 'php|ctp';
+		$patterns = array(
+			array(
+				'/** * some thing ... /* * Some thing',
+				'/\/\*\*(\s+\s*) \* (\w+) /sm',
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlockBeginning');
+
 		$patterns = array(
 			array(
 				'@param bool $foo ... @param boolean $foo',
@@ -643,11 +647,22 @@ class CorrectShell extends UpgradeShell {
 				'/\@return (\w+) \$(\w+)\b/i',
 				'@return \1 \2'
 			),
+			array(
+				'multiple empty doc block rows to single ones',
+				'/\ \*(\s+) \*(\s+ \*)+/sm',
+				' *\1 *'
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
 	}
 
+	/**
+	 * Callback for doc_blocks regexp update
+	 *
+	 * @param array $matches
+	 * @return string
+	 */
 	protected function _docBlock($matches) {
 		$desc = ucfirst($matches[3]);
 		if (substr($desc, -1, 1) !== '.') {
@@ -657,7 +672,20 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * in 2.0 this is not needed anymore (thank god - forms post now to themselves per default^^)
+	 * Callback for doc_blocks regexp update
+	 *
+	 * @param array $matches
+	 * @return string
+	 */
+	protected function _docBlockBeginning($matches) {
+		$whitespace = $matches[1];
+		$content = ucfirst($matches[2]);
+
+		return '/**' . $whitespace . ' * ' . $content . ' ';
+	}
+
+	/**
+	 * In 2.0 this is not needed anymore (thank god - forms post now to themselves per default^^)
 	 *
 	 * @return void
 	 */
@@ -700,11 +728,10 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * deprecated stuff in php5.3
+	 * Deprecated stuff in php5.3
 	 * or new features/fixed introduced in php5.3
 	 *
 	 * @return void
-	 * 2011-11-15 ms
 	 */
 	public function php53() {
 		$this->params['ext'] = 'php';
@@ -741,7 +768,6 @@ class CorrectShell extends UpgradeShell {
 	 * RequestHandler stuff is now mainly handled by Request Object
 	 *
 	 * @return void
-	 * 2011-11-15 ms
 	 */
 	public function request() {
 		$this->params['ext'] = 'php';
@@ -826,7 +852,6 @@ class CorrectShell extends UpgradeShell {
 	 * AuthExt back to Auth (thx to aliasing!)
 	 *
 	 * @return void
-	 * 2011-11-17 ms
 	 */
 	public function auth() {
 		$this->params['ext'] = 'php';
@@ -852,7 +877,6 @@ class CorrectShell extends UpgradeShell {
 	 * From component to lib
 	 *
 	 * @return void
-	 * 2011-11-15 ms
 	 */
 	public function mail() {
 		$this->params['ext'] = 'php';
@@ -939,7 +963,7 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * move some methods from CommonHelper to FormatHelper
+	 * Move some methods from CommonHelper to FormatHelper
 	 *
 	 * @return void
 	 */
@@ -1403,7 +1427,7 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
-	 * correct brackets: class X extends Y {
+	 * Correct brackets: class X extends Y {
 	 *
 	 * @return void
 	 */
@@ -1468,6 +1492,12 @@ class CorrectShell extends UpgradeShell {
 		$this->_filesRegexpUpdate($patterns, array(), array(), 'variables');
 	}
 
+	/**
+	 * Callback for variables regexp update
+	 *
+	 * @param array $matches
+	 * @return string
+	 */
 	protected function _variables($matches) {
 		$variable = Inflector::camelize($matches[0]);
 		return $variable;
@@ -1534,7 +1564,7 @@ class CorrectShell extends UpgradeShell {
 				'$class = $controller .'
 			),
 		);
-		$this->_paths[0] = $this->_paths[0].DS.'Routing';
+		$this->_paths[0] = $this->_paths[0] . DS . 'Routing';
 		//die(print_r($this->_paths, true));
 		$skipFiles = array('Router.php');
 		$this->_filesRegexpUpdate($patterns, $skipFiles);

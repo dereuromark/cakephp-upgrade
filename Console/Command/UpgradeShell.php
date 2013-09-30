@@ -13,7 +13,6 @@
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  * @link          http://cakephp.org CakePHP(tm) Project
- * @package       Cake.Console.Command
  * @since         CakePHP(tm) v 2.0
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
@@ -29,7 +28,6 @@ App::uses('Folder', 'Utility');
  * - all php files most NOT have a closing `?>` tag
  * - 1 tab indentation (instead of spaces) as described in coding guidelines
  *
- * @package       Cake.Console.Command
  */
 class UpgradeShell extends AppShell {
 
@@ -162,7 +160,7 @@ class UpgradeShell extends AppShell {
 
 /**
  * @param string %type (svn, git, ...)
- * @return boolean $success
+ * @return boolean Success
  */
 	protected function _isType($type) {
 		if (is_dir('.' . $type)) {
@@ -255,7 +253,7 @@ class UpgradeShell extends AppShell {
 	}
 
 /**
- * some really old stuff
+ * Some really old stuff
  * @link http://book.cakephp.org/2.0/en/appendices/migrating-from-cakephp-1-2-to-1-3.html
  *
  * @return void
@@ -560,9 +558,8 @@ EOL;
 	}
 
 	/**
-	 * optional upgrades to prepare for 3.0
+	 * Optional upgrades to prepare for 3.0
 	 * will remove/correct deprecated stuff
-	 * 2012-09-25 ms
 	 */
 	public function cake3() {
 		$this->_buildPaths('Test' . DS, $pluginpath . 'tests' . DS);
@@ -585,7 +582,6 @@ EOL;
 	 * Try to auto-correct E_STRICT issues.
 	 * Mainly for Cake2.4.
 	 *
-	 * 2012-11-16 ms
 	 */
 	public function estrict() {
 		$this->_buildPaths();
@@ -2108,9 +2104,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * generate report
+ * Generate report
  *
- * @return string $report
+ * @return string Report
  */
 	protected function _report() {
 		$content = '';
@@ -2168,7 +2164,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 	/**
-	 * automatically set the path according to custom paths or plugin given
+	 * Automatically set the path according to custom paths or plugin given
 	 * defaults to $path
 	 *
 	 * @return void
@@ -2186,7 +2182,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * move file with 2 step process to avoid collisions on case insensitive systems
+ * Move file with 2 step process to avoid collisions on case insensitive systems
  *
  * @return void
  */
@@ -2212,7 +2208,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * delete file according to repository type
+ * Delete file according to repository type
  *
  * @return void
  */
@@ -2238,7 +2234,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * create and add file according to repository type
+ * Create and add file according to repository type
  *
  * @return void
  */
@@ -2258,7 +2254,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * corrects name of database engine
+ * Corrects name of database engine
  * mysqli => Mysql
  *
  * @return string
@@ -2434,10 +2430,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * checks files based on regular expressions.
+ * Checks files based on regular expressions.
  *
  * @param array $patterns Array of search patterns.
- * @return array $matches
+ * @return array Matches
  */
 	protected function _filesRegexpCheck($patterns) {
 		$this->_findFiles($this->params['ext']);
@@ -2522,7 +2518,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  *
  * @param string $file The file to check
  * @param array $patterns The matching patterns to run.
- * @return array $matches
+ * @return array Matches
  */
 	protected function _checkFile($file, $patterns) {
 		$contents = file_get_contents($file);
@@ -2541,7 +2537,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	}
 
 /**
- * get the option parser
+ * Get the option parser
  *
  * note: the order is important for the "all" task to run smoothly
  *
