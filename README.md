@@ -31,6 +31,8 @@ Also: Mind the casing! Uppercase/lowercase is important.
 
 ## Usage
 
+### Upgrade shell
+
 As this is a plugin, use it with:
 
     cake Upgrade.Upgrade [command]
@@ -51,6 +53,7 @@ and if you use the app/Console shell instead (I never do that, though):
     ./Console/cake Upgrade.Upgrade [command]
 
 This version supports now on top of the original commands/tasks:
+
 - webroot (important)
 - database (important)
 - routes (important)
@@ -61,14 +64,19 @@ This version supports now on top of the original commands/tasks:
 - estrict
 - views
 - paginator (run only once!)
+
 and many more
 
 New functionally also supported now:
+
 - svn (linux/windows)
 - group commands
 - except command (all except for a few, e.g. `except paginator` to skip paginator method)
 
+### Correct shell
+
 Additionally you can use the CorrectShell to correct
+
 - request
 - amp
 - vis
@@ -106,6 +114,11 @@ The not fully tested way of using the plugin wildcard would be
     cake Upgrade.Upgrade [command] -p *
 
 which should just grab all files at once and process them
+
+### Convert shell
+The convert shell currenently handles:
+
+- Array syntax from long array() to short [] (PHP5.3 to PHP5.4)
 
 ### UPDATE January 2012: Support for 2.1
 Now supports
