@@ -359,6 +359,39 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * @return void
+	 */
+	public function specialchars() {
+		$this->params['ext'] = 'php|ctp|rst';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'‘ to \'',
+				array('/‘/'),
+				array('\'')
+			),
+			array(
+				'’ to \'',
+				array('/’/'),
+				array('\'')
+			),
+			array(
+				'“ to "',
+				array('/“/'),
+				array('"')
+			),
+			array(
+				'” to "',
+				array('/”/'),
+				array('"')
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
 	 * In 2.0 i18n is easier!
 	 *
 	 * sprintf(__('Edit %s'), __('Job'))
@@ -1773,6 +1806,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('performance', array(
 				'help' => __d('cake_console', 'performance updates'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('specialchars', array(
+				'help' => __d('cake_console', 'Resolve specialchars issues'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('whitespace', array(
