@@ -17,6 +17,7 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * not fully tested and therefore should not be used:
  * - php53
  * - objects
+ * - tests
  *
  * app specific (probably not useful for anybody else)
  * - mail
@@ -123,9 +124,75 @@ class CorrectShell extends UpgradeShell {
 				array('assertFalse(\1)')
 			),
 			*/
+			array(
+				'setup() to setUp()',
+				'/public\s+function\s+setUp\(\)/i',
+				'public function setUp()'
+			),
+			array(
+				'teardown() to tearDown()',
+				'/public\s+function\s+tearDown\(\)/i',
+				'public function tearDown()'
+			),
+			array(
+				'parent::setup() to parent::setUp()',
+				'/parent\:\:setUp\(\)/i',
+				'parent::setUp()'
+			),
+			array(
+				'parent::teardown() to parent::tearDown()',
+				'/parent\:\:tearDown\(\)/i',
+				'parent::tearDown()'
+			),
 		);
-
 		$this->_filesRegexpUpdate($patterns);
+
+		$patterns = array(
+			array(
+				'setUp() with parent call',
+				'/public\s+function\s+setUp\(\)\s*{/i',
+				'setUp'
+			),
+			array(
+				'tearDown() with parent call',
+				'/public\s+function\s+tearDown\(\)\s*{/i',
+				'tearDown'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns, array(), array(), null, '_updateFileTests');
+	}
+
+	/**
+	 * CorrectShell::_updateFileTests()
+	 *
+	 * @param string $file
+	 * @param array $patterns
+	 * @param string $callback
+	 * @return void
+	 */
+	protected function _updateFileTests($file, $patterns, $callback = null) {
+		$contents = $fileContent = file_get_contents($file);
+
+		foreach ($patterns as $pattern) {
+			$this->out(__d('cake_console', ' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
+			//echo debug($contents);
+			preg_match($pattern[1], $contents, $matches);
+			if (!$matches) {
+				continue;
+			}
+
+			if (strpos($contents, 'parent::' . $pattern[2] . '();') !== false) {
+				continue;
+			}
+
+			$replacement = 'public function '.$pattern[2].'() {' . PHP_EOL . "\t\t" . 'parent::' . $pattern[2] . '();';
+			$contents = preg_replace($pattern[1], $replacement, $contents);
+		}
+
+		$this->out(__d('cake_console', 'Done updating %s', $file), 1, Shell::VERBOSE);
+		if (!$this->params['dry-run'] && $contents !== $fileContent) {
+			file_put_contents($file, $contents);
+		}
 	}
 
 	/**
@@ -449,6 +516,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * Some speed improvements
 	 * - strict null checks should be used instead of is_null()
+	 * - strlen() comparisons should be strict
 	 *
 	 * @return void
 	 */
@@ -466,6 +534,17 @@ class CorrectShell extends UpgradeShell {
 				'\bis_null() to ===',
 				'/\b(is_null\()(.+?)(\))/i',
 				'\2 === null'
+			),
+			// Careful, can grab too much
+			array(
+				'strlen() == to strlen() ===',
+				'/strlen\((.*?)\)\s+\=\=\s+/',
+				'strlen(\1) === '
+			),
+			array(
+				'strlen() != to strlen() !==',
+				'/strlen\((.*?)\)\s+\!\=\s+/',
+				'strlen(\1) !== '
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
@@ -1609,13 +1688,17 @@ class CorrectShell extends UpgradeShell {
 	 * @param array $patterns Array of search and replacement patterns.
 	 * @return void
 	 */
-	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array(), $callback = null) {
+	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array(), $callback = null, $method = null) {
 		$this->_findFiles($this->params['ext'], $skipFolders);
 		foreach ($this->_files as $file) {
 			if (in_array(pathinfo($file, PATHINFO_BASENAME), $skipFiles)) {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Updating %s...', $file), 1, Shell::VERBOSE);
+			if ($method) {
+				$this->{$method}($file, $patterns, $callback);
+				continue;
+			}
 			$this->_updateFile($file, $patterns, $callback);
 		}
 	}

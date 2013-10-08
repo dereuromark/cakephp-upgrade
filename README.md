@@ -1,10 +1,14 @@
-# CakePHP 2.x upgrade shell - improved version
+# CakePHP 2.x upgrade shell
+
+## Improved version (built on top)
 
 The original one lacks a lot of things that could be done automatically.
 Changes have been reported as ticket, but so far it has not yet made it into the official version.
 
 Note: Some of the following "installation" steps are only necessary upgrading from 1.x (like folder renaming). Do not think of them as a perfectly adjusted worklist (also don't mind the order).
 Every app, every setup is different. It is more a small guide to get the basics straight.
+
+It can also apply a lot of additional sugar and enforce coding standards etc. Those commands are not vital, but nice to have.
 
 ## Installation
 
@@ -124,7 +128,7 @@ The convert shell currenently handles:
 Now supports
 - Auth::allow(), Layout Stuff and more
 
-### UPDATE September 2012: Support up to 2.3 (and some 3.0)
+### UPDATE September 2012: Support up to 2.3
 Now supports
 - request->query() and Set/Hash replacement
 
@@ -132,7 +136,7 @@ Now supports
 Now creates missing App classes that are required since 2.1
 - AppHelper, AppModel and AppController (AppShell is not yet required)
 
-### UPDATE 2013: Cake2.4 and Cake2.5
+### UPDATE Summer 2013: Cake2.4 and Cake2.5 (and some 3.0) support
 
 ## Disclaimer
 

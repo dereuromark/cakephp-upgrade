@@ -188,6 +188,13 @@ class UpgradeShell extends AppShell {
 			if ($name === 'all' || $name === 'group') {
 				continue;
 			}
+			$version = (float)Configure::version();
+
+			if ($version < 2.5 && $name === 'cake25' || $version < 3.0 && $name === 'cake30') {
+				$this->out('Skipping command ' . $name);
+				continue;
+			}
+
 			$this->out(__d('cake_console', 'Running %s', $name));
 			$this->$name();
 		}
@@ -451,13 +458,11 @@ EOL;
 	public function cake23() {
 		$this->_buildPaths();
 		$patterns = array(
-			/*
 			array(
 				'->request[\'url\'][...] to ->request(...)',
 				'/-\>request[\'url\'][\'(.*?)\']/',
 				'->request->query(\'\1\')'
 			),
-			*/
 			array(
 				'->request[\'url\'][...] to ->request(...)',
 				'/-\>request\[\'url\'\]\[(.*?)\]/',
@@ -478,13 +483,11 @@ EOL;
 				'/-\>Behaviors-\>detach\(/',
 				'->Behaviors->unload('
 			),
-			/*
 			array(
 				'->Behaviors->attached to ->Behaviors->loaded',
 				'/-\>Behaviors-\>attached\(/',
 				'->Behaviors->loaded('
 			),
-			*/
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -558,10 +561,86 @@ EOL;
 	}
 
 	/**
+	 * Do not use for CakePHP <= 2.4 !
+	 *
+	 * Currently does:
+	 * - validation rules name fixes for notEmpty etc.
+	 *
+	 * @return void
+	 */
+	public function cake25() {
+		$this->_buildPaths('Model' . DS);
+
+		$patterns = array(
+			array(
+				'notempty to notEmpty',
+				'/\bnotempty\b/',
+				'notEmpty'
+			),
+			array(
+				'isunique to isUnique',
+				'/\bisunique\b/',
+				'isUnique'
+			),
+			array(
+				'alphanumeric to alphaNumeric',
+				'/\balphanumeric\b/',
+				'alphaNumeric'
+			),
+			array(
+				'equalto to equalTo',
+				'/\bequalto\b/',
+				'equalTo'
+			),
+			array(
+				'minlength to minLength',
+				'/\bminlength\b/',
+				'minLength'
+			),
+			array(
+				'maxlength to maxLength',
+				'/\bmaxlength\b/',
+				'maxLength'
+			),
+			array(
+				'naturalnumber to naturalNumber',
+				'/\bnaturalnumber\b/',
+				'naturalNumber'
+			),
+			array(
+				'inlist to inList',
+				'/\binlist\b/',
+				'inList'
+			),
+			array(
+				'userdefined to userDefined',
+				'/\buserdefined\b/',
+				'userDefined'
+			),
+			array(
+				'mimetype to mimeType',
+				'/\bmimetype\b/',
+				'mimeType'
+			),
+			array(
+				'filesize to fileSize',
+				'/\bfilesize\b/',
+				'fileSize'
+			),
+			array(
+				'uploaderror to uploadError',
+				'/\buploaderror\b/',
+				'uploadError'
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
 	 * Optional upgrades to prepare for 3.0
 	 * will remove/correct deprecated stuff
 	 */
-	public function cake3() {
+	public function cake30() {
 		$this->_buildPaths('Test' . DS, $pluginpath . 'tests' . DS);
 		$patterns = array(
 			array(
@@ -2697,6 +2776,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			))
 			->addSubcommand('cake24', array(
 				'help' => __d('cake_console', 'Upgrade to cake2.4 standards'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('cake25', array(
+				'help' => __d('cake_console', 'Upgrade to cake2.5 standards'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('cake30', array(
+				'help' => __d('cake_console', 'Upgrade to cake3.0 standards (experimental!)'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('estrict', array(
