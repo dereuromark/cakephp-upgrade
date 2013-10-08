@@ -1,4 +1,4 @@
-# CakePHP2.x upgrade shell - improved version
+# CakePHP 2.x upgrade shell - improved version
 
 The original one lacks a lot of things that could be done automatically.
 Changes have been reported as ticket, but so far it has not yet made it into the official version.
@@ -132,6 +132,7 @@ Now supports
 Now creates missing App classes that are required since 2.1
 - AppHelper, AppModel and AppController (AppShell is not yet required)
 
+### UPDATE 2013: Cake2.4 and Cake2.5
 
 ## Disclaimer
 
@@ -162,3 +163,4 @@ AND everything else that is not yet covered but meticulously documented in the m
 - http://book.cakephp.org/2.0/en/appendices/2-1-migration-guide.html
 - http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
 - http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-4-migration-guide.html
