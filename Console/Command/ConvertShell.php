@@ -4,7 +4,7 @@ App::uses('Folder', 'Utility');
 App::uses('UpgradeShell', 'Upgrade.Console/Command');
 
 /**
- * Convert shell to convert stuff to PHP5.4.
+ * Shell to convert stuff to PHP5.4.
  *
  * Currently handles:
  * - Array syntax from long array() to short []
@@ -29,7 +29,7 @@ class ConvertShell extends UpgradeShell {
 	}
 
 	/**
-	 * ConvertShell::array()
+	 * ConvertShell::arrays()
 	 *
 	 * @return void
 	 */
@@ -41,9 +41,10 @@ class ConvertShell extends UpgradeShell {
 	}
 
 	/**
-	 * Updates files based on regular expressions.
+	 * Updates all found files.
 	 *
-	 * @param array $patterns Array of search and replacement patterns.
+	 * @param array $skipFiles Array of files to skip.
+	 * @param array $skipFolders Array of folders to skip.
 	 * @return void
 	 */
 	protected function _filesUpdate($skipFiles = array(), $skipFolders = array()) {
@@ -57,6 +58,15 @@ class ConvertShell extends UpgradeShell {
 		}
 	}
 
+	/**
+	 * Actually modifies the file.
+	 * Transform array() into [].
+	 *
+	 * Use `dry-run` to simulate the replacement.
+	 *
+	 * @param string $file
+	 * @return void
+	 */
 	protected function _updateFile($file) {
 		$contents = file_get_contents($file);
 		$modified = $contents;
@@ -128,7 +138,7 @@ class ConvertShell extends UpgradeShell {
 
 		// Apply the replacements to the source code
 		$offsetChange = 0;
-		foreach($replacements as $replacement) {
+		foreach ($replacements as $replacement) {
 			$modified = substr_replace($modified, $replacement['string'], $replacement['start'] + $offsetChange, $replacement['end'] - $replacement['start']);
 			$offsetChange += strlen($replacement['string']) - ($replacement['end'] - $replacement['start']);
 		}
@@ -237,7 +247,9 @@ class ConvertShell extends UpgradeShell {
 			)
 		);
 
-		return parent::getOptionParser()
+		$name = ($this->plugin ? $this->plugin . '.' : '') . $this->name;
+		$parser = new ConsoleOptionParser($name);
+		return $parser
 			->description(__d('cake_console', "A shell to help automate upgrading array syntax to PHP5.4"))
 			->addSubcommand('arrays', array(
 				'help' => __d('cake_console', 'Main method to update verbose array syntax to short one.'),
