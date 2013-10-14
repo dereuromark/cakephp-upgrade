@@ -103,6 +103,13 @@ class CorrectShell extends UpgradeShell {
 
 		$patterns = array(
 			array(
+				// For assertEquals, assertNotEquals, assertSame, assertNotSame, ...
+				// Unfortunatetly, assertTags() is the only one with the opposite order
+				'assert*($is, $expected) to assert*($expected, $is)',
+				array('/\bassert((?!tags)\w+)\(\$(\w+),\s*\$expected\)/i'),
+				array('assert\1($expected, $\2)')
+			),
+			array(
 				'assertSame(..., true) => assertTrue(...)',
 				array('/\bassertSame\((.*?),\s*true\)/i'),
 				array('assertTrue(\1)')
@@ -185,7 +192,7 @@ class CorrectShell extends UpgradeShell {
 				continue;
 			}
 
-			$replacement = 'public function '.$pattern[2].'() {' . PHP_EOL . "\t\t" . 'parent::' . $pattern[2] . '();';
+			$replacement = 'public function ' . $pattern[2] . '() {' . PHP_EOL . "\t\t" . 'parent::' . $pattern[2] . '();';
 			$contents = preg_replace($pattern[1], $replacement, $contents);
 		}
 
@@ -613,8 +620,8 @@ class CorrectShell extends UpgradeShell {
 		$skipFolders = array(
 			'Vendor',
 			'vendors',
-			'Lib'.DS.'Vendor',
-			'Lib'.DS.'vendors',
+			'Lib' . DS . 'Vendor',
+			'Lib' . DS . 'vendors',
 		);
 		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);
 	}
@@ -1091,9 +1098,9 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array();
 		foreach ($methods as $method) {
 			$patterns[] = array(
-				$method.'()',
-				'/-\>Common-\>'.$method.'\(/',
-				'->Format->'.$method.'(',
+				$method . '()',
+				'/-\>Common-\>' . $method . '\(/',
+				'->Format->' . $method . '(',
 			);
 		}
 
@@ -1103,9 +1110,9 @@ class CorrectShell extends UpgradeShell {
 		$patterns = array();
 		foreach ($methods as $method) {
 			$patterns[] = array(
-				$method.'()',
-				'/-\>Common-\>'.$method.'\(/',
-				'->Numeric->'.$method.'(',
+				$method . '()',
+				'/-\>Common-\>' . $method . '\(/',
+				'->Numeric->' . $method . '(',
 			);
 		}
 
@@ -1114,9 +1121,9 @@ class CorrectShell extends UpgradeShell {
 		);
 		foreach ($methods as $method) {
 			$patterns[] = array(
-				$method.'()',
-				'/-\>GoogleMapV3-\>'.$method.'\(/',
-				'->GoogleMapV3->map'.ucfirst($method).'(',
+				$method . '()',
+				'/-\>GoogleMapV3-\>' . $method . '\(/',
+				'->GoogleMapV3->map' . ucfirst($method) . '(',
 			);
 		}
 
@@ -1520,7 +1527,7 @@ class CorrectShell extends UpgradeShell {
 		);
 		$this->_filesRegexpUpdate($patterns, $skipFiles, $skipFolders);
 
-		$file = $this->_paths[0].DS.'View'.DS.'View.php';
+		$file = $this->_paths[0] . DS . 'View' . DS . 'View.php';
 		if (file_exists($file)) {
 			$content = file_get_contents($file);
 			$content = str_replace('__construct(Controller $controller)', '__construct(Controller $controller = null)', $content);
@@ -1767,12 +1774,12 @@ class CorrectShell extends UpgradeShell {
 					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
 					'default' => '',
 				),
-				'dry-run'=> array(
+				'dry-run' => array(
 					'short' => 'd',
 					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
 					'boolean' => true
 				),
-				'log'=> array(
+				'log' => array(
 					'short' => 'l',
 					'help' => __d('cake_console', 'Log all ouput to file log.txt in TMP dir'),
 					'boolean' => true

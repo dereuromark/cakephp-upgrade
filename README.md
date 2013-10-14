@@ -136,7 +136,7 @@ Now supports
 Now creates missing App classes that are required since 2.1
 - AppHelper, AppModel and AppController (AppShell is not yet required)
 
-### UPDATE Summer 2013: Cake2.4 and Cake2.5 (and some 3.0) support
+### UPDATE Summer 2013: 2.4/2.5 (and some 3.0) support
 
 ## Disclaimer
 

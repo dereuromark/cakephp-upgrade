@@ -21,7 +21,7 @@ App::uses('AppShell', 'Console/Command');
 App::uses('Folder', 'Utility');
 
 /**
- * A shell class to help developers upgrade applications to CakePHP 2.0
+ * A shell class to help developers upgrade applications to CakePHP 2.0 and above
  *
  * Necessary expecations for the shell to work flawlessly:
  * - brackets must always be correct (`Class extends OtherClass {` in one line!)
@@ -325,6 +325,29 @@ class UpgradeShell extends AppShell {
 			),
 		);
 
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * CakePHP 2.0 upgrades
+	 * @link http://book.cakephp.org/2.0/en/appendices/2-0-migration-guide.html
+	 *
+	 * @return void
+	 */
+	public function cake20() {
+		$this->_buildPaths('Controller' . DS);
+		$patterns = array(
+			array(
+				'AclComponent::grant( ... allow(',
+				'/-\>Acl-\>grant\(/',
+				'->Acl->allow('
+			),
+			array(
+				'AclComponent::revoke( ... deny(',
+				'/-\>Acl-\>revoke\(/',
+				'->Acl->deny('
+			),
+		);
 		$this->_filesRegexpUpdate($patterns);
 	}
 
@@ -1472,12 +1495,12 @@ EOL;
 		$content = file_get_contents($file);
 		if (strpos($content, 'CakePlugin::routes()') === false) {
 			$this->out(__d('cake_console', 'adding 2.0 plugin routes...'));
-			$content .= PHP_EOL.PHP_EOL.'CakePlugin::routes();';
+			$content .= PHP_EOL . PHP_EOL . 'CakePlugin::routes();';
 			$changes = true;
 		}
 		if (strpos($content, 'require CAKE . \'Config\' . DS . \'routes.php\'') === false) {
 			$this->out(__d('cake_console', 'adding new 2.0 default routes...'));
-			$content .= PHP_EOL.PHP_EOL.'/**
+			$content .= PHP_EOL . PHP_EOL . '/**
 * Load the CakePHP default routes. Remove this if you do not want to use
 * the built-in default routes.
 */
@@ -1856,7 +1879,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	protected function _helperName($matches) {
 		$name = $matches[1];
 		$name = Inflector::camelize(Inflector::underscore($name));
-		return '$this->'.ucfirst($name).'->';
+		return '$this->' . ucfirst($name) . '->';
 	}
 
 /**
@@ -1889,8 +1912,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		);
 
 		$to = APP . 'webroot' . DS;
-		$from = CAKE . 'Console'. DS . 'Templates' . DS . 'skel' . DS . 'webroot' . DS;
-		$file = $to.'.htaccess';
+		$from = CAKE . 'Console' . DS . 'Templates' . DS . 'skel' . DS . 'webroot' . DS;
+		$file = $to . '.htaccess';
 		if (file_exists($file)) {
 			$this->_updateFile($file, $patterns);
 			$this->out(__d('cake_console', '%s updated', '.htaccess'));
@@ -1988,9 +2011,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		);
 		foreach ($legacyClasses as $legacyClass => $package) {
 			$patterns[] = array(
-				'App::import(\''.$legacyClass.'\') to App::uses(\''.$legacyClass.'\', \''.$package.'\')',
-				'/App\:\:import\(\''.$legacyClass.'\'\)/',
-				'App::uses(\''.$legacyClass.'\', \''.$package.'\')'
+				'App::import(\'' . $legacyClass . '\') to App::uses(\'' . $legacyClass . '\', \'' . $package . '\')',
+				'/App\:\:import\(\'' . $legacyClass . '\'\)/',
+				'App::uses(\'' . $legacyClass . '\', \'' . $package . '\')'
 			);
 		}
 
@@ -2012,7 +2035,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			return;
 		}
 
-		$file = APP.'Config'.DS.'database.php';
+		$file = APP . 'Config' . DS . 'database.php';
 		if (!file_exists($file)) {
 			return;
 		}
@@ -2170,7 +2193,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
  * @return void
  */
 	public function report() {
-		$file = TMP.'report.txt';
+		$file = TMP . 'report.txt';
 		$this->_buildPaths();
 
 		$content = $this->_report();
@@ -2294,7 +2317,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	protected function _delete($path, $folder = true) {
 		//problems on windows due to case insensivity (Config/config etc)
 		//problems in subversion after deletion
-		if (strpos($path, DS.'Config'.DS) !== false) {
+		if (strpos($path, DS . 'Config' . DS) !== false) {
 			return;
 		}
 
@@ -2521,7 +2544,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		foreach ($this->_files as $file) {
 			$this->out(__d('cake_console', 'Checking %s...', $file), 1, Shell::VERBOSE);
 			if ($match = $this->_checkFile($file, $patterns)) {
-				$matches[] = array('file'=>$file, 'matches'=>$match);
+				$matches[] = array('file' => $file, 'matches' => $match);
 			}
 		}
 		return $matches;
@@ -2607,7 +2630,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			$this->out(__d('cake_console', ' * Checking %s', $pattern[0]), 1, Shell::VERBOSE);
 			preg_match_all($pattern[1], $contents, $match);
 			if ($match[0]) {
-				$matches[] = array('pattern'=>$pattern, 'matches'=>$match);
+				$matches[] = array('pattern' => $pattern, 'matches' => $match);
 			}
 		}
 
@@ -2655,7 +2678,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 					'help' => __d('cake_console', 'Use svn command for moving files around.'),
 					'boolean' => true
 				),
-				'dry-run'=> array(
+				'dry-run' => array(
 					'short' => 'd',
 					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
 					'boolean' => true
@@ -2766,24 +2789,28 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'help' => __d('cake_console', 'Upgrade stuff older than cake13 (already deprecated in v13)'),
 				'parser' => $subcommandParser
 			))
+			->addSubcommand('cake20', array(
+				'help' => __d('cake_console', 'Upgrade to CakePHP 2.0'),
+				'parser' => $subcommandParser
+			))
 			->addSubcommand('cake21', array(
-				'help' => __d('cake_console', 'Upgrade to cake2.1 standards'),
+				'help' => __d('cake_console', 'Upgrade to CakePHP 2.1'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake23', array(
-				'help' => __d('cake_console', 'Upgrade to cake2.3 standards'),
+				'help' => __d('cake_console', 'Upgrade to CakePHP 2.3'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake24', array(
-				'help' => __d('cake_console', 'Upgrade to cake2.4 standards'),
+				'help' => __d('cake_console', 'Upgrade to CakePHP 2.4'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake25', array(
-				'help' => __d('cake_console', 'Upgrade to cake2.5 standards'),
+				'help' => __d('cake_console', 'Upgrade to CakePHP 2.5'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake30', array(
-				'help' => __d('cake_console', 'Upgrade to cake3.0 standards (experimental!)'),
+				'help' => __d('cake_console', 'Upgrade to CakePHP 3.0 (experimental!)'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('estrict', array(

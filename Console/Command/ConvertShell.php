@@ -107,8 +107,8 @@ class ConvertShell extends UpgradeShell {
 
 			// Replace "array" and the opening bracket (including preceeding whitespace) with "["
 			$replacements[] = array(
-				'start'  => $offset - strlen($tokens[$i][1]),
-				'end'    => $subOffset,
+				'start' => $offset - strlen($tokens[$i][1]),
+				'end' => $subOffset,
 				'string' => '[',
 			);
 
@@ -126,8 +126,8 @@ class ConvertShell extends UpgradeShell {
 					if ($openBracketsCount === 0) {
 						// Replace ")" with "]"
 						$replacements[] = array(
-							'start'  => $subOffset - 1,
-							'end'    => $subOffset,
+							'start' => $subOffset - 1,
+							'end' => $subOffset,
 							'string' => ']',
 						);
 						break;
@@ -234,7 +234,7 @@ class ConvertShell extends UpgradeShell {
 					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
 					'default' => '',
 				),
-				'dry-run'=> array(
+				'dry-run' => array(
 					'short' => 'd',
 					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
 					'boolean' => true

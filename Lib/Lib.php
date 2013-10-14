@@ -33,9 +33,9 @@ class Lib {
 			return null;
 		}
 
-		$libs = App::objects($plugin.$type, null, false);
+		$libs = App::objects($plugin . $type, null, false);
 		if (in_array($name, $libs)) {
-			return $plugin.$type;
+			return $plugin . $type;
 		}
 		$paths = App::path($type, $pluginName, false);
 		foreach ($paths as $path) {
