@@ -19,6 +19,7 @@
 		"source": "https://github.com/dereuromark/upgrade"
 	},
 	"extra": {
+		"installer-name": "Upgrade",
 		"installer-paths": {
 			"Plugin/Upgrade/": ["dereuromark/upgrade-cakephp"]
 		}
