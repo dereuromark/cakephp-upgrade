@@ -89,7 +89,7 @@ class ConvertShell extends UpgradeShell {
 			// looking at an "array(...)" statement
 			$isArraySyntax = false;
 			$subOffset = $offset;
-			for($j = $i + 1; $j < count($tokens); ++$j) {
+			for ($j = $i + 1; $j < count($tokens); ++$j) {
 				$subOffset += strlen(is_array($tokens[$j]) ? $tokens[$j][1] : $tokens[$j]);
 
 				if (is_string($tokens[$j]) && $tokens[$j] == '(') {

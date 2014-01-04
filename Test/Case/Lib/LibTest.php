@@ -17,7 +17,6 @@ class LibTest extends CakeTestCase {
 
 		$res = $this->Lib->match('Tools.Xml');
 		pr($res);
-
 	}
 
 	public function testCoreLibs() {
