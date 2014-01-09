@@ -274,7 +274,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * careful: not for JS in ctp files!
 	 *
-	 * //TODO: test and verify
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function conventions2() {
@@ -300,7 +300,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * careful: could break sth
 	 *
-	 * //TODO: test and verify
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function conventions3() {
@@ -326,7 +326,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * careful: could break sth
 	 *
-	 * //TODO: test and verify
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function conventions4() {
@@ -367,6 +367,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * CorrectShell::conventions_experimental()
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function conventions_experimental() {
@@ -385,6 +386,8 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * Careful: in some places this is actually desired
+	 *
 	 * @return void
 	 */
 	public function umlauts() {
@@ -433,6 +436,8 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * Careful: in some places this is actually desired
+	 *
 	 * @return void
 	 */
 	public function specialchars() {
@@ -525,6 +530,7 @@ class CorrectShell extends UpgradeShell {
 	 * - strict null checks should be used instead of is_null()
 	 * - strlen() comparisons should be strict
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function performance() {
@@ -565,6 +571,7 @@ class CorrectShell extends UpgradeShell {
 	 * Experimental/TODO:
 	 * - trying to get all __function calls back to _function
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function vis() {
@@ -629,6 +636,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * CorrectShell::whitespace()
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function whitespace() {
@@ -850,6 +858,8 @@ class CorrectShell extends UpgradeShell {
 	 * Deprecated stuff in php5.3
 	 * or new features/fixed introduced in php5.3
 	 *
+	 * Careful: Some self:: stuff is needed and should not be updated
+	 *
 	 * @return void
 	 */
 	public function php53() {
@@ -1052,6 +1062,12 @@ class CorrectShell extends UpgradeShell {
 		$this->_paths = (array)$this->_paths;
 	}
 
+	/**
+	 * CorrectShell::amp()
+	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
+	 * @return void
+	 */
 	public function amp() {
 		$this->params['ext'] = 'php|rst';
 		$this->_getPaths();
@@ -1548,6 +1564,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * Correct brackets: class X extends Y {
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function classes() {
@@ -1567,6 +1584,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * CorrectShell::functions()
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function functions() {
@@ -1596,6 +1614,7 @@ class CorrectShell extends UpgradeShell {
 	/**
 	 * CorrectShell::variables()
 	 *
+	 * @deprecated Use my cakephp-codesniffer plugin
 	 * @return void
 	 */
 	public function variables() {

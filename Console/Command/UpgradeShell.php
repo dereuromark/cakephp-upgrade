@@ -31,32 +31,32 @@ App::uses('Folder', 'Utility');
  */
 class UpgradeShell extends AppShell {
 
-/**
- * Files
- *
- * @var array
- */
+	/**
+	 * Files
+	 *
+	 * @var array
+	 */
 	protected $_files = array();
 
-/**
- * Paths
- *
- * @var array
- */
+	/**
+	 * Paths
+	 *
+	 * @var array
+	 */
 	protected $_paths = array();
 
-/**
- * Custom Paths
- *
- * @var array
- */
+	/**
+	 * Custom Paths
+	 *
+	 * @var array
+	 */
 	protected $_customPaths = array();
 
-/**
- * Map
- *
- * @var array
- */
+	/**
+	 * Map
+	 *
+	 * @var array
+	 */
 	protected $_map = array(
 		'Controller' => 'Controller',
 		'Component' => 'Controller/Component',
@@ -73,11 +73,11 @@ class UpgradeShell extends AppShell {
 		'Error' => 'Lib/Error',
 	);
 
-/**
- * Shell startup, prints info message about dry run.
- *
- * @return void
- */
+	/**
+	 * Shell startup, prints info message about dry run.
+	 *
+	 * @return void
+	 */
 	public function startup() {
 		parent::startup();
 		if ($this->params['dry-run']) {
@@ -158,10 +158,10 @@ class UpgradeShell extends AppShell {
 		$this->_paths = $paths;
 	}
 
-/**
- * @param string %type (svn, git, ...)
- * @return boolean Success
- */
+	/**
+	 * @param string %type (svn, git, ...)
+	 * @return boolean Success
+	 */
 	protected function _isType($type) {
 		if (is_dir('.' . $type)) {
 			return true;
@@ -177,11 +177,11 @@ class UpgradeShell extends AppShell {
 		return false;
 	}
 
-/**
- * Run all upgrade steps one at a time
- *
- * @return void
- */
+	/**
+	 * Run all upgrade steps one at a time
+	 *
+	 * @return void
+	 */
 	public function all() {
 		foreach ($this->OptionParser->subcommands() as $command) {
 			$name = $command->name();
@@ -200,22 +200,22 @@ class UpgradeShell extends AppShell {
 		}
 	}
 
-/**
- * Run all defined upgrade steps one at a time
- *
- * Use params to define (at least two - otherwise you can run it standalone):
- * cake upgrade group controllers components ...
- *
- * Or use Configure:
- * Configure::write('UpgradeGroup.cc', array('controllers', 'components', ...));
- * and
- * cake upgrade group cc
- * NOTE: group names cannot be one of the commands to run!
- *
- * the group method is the only one capable of understanding -p * (all plugins at once)
- *
- * @return void
- */
+	/**
+	 * Run all defined upgrade steps one at a time
+	 *
+	 * Use params to define (at least two - otherwise you can run it standalone):
+	 * cake upgrade group controllers components ...
+	 *
+	 * Or use Configure:
+	 * Configure::write('UpgradeGroup.cc', array('controllers', 'components', ...));
+	 * and
+	 * cake upgrade group cc
+	 * NOTE: group names cannot be one of the commands to run!
+	 *
+	 * the group method is the only one capable of understanding -p * (all plugins at once)
+	 *
+	 * @return void
+	 */
 	public function group() {
 		$subCommands = $this->OptionParser->subcommands();
 		$subCommandList = array_keys($subCommands);
@@ -259,12 +259,12 @@ class UpgradeShell extends AppShell {
 		}
 	}
 
-/**
- * Some really old stuff
- * @link http://book.cakephp.org/2.0/en/appendices/migrating-from-cakephp-1-2-to-1-3.html
- *
- * @return void
- */
+	/**
+	 * Some really old stuff
+	 * @link http://book.cakephp.org/2.0/en/appendices/migrating-from-cakephp-1-2-to-1-3.html
+	 *
+	 * @return void
+	 */
 	public function cake13() {
 		$this->_buildPaths('View' . DS);
 
@@ -434,11 +434,6 @@ EOL;
 			# experimental:
 			/*
 			array(
-				'$title_for_layout replacement',
-				'/\$title_for_layout/',
-				'$this->fetch(\'title\')'
-			),
-			array(
 				'$scripts_for_layout replacement',
 				'/\$scripts_for_layout/',
 				'echo $this->fetch(\'css\'); echo $this->fetch(\'script\'); echo $this->fetch(\'meta\');'
@@ -587,11 +582,24 @@ EOL;
 	 * Do not use for CakePHP <= 2.4 !
 	 *
 	 * Currently does:
+	 * - rename view variables
 	 * - validation rules name fixes for notEmpty etc.
 	 *
 	 * @return void
 	 */
 	public function cake25() {
+		$this->_buildPaths('View' . DS);
+
+		$patterns = array(
+			array(
+				'$title_for_layout to fetch(\'title\')',
+				'/\$title\_for\_layout\b/',
+				'$this->fetch(\'title\')'
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+
 		$this->_buildPaths('Model' . DS);
 
 		$patterns = array(
@@ -664,7 +672,10 @@ EOL;
 	 * will remove/correct deprecated stuff
 	 */
 	public function cake30() {
-		$this->_buildPaths('Test' . DS, $pluginpath . 'tests' . DS);
+		// NOT IN USE - same methods changed how they work!
+		return;
+
+		$this->_buildPaths('Test' . DS, 'tests' . DS);
 		$patterns = array(
 			array(
 				'App::uses(\'Set\', \'Utility\')',
@@ -955,13 +966,13 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update tests.
- *
- * - Update tests class names to FooTest rather than FooTestCase.
- *
- * @return void
- */
+	/**
+	 * Update tests.
+	 *
+	 * - Update tests class names to FooTest rather than FooTestCase.
+	 *
+	 * @return void
+	 */
 	public function tests() {
 		$this->_buildPaths(array('Test' . DS, 'tests' . DS));
 
@@ -1036,15 +1047,15 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Move files and folders to their new homes
- *
- * Moves folders containing files which cannot necessarily be auto-detected (libs and templates)
- * and then looks for all php files except vendors, and moves them to where Cake 2.0 expects
- * to find them.
- *
- * @return void
- */
+	/**
+	 * Move files and folders to their new homes
+	 *
+	 * Moves folders containing files which cannot necessarily be auto-detected (libs and templates)
+	 * and then looks for all php files except vendors, and moves them to where Cake 2.0 expects
+	 * to find them.
+	 *
+	 * @return void
+	 */
 	public function locations() {
 		if (!empty($this->params['custom'])) {
 			return;
@@ -1136,13 +1147,13 @@ EOL;
 		}
 	}
 
-/**
- * Update helpers.
- *
- * - Converts helpers usage to new format.
- *
- * @return void
- */
+	/**
+	 * Update helpers.
+	 *
+	 * - Converts helpers usage to new format.
+	 *
+	 * @return void
+	 */
 	public function helpers() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -1181,14 +1192,14 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update i18n.
- *
- * - Removes extra true param.
- * - Add the echo to __*() calls that didn't need them before.
- *
- * @return void
- */
+	/**
+	 * Update i18n.
+	 *
+	 * - Removes extra true param.
+	 * - Add the echo to __*() calls that didn't need them before.
+	 *
+	 * @return void
+	 */
 	public function i18n() {
 		$this->_buildPaths();
 
@@ -1220,20 +1231,20 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Upgrade the removed basics functions.
- *
- * - a(*) -> array(*)
- * - e(*) -> echo *
- * - ife(*, *, *) -> !empty(*) ? * : *
- * - a(*) -> array(*)
- * - r(*, *, *) -> str_replace(*, *, *)
- * - up(*) -> strtoupper(*)
- * - low(*, *, *) -> strtolower(*)
- * - getMicrotime() -> microtime(true)
- *
- * @return void
- */
+	/**
+	 * Upgrade the removed basics functions.
+	 *
+	 * - a(*) -> array(*)
+	 * - e(*) -> echo *
+	 * - ife(*, *, *) -> !empty(*) ? * : *
+	 * - a(*) -> array(*)
+	 * - r(*, *, *) -> str_replace(*, *, *)
+	 * - up(*) -> strtoupper(*)
+	 * - low(*, *, *) -> strtolower(*)
+	 * - getMicrotime() -> microtime(true)
+	 *
+	 * @return void
+	 */
 	public function basics() {
 		$this->_buildPaths();
 
@@ -1304,11 +1315,11 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Remove name (lib, controller, model, view, component, behavior, helper, fixture)
- *
- * @return void
- */
+	/**
+	 * Remove name (lib, controller, model, view, component, behavior, helper, fixture)
+	 *
+	 * @return void
+	 */
 	public function name_attribute() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -1362,11 +1373,11 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update the properties moved to CakeRequest.
- *
- * @return void
- */
+	/**
+	 * Update the properties moved to CakeRequest.
+	 *
+	 * @return void
+	 */
 	public function request() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -1474,11 +1485,11 @@ EOL;
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Add new cake routes
- *
- * @return void
- */
+	/**
+	 * Add new cake routes
+	 *
+	 * @return void
+	 */
 	public function routes() {
 		if (!empty($this->params['plugin'])) {
 			return;
@@ -1514,11 +1525,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Update Configure::read() calls with no params.
- *
- * @return void
- */
+	/**
+	 * Update Configure::read() calls with no params.
+	 *
+	 * @return void
+	 */
 	public function configure() {
 		$this->_buildPaths();
 
@@ -1532,11 +1543,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * constants
- *
- * @return void
- */
+	/**
+	 * constants
+	 *
+	 * @return void
+	 */
 	public function constants() {
 		$this->_buildPaths();
 
@@ -1610,13 +1621,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update controllers.
- *
- * - Update controller stuff
- *
- * @return void
- */
+	/**
+	 * Update controllers.
+	 *
+	 * - Update controller stuff
+	 *
+	 * @return void
+	 */
 	public function controllers() {
 		$this->_buildPaths('Controller');
 
@@ -1681,13 +1692,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update console stuff.
- *
- * - Shells and tasks.
- *
- * @return void
- */
+	/**
+	 * Update console stuff.
+	 *
+	 * - Shells and tasks.
+	 *
+	 * @return void
+	 */
 	public function console() {
 		$this->_buildPaths('Console/Command');
 
@@ -1702,13 +1713,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update components.
- *
- * - Make components that extend Object to extend Component.
- *
- * @return void
- */
+	/**
+	 * Update components.
+	 *
+	 * - Make components that extend Object to extend Component.
+	 *
+	 * @return void
+	 */
 	public function components() {
 		$this->_buildPaths('Controller/Component');
 
@@ -1723,13 +1734,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update method calls
- *
- * - mainly in controllers/models
- *
- * @return void
- */
+	/**
+	 * Update method calls
+	 *
+	 * - mainly in controllers/models
+	 *
+	 * @return void
+	 */
 	public function methods() {
 		$this->_buildPaths();
 
@@ -1744,11 +1755,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Replace cakeError with built-in exceptions.
- * NOTE: this ignores calls where you've passed your own secondary parameters to cakeError().
- * @return void
- */
+	/**
+	 * Replace cakeError with built-in exceptions.
+	 * NOTE: this ignores calls where you've passed your own secondary parameters to cakeError().
+	 * @return void
+	 */
 	public function exceptions() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -1784,13 +1795,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update views.
- *
- * - Update view stuff.
- *
- * @return void
- */
+	/**
+	 * Update views.
+	 *
+	 * - Update view stuff.
+	 *
+	 * @return void
+	 */
 	public function views() {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
@@ -1882,14 +1893,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		return '$this->' . ucfirst($name) . '->';
 	}
 
-/**
- * Update webroot.
- *
- * - Replaces index.php and test.php in webroot.
- * - Update .htaccess
- *
- * @return void
- */
+	/**
+	 * Update webroot.
+	 *
+	 * - Replaces index.php and test.php in webroot.
+	 * - Update .htaccess
+	 *
+	 * @return void
+	 */
 	public function webroot() {
 		if (!empty($this->params['plugin'])) {
 			return;
@@ -1928,13 +1939,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Update legacy stuff.
- *
- * - Replaces App::import() with App::uses() - mainly Utility classes.
- *
- * @return void
- */
+	/**
+	 * Update legacy stuff.
+	 *
+	 * - Replaces App::import() with App::uses() - mainly Utility classes.
+	 *
+	 * @return void
+	 */
 	public function legacy() {
 		$this->_buildPaths();
 
@@ -2020,13 +2031,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update database config file.
- *
- * - Update database.php (replace driver with datasource).
- *
- * @return void
- */
+	/**
+	 * Update database config file.
+	 *
+	 * - Update database.php (replace driver with datasource).
+	 *
+	 * @return void
+	 */
 	public function database() {
 		if (!empty($this->params['plugin'])) {
 			return;
@@ -2058,13 +2069,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Update constructors.
- *
- * - Update Helper constructors.
- *
- * @return void
- */
+	/**
+	 * Update constructors.
+	 *
+	 * - Update Helper constructors.
+	 *
+	 * @return void
+	 */
 	public function constructors() {
 		$this->_buildPaths('View/Helper');
 
@@ -2124,14 +2135,14 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Update paginator links
- * Careful: run only once (the second time some could get switched back)
- *
- * - Reverse order of title and field in pagination sort
- *
- * @return void
- */
+	/**
+	 * Update paginator links
+	 * Careful: run only once (the second time some could get switched back)
+	 *
+	 * - Reverse order of title and field in pagination sort
+	 *
+	 * @return void
+	 */
 	public function paginator() {
 		$this->_buildPaths(array('View' . DS, 'views' . DS));
 
@@ -2177,21 +2188,21 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_filesRegexpUpdate($patterns);
 	}
 
-/**
- * Create a report
- *
- * - Creates report.txt in TMP
- *
- * currently reports following issues (for manual upgrade)
- * - cakeError(), aa(), uses(), PHP5, deprecated files
- * TODO:
- * - $this->element(..., array('cache', 'plugin', 'callbacks')) [should be third param]
- * - APP_PATH and CORE_PATH changed and might need manual adjustment
- * - report missing default routes `CakePlugin::routes()` and `require CAKE . 'Config' . DS . 'routes.php';`
- * - check if the core.php is up to date or what is missing/deprecated
- *
- * @return void
- */
+	/**
+	 * Create a report
+	 *
+	 * - Creates report.txt in TMP
+	 *
+	 * currently reports following issues (for manual upgrade)
+	 * - cakeError(), aa(), uses(), PHP5, deprecated files
+	 * TODO:
+	 * - $this->element(..., array('cache', 'plugin', 'callbacks')) [should be third param]
+	 * - APP_PATH and CORE_PATH changed and might need manual adjustment
+	 * - report missing default routes `CakePlugin::routes()` and `require CAKE . 'Config' . DS . 'routes.php';`
+	 * - check if the core.php is up to date or what is missing/deprecated
+	 *
+	 * @return void
+	 */
 	public function report() {
 		$file = TMP . 'report.txt';
 		$this->_buildPaths();
@@ -2205,11 +2216,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Generate report
- *
- * @return string Report
- */
+	/**
+	 * Generate report
+	 *
+	 * @return string Report
+	 */
 	protected function _report() {
 		$content = '';
 
@@ -2283,11 +2294,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_paths = (array)$path;
 	}
 
-/**
- * Move file with 2 step process to avoid collisions on case insensitive systems
- *
- * @return void
- */
+	/**
+	 * Move file with 2 step process to avoid collisions on case insensitive systems
+	 *
+	 * @return void
+	 */
 	protected function _move($from, $to, $folder = true) {
 		$tmp = '_tmp';
 		if ($this->params['git']) {
@@ -2309,11 +2320,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Delete file according to repository type
- *
- * @return void
- */
+	/**
+	 * Delete file according to repository type
+	 *
+	 * @return void
+	 */
 	protected function _delete($path, $folder = true) {
 		//problems on windows due to case insensivity (Config/config etc)
 		//problems in subversion after deletion
@@ -2335,11 +2346,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Create and add file according to repository type
- *
- * @return void
- */
+	/**
+	 * Create and add file according to repository type
+	 *
+	 * @return void
+	 */
 	protected function _create($path) {
 		while (!is_dir($subpath = dirname($path))) {
 			$this->_create($subpath);
@@ -2355,12 +2366,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Corrects name of database engine
- * mysqli => Mysql
- *
- * @return string
- */
+	/**
+	 * Corrects name of database engine
+	 * mysqli => Mysql
+	 *
+	 * @return string
+	 */
 	protected function _prepDatasource($x) {
 		$driver = $x[1];
 		if ($driver === 'mysqli') {
@@ -2370,13 +2381,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		return '\'datasource\' => \'Database/' . $driver . '\'';
 	}
 
-/**
- * Move application views files to where they now should be
- *
- * Find all view files in the folder and determine where cake expects the file to be
- *
- * @return void
- */
+	/**
+	 * Move application views files to where they now should be
+	 *
+	 * Find all view files in the folder and determine where cake expects the file to be
+	 *
+	 * @return void
+	 */
 	protected function _moveViewFiles() {
 		if (!is_dir('View')) {
 			return;
@@ -2401,11 +2412,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Move the AppController, and AppModel classes.
- *
- * @return void
- */
+	/**
+	 * Move the AppController, and AppModel classes.
+	 *
+	 * @return void
+	 */
 	protected function _moveAppClasses() {
 		$files = array(
 			APP . 'app_controller.php' => APP . 'Controller' . DS . 'AppController.php',
@@ -2425,16 +2436,16 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Move application php files to where they now should be
- *
- * Find all php files in the folder (honoring recursive) and determine where CakePHP expects the file to be
- * If the file is not exactly where CakePHP expects it - move it.
- *
- * @param string $path
- * @param array $options array(recursive, checkFolder)
- * @return void
- */
+	/**
+	 * Move application php files to where they now should be
+	 *
+	 * Find all php files in the folder (honoring recursive) and determine where CakePHP expects the file to be
+	 * If the file is not exactly where CakePHP expects it - move it.
+	 *
+	 * @param string $path
+	 * @param array $options array(recursive, checkFolder)
+	 * @return void
+	 */
 	protected function _movePhpFiles($path, $options) {
 		if (!is_dir($path)) {
 			return;
@@ -2517,12 +2528,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$this->_paths = $paths;
 	}
 
-/**
- * Updates files based on regular expressions.
- *
- * @param array $patterns Array of search and replacement patterns.
- * @return void
- */
+	/**
+	 * Updates files based on regular expressions.
+	 *
+	 * @param array $patterns Array of search and replacement patterns.
+	 * @return void
+	 */
 	protected function _filesRegexpUpdate($patterns, $callback = null) {
 		$this->_findFiles($this->params['ext']);
 		foreach ($this->_files as $file) {
@@ -2531,12 +2542,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Checks files based on regular expressions.
- *
- * @param array $patterns Array of search patterns.
- * @return array Matches
- */
+	/**
+	 * Checks files based on regular expressions.
+	 *
+	 * @param array $patterns Array of search patterns.
+	 * @return array Matches
+	 */
 	protected function _filesRegexpCheck($patterns) {
 		$this->_findFiles($this->params['ext']);
 
@@ -2550,12 +2561,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		return $matches;
 	}
 
-/**
- * Searches the paths and finds files based on extension.
- *
- * @param string $extensions
- * @return void
- */
+	/**
+	 * Searches the paths and finds files based on extension.
+	 *
+	 * @param string $extensions
+	 * @return void
+	 */
 	protected function _findFiles($extensions = '') {
 		$this->_files = array();
 		foreach ($this->_paths as $path) {
@@ -2590,13 +2601,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Update a single file.
- *
- * @param string $file The file to update
- * @param array $patterns The replacement patterns to run.
- * @return void
- */
+	/**
+	 * Update a single file.
+	 *
+	 * @param string $file The file to update
+	 * @param array $patterns The replacement patterns to run.
+	 * @return void
+	 */
 	protected function _updateFile($file, $patterns, $callback = null) {
 		$contents = $fileContent = file_get_contents($file);
 
@@ -2615,13 +2626,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		}
 	}
 
-/**
- * Checks a single file.
- *
- * @param string $file The file to check
- * @param array $patterns The matching patterns to run.
- * @return array Matches
- */
+	/**
+	 * Checks a single file.
+	 *
+	 * @param string $file The file to check
+	 * @param array $patterns The matching patterns to run.
+	 * @return array Matches
+	 */
 	protected function _checkFile($file, $patterns) {
 		$contents = file_get_contents($file);
 
@@ -2638,13 +2649,13 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		return $matches;
 	}
 
-/**
- * Get the option parser
- *
- * note: the order is important for the "all" task to run smoothly
- *
- * @return ConsoleOptionParser
- */
+	/**
+	 * Get the option parser
+	 *
+	 * note: the order is important for the "all" task to run smoothly
+	 *
+	 * @return ConsoleOptionParser
+	 */
 	public function getOptionParser() {
 		$subcommandParser = array(
 			'options' => array(

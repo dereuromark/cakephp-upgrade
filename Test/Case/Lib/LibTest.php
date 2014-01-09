@@ -4,9 +4,10 @@ App::uses('Lib', 'Upgrade.Lib');
 
 class LibTest extends CakeTestCase {
 
- 	public function startTest() {
- 		$this->Lib = new Lib();
- 	}
+	public function setUp() {
+		parent::setUp();
+		$this->Lib = new Lib();
+	}
 
 	public function testPluginLibs() {
 		$res = $this->Lib->match('Tools.SimilarityLib');
