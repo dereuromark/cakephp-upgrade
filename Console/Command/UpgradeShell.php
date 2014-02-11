@@ -2698,7 +2698,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		);
 
 		return parent::getOptionParser()
-			->description(__d('cake_console', "A shell to help automate upgrading from CakePHP 1.3 to 2.0. \n" .
+			->description(__d('cake_console', "A shell to help automate upgrading from CakePHP 1.x to 2.x latest. \n" .
 				"Be sure to have a backup of your application before running these commands."))
 			->addSubcommand('all', array(
 				'help' => __d('cake_console', 'Run all upgrade commands.'),
