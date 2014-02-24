@@ -1,6 +1,6 @@
 # CakePHP 2.x upgrade shell
 
-Helps automating the upgrade process from CakePHP 1.1 and later to CakePHP 2.x and above.
+Helps automating the upgrade process from CakePHP 1.1/1.2/1.3 to CakePHP 2.x and above.
 
 ## Important Notice - 2014-02
 This plugin is now in "feature-freeze" in favor of the all new [CakePHP Upgrade Tool](https://github.com/cakephp/upgrade).
