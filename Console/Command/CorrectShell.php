@@ -696,6 +696,11 @@ class CorrectShell extends UpgradeShell {
 				'/\s+\@access\s+\s*\w*\s*\*/i',
 				''
 			),
+			array(
+				'PHP version ... removal',
+				'/ \* PHP version.*?\s*\s* \*\s*\s* \*/i',
+				' *'
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -721,53 +726,18 @@ class CorrectShell extends UpgradeShell {
 			),
 		);
 
-		$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlockBeginning');
+		//$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlockBeginning');
 
 		$patterns = array(
 			array(
-				'@param bool $foo ... @param boolean $foo',
-				'/\@param bool /i',
-				'@param boolean '
+				'@param/return/var boolean',
+				'/\@(\w+) ([\w\\|\\\\]*?)boolean\b/i',
+				'@\1 \2bool'
 			),
 			array(
-				'@param int $foo ... @param integer $foo',
-				'/\@param int /i',
-				'@param integer '
-			),
-			array(
-				'@param bool',
-				'/\@param bool\b/i',
-				'@param boolean'
-			),
-			array(
-				'@param int $foo ... @param integer $foo',
-				'/\@param int\b/i',
-				'@param integer'
-			),
-			array(
-				'@return bool',
-				'/\@return bool\b/i',
-				'@return boolean'
-			),
-			array(
-				'@return int',
-				'/\@return int\b/i',
-				'@return integer'
-			),
-			array(
-				'@var bool true/false',
-				'/\@var bool (true|false)\b/i',
-				'@var boolean'
-			),
-			array(
-				'@var bool',
-				'/\@var bool\b/i',
-				'@var boolean'
-			),
-			array(
-				'@var int',
-				'/\@var int\b/i',
-				'@var integer'
+				'@param/return/var integer',
+				'/\@(\w+) ([\w|\\\\]*?)integer\b/i',
+				'@\1 \2int'
 			),
 			array(
 				'@return \w+ $...',
@@ -779,9 +749,45 @@ class CorrectShell extends UpgradeShell {
 				'/\ \*(\s+) \*(\s+ \*)+/sm',
 				' *\1 *'
 			),
+			array(
+				'* @var type Something .. * @var type',
+				'/\ \* @var ([\w\\|\\\\]*?) (.*)/i',
+				' * @var \1'
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
+
+		$patterns = array(
+			array(
+				'@param/return types Sentence.',
+				'/\* \@(param|return) ([\w\\|\\\\]+?) (.*)/i',
+			),
+		);
+
+		//$this->_filesRegexpUpdate($patterns, array(), array(), 'docBlockSentence');
+	}
+
+	/**
+	 * Callback for doc_blocks regexp update
+	 *
+	 * @param array $matches
+	 * @return string
+	 */
+	protected function _docBlockVar($matches) {
+		$desc = ucfirst($matches[2]);
+		return '* @var'. ' ' . $matches[1];
+	}
+
+	/**
+	 * Callback for doc_blocks regexp update
+	 *
+	 * @param array $matches
+	 * @return string
+	 */
+	protected function _docBlockSentence($matches) {
+		$desc = ucfirst($matches[3]);
+		return '* @' . $matches[1] . ' ' . $matches[2] . ' ' . $desc;
 	}
 
 	/**
@@ -792,9 +798,6 @@ class CorrectShell extends UpgradeShell {
 	 */
 	protected function _docBlock($matches) {
 		$desc = ucfirst($matches[3]);
-		if (substr($desc, -1, 1) !== '.') {
-			//$desc .= '.';
-		}
 		return '@param ' . $matches[1] . ' $' . $matches[2] . ' ' . $desc;
 	}
 

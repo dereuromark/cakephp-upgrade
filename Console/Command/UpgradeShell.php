@@ -2,8 +2,6 @@
 /**
  * Upgrade Shell
  *
- * PHP 5
- *
  * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
  *
@@ -663,6 +661,16 @@ EOL;
 				'/\buploaderror\b/',
 				'uploadError'
 			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+
+		$this->_buildPaths('Controller' . DS, 'Controller' . DS . 'Component' . DS);
+		$patterns = array(
+			array(
+				'$this->request->onlyAllow() -> $this->request->allowMethod()',
+				'/\$this->request->onlyAllow\(/',
+				'$this->request->allowMethod('
+			)
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -2657,6 +2665,8 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	 * @return ConsoleOptionParser
 	 */
 	public function getOptionParser() {
+		$parser = parent::getOptionParser();
+
 		$subcommandParser = array(
 			'options' => array(
 				'plugin' => array(
@@ -2697,141 +2707,143 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			)
 		);
 
-		return parent::getOptionParser()
-			->description(__d('cake_console', "A shell to help automate upgrading from CakePHP 1.x to 2.x latest. \n" .
-				"Be sure to have a backup of your application before running these commands."))
-			->addSubcommand('all', array(
-				'help' => __d('cake_console', 'Run all upgrade commands.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('group', array(
-				'help' => __d('cake_console', 'Run all defined upgrade commands. Use Configure::write() or params to define.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('locations', array(
-				'help' => __d('cake_console', 'Move files and folders to their new homes.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('tests', array(
-				'help' => __d('cake_console', 'Update tests class names to FooTest rather than FooTestCase.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('i18n', array(
-				'help' => __d('cake_console', 'Update the i18n translation method calls.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('helpers', array(
-				'help' => __d('cake_console', 'Update calls to helpers.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('basics', array(
-				'help' => __d('cake_console', 'Update removed basics functions to PHP native functions.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('request', array(
-				'help' => __d('cake_console', 'Update removed request access, and replace with $this->request.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('routes', array(
-				'help' => __d('cake_console', 'Add new 2.0 routes'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('configure', array(
-				'help' => __d('cake_console', "Update Configure::read() to Configure::read('debug')"),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('constants', array(
-				'help' => __d('cake_console', "Replace Obsolete constants"),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('console', array(
-				'help' => __d('cake_console', 'Update console (shells and tasks)'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('controllers', array(
-				'help' => __d('cake_console', 'Update controllers'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('components', array(
-				'help' => __d('cake_console', 'Update components to extend Component class.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('exceptions', array(
-				'help' => __d('cake_console', 'Replace use of cakeError with exceptions.'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('views', array(
-				'help' => __d('cake_console', 'Update views and replace nocache tag'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('stylesheets', array(
-				'help' => __d('cake_console', 'Update CSS style tag'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('webroot', array(
-				'help' => __d('cake_console', 'Update webroot'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('legacy', array(
-				'help' => __d('cake_console', 'Update legacy files'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('constructors', array(
-				'help' => __d('cake_console', 'Update constructors'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('database', array(
-				'help' => __d('cake_console', 'Update database.php'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('paginator', array(
-				'help' => __d('cake_console', 'Update paginator'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('name_attribute', array(
-				'help' => __d('cake_console', 'Remove name attribute var (PHP4 leftover)'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('methods', array(
-				'help' => __d('cake_console', 'Correct method calls'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake13', array(
-				'help' => __d('cake_console', 'Upgrade stuff older than cake13 (already deprecated in v13)'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake20', array(
-				'help' => __d('cake_console', 'Upgrade to CakePHP 2.0'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake21', array(
-				'help' => __d('cake_console', 'Upgrade to CakePHP 2.1'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake23', array(
-				'help' => __d('cake_console', 'Upgrade to CakePHP 2.3'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake24', array(
-				'help' => __d('cake_console', 'Upgrade to CakePHP 2.4'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake25', array(
-				'help' => __d('cake_console', 'Upgrade to CakePHP 2.5'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('cake30', array(
-				'help' => __d('cake_console', 'Upgrade to CakePHP 3.0 (experimental!)'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('estrict', array(
-				'help' => __d('cake_console', 'Upgrade to E_STRICT standards'),
-				'parser' => $subcommandParser
-			))
-			->addSubcommand('report', array(
-				'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
-				'parser' => $subcommandParser
-			));
+		$parser->description(
+			__d('cake_console', "A shell to help automate upgrading from CakePHP 1.x to 2.x. \n" .
+			"Be sure to have a backup of your application before running these commands."
+		))->addSubcommand('all', array(
+			'help' => __d('cake_console', 'Run all upgrade commands.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('group', array(
+			'help' => __d('cake_console', 'Run all defined upgrade commands. Use Configure::write() or params to define.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('locations', array(
+			'help' => __d('cake_console', 'Move files and folders to their new homes.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('tests', array(
+			'help' => __d('cake_console', 'Update tests class names to FooTest rather than FooTestCase.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('i18n', array(
+			'help' => __d('cake_console', 'Update the i18n translation method calls.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('helpers', array(
+			'help' => __d('cake_console', 'Update calls to helpers.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('basics', array(
+			'help' => __d('cake_console', 'Update removed basics functions to PHP native functions.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('request', array(
+			'help' => __d('cake_console', 'Update removed request access, and replace with $this->request.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('routes', array(
+			'help' => __d('cake_console', 'Add new 2.0 routes'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('configure', array(
+			'help' => __d('cake_console', "Update Configure::read() to Configure::read('debug')"),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('constants', array(
+			'help' => __d('cake_console', "Replace Obsolete constants"),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('console', array(
+			'help' => __d('cake_console', 'Update console (shells and tasks)'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('controllers', array(
+			'help' => __d('cake_console', 'Update controllers'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('components', array(
+			'help' => __d('cake_console', 'Update components to extend Component class.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('exceptions', array(
+			'help' => __d('cake_console', 'Replace use of cakeError with exceptions.'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('views', array(
+			'help' => __d('cake_console', 'Update views and replace nocache tag'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('stylesheets', array(
+			'help' => __d('cake_console', 'Update CSS style tag'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('webroot', array(
+			'help' => __d('cake_console', 'Update webroot'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('legacy', array(
+			'help' => __d('cake_console', 'Update legacy files'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('constructors', array(
+			'help' => __d('cake_console', 'Update constructors'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('database', array(
+			'help' => __d('cake_console', 'Update database.php'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('paginator', array(
+			'help' => __d('cake_console', 'Update paginator'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('name_attribute', array(
+			'help' => __d('cake_console', 'Remove name attribute var (PHP4 leftover)'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('methods', array(
+			'help' => __d('cake_console', 'Correct method calls'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake13', array(
+			'help' => __d('cake_console', 'Upgrade stuff older than cake13 (already deprecated in v13)'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake20', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.0'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake21', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.1'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake23', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.3'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake24', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.4'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake25', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.5'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake30', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 3.0 (experimental!)'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('estrict', array(
+			'help' => __d('cake_console', 'Upgrade to E_STRICT standards'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('report', array(
+			'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
+			'parser' => $subcommandParser
+		));
+
+		return $parser;
 	}
 
 }
