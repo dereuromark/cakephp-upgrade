@@ -193,6 +193,17 @@ class UpgradeShell extends AppShell {
 				continue;
 			}
 
+			if (!empty($this->params['interactive'])) {
+				$continue = $this->in('Continue with `' . $name . '`?', array('y', 'n', 'q'), 'y');
+				if ($continue === 'q') {
+					return $this->error('Aborted');
+				}
+				if ($continue === 'n') {
+					$this->out('Skipping command ' . $name);
+					continue;
+				}
+			}
+
 			$this->out(__d('cake_console', 'Running %s', $name));
 			$this->$name();
 		}
@@ -1259,17 +1270,17 @@ EOL;
 		$patterns = array(
 			array(
 				'a(*) -> array(*)',
-				'/\ba\((.*)\)/',
+				'/\ba\(([^)]*)\)/',
 				'array(\1)'
 			),
 			array(
 				'e(*) -> echo *',
-				'/\be\((.*)\)/',
+				'/\be\(([^)]*)\)/',
 				'echo \1'
 			),
 			array(
 				'ife(*, *, *) -> !empty(*) ? * : *',
-				'/ife\((.*), (.*), (.*)\)/',
+				'/ife\(([^)]*), ([^)]*), ([^)]*)\)/',
 				'!empty(\1) ? \2 : \3'
 			),
 			array(
@@ -2703,7 +2714,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 					'short' => 'd',
 					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
 					'boolean' => true
-				)
+				),
+				'interactive' => array(
+					'short' => 'i',
+					'help' => __d('cake_console', 'Interactive commands.'),
+					'boolean' => true
+				),
 			)
 		);
 

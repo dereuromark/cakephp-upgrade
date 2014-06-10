@@ -26,7 +26,6 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * - flash
  *
  * @cakephp 2
- * @php 5
  * @author Mark scherer
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
@@ -80,7 +79,7 @@ class CorrectShell extends UpgradeShell {
 		$this->params['svn'] = null;
 		parent::startup();
 
-		//$this->params['ext'] = 'php|ctp|rst';
+		//$this->params['ext'] = 'php|ctp';
 		$this->params['dry-run'] = false;
 	}
 
@@ -207,7 +206,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function conventions() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -278,7 +277,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function conventions2() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -304,7 +303,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function conventions3() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -371,7 +370,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function conventions_experimental() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$pattern = array(
@@ -391,7 +390,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function umlauts() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -441,7 +440,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function specialchars() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -480,7 +479,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function i18n() {
-		$this->params['ext'] = 'php|ctp|rst';
+		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -575,7 +574,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function vis() {
-		$this->params['ext'] = 'php|rst';
+		$this->params['ext'] = 'php';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -922,11 +921,13 @@ class CorrectShell extends UpgradeShell {
 				'delete post requirement',
 				'/\bfunction (.*?)delete\(\$id = null\)\s*{\s*\s*\s*\if \(empty/',
 				'function \1delete($id = null) {
-		if (!$this->Common->isPosted()) {
-			throw new MethodNotAllowedException();
-		}
+		$this->request->allowMethod(\'post\');
 		if (empty'
 			),
+			array(
+				'simplify require post',
+				'/if\s*\(!\$this-\>Common-\>isPosted\(\)\)\s*{\s*\s*throw new MethodNotAllowedException\(\);\s*\s*}/',
+				'$this->request->allowMethod(\'post\');'),
 			array(
 				'revert $this->request->is(\'post\'))',
 				'/\$this-\>request-\>is\(\'post\'\)/',
@@ -1072,7 +1073,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function amp() {
-		$this->params['ext'] = 'php|rst';
+		$this->params['ext'] = 'php';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -1172,7 +1173,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function reference() {
-		$this->params['ext'] = 'php|rst';
+		$this->params['ext'] = 'php';
 		$this->_getPaths();
 
 		$patterns = array(
@@ -1571,7 +1572,7 @@ class CorrectShell extends UpgradeShell {
 	 * @return void
 	 */
 	public function classes() {
-		$this->params['ext'] = 'php|rst';
+		$this->params['ext'] = 'php';
 		$this->_getPaths();
 		$patterns = array(
 			array(
@@ -1631,6 +1632,27 @@ class CorrectShell extends UpgradeShell {
 		);
 
 		$this->_filesRegexpUpdate($patterns, array(), array(), 'variables');
+	}
+
+	/**
+	 * Pagination sort links for priority, rating, created, modified, published, ...
+	 * should be ordered DESC as default.
+	 *
+	 * @return void
+	 */
+	public function pagination() {
+		$this->params['ext'] = 'ctp';
+		$this->_getPaths();
+
+		$patterns = array(
+			array(
+				'$this->Paginator->sort(..) => direction DESC',
+				'/\bPaginator-\>sort\(\'(created|modified|published|publish_date|rating|priority)\'\)/',
+				'Paginator->sort(\'\1\', null, array(\'direction\' => \'desc\'))'
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	/**
@@ -1809,7 +1831,7 @@ class CorrectShell extends UpgradeShell {
 				'ext' => array(
 					'short' => 'e',
 					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
-					'default' => 'php|ctp|rst'
+					'default' => 'php|ctp'
 				),
 			)
 		);
@@ -1922,6 +1944,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('specialchars', array(
 				'help' => __d('cake_console', 'Resolve specialchars issues'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('pagination', array(
+				'help' => __d('cake_console', 'Correct pagination default order'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('whitespace', array(
