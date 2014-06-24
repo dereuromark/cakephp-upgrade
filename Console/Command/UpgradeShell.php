@@ -117,7 +117,7 @@ class UpgradeShell extends AppShell {
 			$plugins = array_unique($plugins);
 			$paths = array();
 			foreach ($plugins as $plugin) {
-				$paths[] = App::pluginPath($plugin);
+				$paths[] = CakePlugin::path($plugin);
 			}
 			$this->_customPaths = $paths;
 			//$this->_paths = $this->_customPaths;
@@ -140,7 +140,7 @@ class UpgradeShell extends AppShell {
 
 		if (empty($path)) {
 			if (!empty($this->params['plugin'])) {
-				$this->_paths = array(App::pluginPath($this->params['plugin']));
+				$this->_paths = array(CakePlugin::path($this->params['plugin']));
 			} else {
 				$this->_paths = array(APP);
 			}
@@ -597,6 +597,23 @@ EOL;
 	 * @return void
 	 */
 	public function cake25() {
+		$this->_buildPaths();
+
+		$patterns = array(
+			array(
+				'App::pluginPath() ... CakePlugin::path()',
+				'/\bApp\:\:pluginPath\(/',
+				'CakePlugin::path('
+			),
+			array(
+				'App::objects(\'plugin\') ... CakePlugin::loaded()',
+				'/\bApp\:\:objects\(\'plugin\'\)/i',
+				'CakePlugin::loaded()'
+			),
+		);
+
+		$this->_filesRegexpUpdate($patterns);
+
 		$this->_buildPaths('View' . DS);
 
 		$patterns = array(
@@ -609,6 +626,47 @@ EOL;
 
 		$this->_filesRegexpUpdate($patterns);
 
+		$this->_buildPaths('Controller' . DS, 'Controller' . DS . 'Component' . DS);
+		$patterns = array(
+			array(
+				'$this->request->onlyAllow() -> $this->request->allowMethod()',
+				'/\$this->request->onlyAllow\(/',
+				'$this->request->allowMethod('
+			)
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * Optional upgrades to prepare for 3.0
+	 * will remove/correct deprecated stuff
+	 */
+	public function cake30() {
+		// NOT IN USE - same methods changed how they work!
+		return;
+
+		$this->_buildPaths('Test' . DS, 'tests' . DS);
+		$patterns = array(
+			array(
+				'App::uses(\'Set\', \'Utility\')',
+				'/\bApp\:\:uses\(\'Set\',\s*\'Utility\'\)/',
+				'App::uses(\'Hash\', \'Utility\')'
+			),
+			array(
+				'Set to Hash',
+				'/\bSet\:\:/',
+				'Hash::'
+			)
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * Make sure validation rules have the proper casing.
+	 *
+	 * @return void
+	 */
+	public function validation() {
 		$this->_buildPaths('Model' . DS);
 
 		$patterns = array(
@@ -672,40 +730,6 @@ EOL;
 				'/\buploaderror\b/',
 				'uploadError'
 			),
-		);
-		$this->_filesRegexpUpdate($patterns);
-
-		$this->_buildPaths('Controller' . DS, 'Controller' . DS . 'Component' . DS);
-		$patterns = array(
-			array(
-				'$this->request->onlyAllow() -> $this->request->allowMethod()',
-				'/\$this->request->onlyAllow\(/',
-				'$this->request->allowMethod('
-			)
-		);
-		$this->_filesRegexpUpdate($patterns);
-	}
-
-	/**
-	 * Optional upgrades to prepare for 3.0
-	 * will remove/correct deprecated stuff
-	 */
-	public function cake30() {
-		// NOT IN USE - same methods changed how they work!
-		return;
-
-		$this->_buildPaths('Test' . DS, 'tests' . DS);
-		$patterns = array(
-			array(
-				'App::uses(\'Set\', \'Utility\')',
-				'/\bApp\:\:uses\(\'Set\',\s*\'Utility\'\)/',
-				'App::uses(\'Hash\', \'Utility\')'
-			),
-			array(
-				'Set to Hash',
-				'/\bSet\:\:/',
-				'Hash::'
-			)
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
@@ -1082,7 +1106,7 @@ EOL;
 
 		$cwd = getcwd();
 		if (!empty($this->params['plugin'])) {
-			chdir(App::pluginPath($this->params['plugin']));
+			chdir(CakePlugin::path($this->params['plugin']));
 		}
 
 		if (is_dir('plugins') && !empty($this->params['plugin'])) {
@@ -1177,7 +1201,7 @@ EOL;
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(App::pluginPath($this->params['plugin']) . 'views' . DS);
+			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'views' . DS);
 		} else {
 			$this->_paths = array_diff(App::path('views'), App::core('views'));
 		}
@@ -1187,13 +1211,13 @@ EOL;
 			'View/Helper' => App::core('View/Helper'),
 		), App::APPEND);
 		$helpers = App::objects('helper');
-		$plugins = App::objects('plugin');
+		$plugins = CakePlugin::loaded();
 		$pluginHelpers = array();
 		foreach ($plugins as $plugin) {
 			CakePlugin::load($plugin);
 			$pluginHelpers = array_merge(
 				$pluginHelpers,
-				App::objects('helper', App::pluginPath($plugin) . DS . 'views' . DS . 'helpers' . DS, false)
+				App::objects('helper', CakePlugin::path($plugin) . DS . 'views' . DS . 'helpers' . DS, false)
 			);
 		}
 		$helpers = array_merge($pluginHelpers, $helpers);
@@ -1343,7 +1367,7 @@ EOL;
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$pluginPath = App::pluginPath($this->params['plugin']);
+			$pluginPath = CakePlugin::path($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'Lib' . DS,
 				$pluginPath . 'Controller' . DS,
@@ -1401,7 +1425,7 @@ EOL;
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$pluginPath = App::pluginPath($this->params['plugin']);
+			$pluginPath = CakePlugin::path($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'Controller' . DS,
 				$pluginPath . 'Controller' . DS . 'Component' . DS,
@@ -1783,7 +1807,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$pluginPath = App::pluginPath($this->params['plugin']);
+			$pluginPath = CakePlugin::path($this->params['plugin']);
 			$this->_paths = array(
 				$pluginPath . 'controllers' . DS,
 				$pluginPath . 'controllers' . DS . 'components' . DS,
@@ -1825,7 +1849,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$path = App::pluginPath($this->params['plugin']);
+			$path = CakePlugin::path($this->params['plugin']);
 			$this->_paths = array($path . 'View' . DS, $path . 'views' . DS);
 		} else {
 			$this->_paths = array(
@@ -1887,7 +1911,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$path = App::pluginPath($this->params['plugin']);
+			$path = CakePlugin::path($this->params['plugin']);
 			$this->_paths = array($path . 'View' . DS, $path . 'views' . DS);
 		} else {
 			$this->_paths = array(
@@ -2848,6 +2872,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		))
 		->addSubcommand('cake30', array(
 			'help' => __d('cake_console', 'Upgrade to CakePHP 3.0 (experimental!)'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('validation', array(
+			'help' => __d('cake_console', 'Upgrade validation name casings.'),
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('estrict', array(

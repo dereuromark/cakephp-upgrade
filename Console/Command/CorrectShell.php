@@ -1055,7 +1055,7 @@ class CorrectShell extends UpgradeShell {
 		if (!empty($this->args)) {
 			$this->_paths = $this->args[0];
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::pluginPath($this->params['plugin']);
+			$this->_paths = CakePlugin::path($this->params['plugin']);
 		} else {
 			$this->_paths = APP;
 		}
