@@ -1754,6 +1754,18 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		);
 
 		$this->_filesRegexpUpdate($patterns);
+
+		$to = APP . 'Console' . DS;
+		$from = CAKE . 'Console' . DS . 'Templates' . DS . 'skel' . DS . 'Console' . DS;
+		$files = array('cake', 'cake.bat', 'cake.php');
+		foreach ($files as $file) {
+			if (file_exists($to . $file)) {
+				if (!$this->params['dry-run']) {
+					copy($from . $file, $to . $file);
+				}
+				$this->out(__d('cake_console', 'Console file %s updated', $file));
+			}
+		}
 	}
 
 	/**
