@@ -17,7 +17,6 @@ class CorrectShellTest extends CakeTestCase {
 		$this->Correct->file = 'html5';
 		$this->Correct->html5();
 		$result = $this->Correct->result;
-		//debug($result);
 		$this->assertTextEquals($result['expected'], $result['is']);
 	}
 
@@ -25,7 +24,13 @@ class CorrectShellTest extends CakeTestCase {
 		$this->Correct->file = 'html5';
 		$this->Correct->html5();
 		$result = $this->Correct->result;
-		//debug($result);
+		$this->assertTextEquals($result['expected'], $result['is']);
+	}
+
+	public function testHeader() {
+		$this->Correct->file = 'header';
+		$this->Correct->header();
+		$result = $this->Correct->result;
 		$this->assertTextEquals($result['expected'], $result['is']);
 	}
 
