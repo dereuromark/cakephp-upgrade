@@ -1665,17 +1665,16 @@ class CorrectShell extends UpgradeShell {
 		$this->params['ext'] = 'ctp';
 		$this->_getPaths();
 
-
 		$patterns = array();
 		for ($i = 1; $i <= 7; $i++) {
 			$patterns[] = array(
-				'Change H' . ($i+1) . ' to H' . $i . ' open',
-				'/<h' . ($i+1) . '\b/',
+				'Change H' . ($i + 1) . ' to H' . $i . ' open',
+				'/<h' . ($i + 1) . '\b/',
 				'<h' . $i . '',
 			);
 			$patterns[] = array(
-				'Change H' . ($i+1) . ' to H' . $i . ' open',
-				'/<\/h' . ($i+1) . '>/',
+				'Change H' . ($i + 1) . ' to H' . $i . ' open',
+				'/<\/h' . ($i + 1) . '>/',
 				'</h' . $i . '>',
 			);
 		}
@@ -1963,6 +1962,10 @@ class CorrectShell extends UpgradeShell {
 			))
 			->addSubcommand('html5', array(
 				'help' => __d('cake_console', 'html5 updates'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('header', array(
+				'help' => __d('cake_console', 'header change'),
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('performance', array(
