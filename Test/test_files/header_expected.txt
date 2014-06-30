@@ -1,0 +1,22 @@
+Bla
+<h1>Bla bla</h1>
+Test H2
+<h1>Bla Bla</h1>
+Test H2 with class
+<h1 class="moo">Bla Bla</h1>
+Test H2 with more tags
+<h1 class="moo">Bla <span>Bla</span></h1>
+Test H2 with traps
+<h20 class="moo">Bla Bla</h20>
+Test H3 with class
+<h2 class="moo">Bla Bla</h2>
+Test H4 with class
+<h3 class="moo">Bla Bla</h3>
+Another Test H2 with class
+<h1 class="moo">Bla Bla</h1>
+Test H5 with class
+<h4 class="moo">Bla Bla</h4>
+Test H6 with class
+<h5 class="moo">Bla Bla</h5>
+Test H7 with class
+<h6 class="moo">Bla Bla</h6>

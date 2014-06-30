@@ -1656,6 +1656,33 @@ class CorrectShell extends UpgradeShell {
 	}
 
 	/**
+	 * Changes the Level of a headline
+	 * e.g. H2 -> H1
+	 *
+	 * @return void
+	 */
+	public function header() {
+		$this->params['ext'] = 'ctp';
+		$this->_getPaths();
+
+
+		$patterns = array();
+		for ($i = 1; $i <= 7; $i++) {
+			$patterns[] = array(
+				'Change H' . ($i+1) . ' to H' . $i . ' open',
+				'/<h' . ($i+1) . '\b/',
+				'<h' . $i . '',
+			);
+			$patterns[] = array(
+				'Change H' . ($i+1) . ' to H' . $i . ' open',
+				'/<\/h' . ($i+1) . '>/',
+				'</h' . $i . '>',
+			);
+		}
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
 	 * Callback for variables regexp update
 	 *
 	 * @param array $matches
