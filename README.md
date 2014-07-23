@@ -19,6 +19,19 @@ It can also apply a lot of additional sugar and enforce coding standards etc. Th
 
 ## Installation
 
+### Composer (recommended)
+Add this to your composer.json file:
+```
+"require-dev": {
+	"dereuromark/cakephp-upgrade": "dev-master"
+}
+```
+And run:
+```
+composer install
+```
+
+### Custom
 a) Make sure you got the lastest stable 2.x version of the CakePHP core. Usually you just copy the `/lib` folder of the current Cake master branch into a `/lib` folder next to your `/app` dir.
 
 b) Copy this plugin into your `/app/Plugin` folder as `/app/Plugin/Upgrade`.
