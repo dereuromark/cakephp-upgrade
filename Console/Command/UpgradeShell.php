@@ -638,8 +638,41 @@ EOL;
 	}
 
 	/**
+	 * Do not use for CakePHP <= 2.5 !
+	 *
+	 * - ssn() to personId()
+	 * - between validation rule to lenghtBetween (careful: can collide with similar app methods)
+	 *
+	 * @return void
+	 */
+	public function cake26() {
+		$this->_buildPaths('Model' . DS);
+
+		$patterns = array(
+			array(
+				'Replace ::ssn() with ::personId()',
+				'#\:\:\ssn\(#',
+				'::personId(',
+			),
+			array(
+				'Replace ->ssn() with ->personId()',
+				'#-\>ssn\(#',
+				'->personId(',
+			),
+			array(
+				'Replace ::between() with ::lengthBetween()',
+				'#\:\:\between\(#',
+				'::lengthBetween(',
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
 	 * Optional upgrades to prepare for 3.0
 	 * will remove/correct deprecated stuff
+	 *
+	 * @return void
 	 */
 	public function cake30() {
 		// NOT IN USE - same methods changed how they work!
@@ -2880,6 +2913,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		))
 		->addSubcommand('cake25', array(
 			'help' => __d('cake_console', 'Upgrade to CakePHP 2.5'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake26', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.6'),
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake30', array(

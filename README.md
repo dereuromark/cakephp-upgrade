@@ -158,6 +158,8 @@ Now creates missing App classes that are required since 2.1
 
 ### UPDATE Summer 2013: 2.4/2.5 (and some 3.0) support
 
+### UPDATE Summer 2015: 2.6 support
+
 ## Disclaimer
 
 Use this script ONLY after backing up your app folder.
