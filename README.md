@@ -157,8 +157,10 @@ Now creates missing App classes that are required since 2.1
 - AppHelper, AppModel and AppController (AppShell is not yet required)
 
 ### UPDATE Summer 2013: 2.4/2.5 (and some 3.0) support
+- onlyAllow() to allowMethod() etc
 
-### UPDATE Summer 2015: 2.6 support
+### UPDATE Summer 2014: 2.6 support
+- Some validation rules changed
 
 ## Disclaimer
 
