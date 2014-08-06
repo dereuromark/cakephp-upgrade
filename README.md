@@ -175,6 +175,9 @@ Use this script ONLY after backing up your app folder.
 
 Also: This powerful plugin is not for N00bs. Do NOT use it if you don't know at least some Cake basics.
 
+### Troubleshooting
+- Make sure you have `debug` mode enabled and/or cleared the cache.
+
 ### My recommendation
 Either use git or svn or some other version control to verify the changes made.
 This way you are able to detect wrong replacements right away. So better use every upgrade command separatly and commit/push after each successful run.
