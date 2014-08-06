@@ -177,6 +177,8 @@ Also: This powerful plugin is not for N00bs. Do NOT use it if you don't know at 
 
 ### Troubleshooting
 - Make sure you have `debug` mode enabled and/or cleared the cache.
+- Use a fresh 2.x app and play with the plugin to get a grasp on how the new major version works, and how the plugin operates, if it is your first trial with 2.x.
+Then - with some more insight - it will be easier to migrate 1.x apps to 2.x.
 
 ### My recommendation
 Either use git or svn or some other version control to verify the changes made.
