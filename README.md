@@ -46,8 +46,9 @@ f) Ready to go! Run any of the available commands (see details below). The most 
 
 Don't forget to remove the old (1.x) `/cake` folder and manually clear the (persistent) cache before running the shell.
 
-I never had to manually replace my core.php with the new 2.x core.php. But as there are many new features introduced, it might make sense to do that.
+I never really had to manually replace my core.php with the new 2.x core.php. But as there are many new features introduced, it might make sense to do that.
 Just don't forget to merge your existing settings like salt and cache/session/cookie settings.
+Or at least compare your config files to the current master ones.
 
 Remember: At this point you are already using the shell as 2.x shell. "cake1.x" or whatever you used before is now officially dead.
 
