@@ -80,7 +80,8 @@ For Windows:
 
 	.\Console\cake Upgrade.Upgrade [command]
 
-The short version using Console is preferrer as you will need that Console folder anyway at some point.
+The short version using APP/Console is preferred as you will need those files anyway at some point.
+It is also the documented approach to call shells in 2.x. Especially if you plan on using composer for your 2.x app.
 
 #### This version supports now on top of the original commands/tasks:
 
