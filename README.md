@@ -59,24 +59,30 @@ Also: Mind the casing! Uppercase/lowercase is important.
 
 As this is a plugin, use it with:
 
-    cake Upgrade.Upgrade [command]
+	cake Upgrade.Upgrade [command]
 
 Running it without any command will get you a list of possible commands to chose from. Make sure to check on this first.
 You might have to set the executable rights for your cake shell first in order to run any shell (on unix anyway).
 
-Note: If you use windows the full command (from your app dir!) would be:
-
-    ..\lib\Cake\Console\cake Upgrade.Upgrade [command]
-
-On unix:
+Note: If you use Unix the full command (relative from your app dir!) would be:
 
 	../lib/Cake/Console/cake Upgrade.Upgrade [command]
 
-and if you use the app/Console shell instead (I never do that, though):
+On Windows:
 
-    ./Console/cake Upgrade.Upgrade [command]
+	..\lib\Cake\Console\cake Upgrade.Upgrade [command]
 
-This version supports now on top of the original commands/tasks:
+And if you use the app/Console shell instead (for this to work, you also need to copy over the Console files from /Templates/skel/ in the core repo):
+
+	Console/cake Upgrade.Upgrade [command]
+
+For Windows:
+
+	.\Console\cake Upgrade.Upgrade [command]
+
+The short version using Console is preferrer as you will need that Console folder anyway at some point.
+
+#### This version supports now on top of the original commands/tasks:
 
 - webroot (important)
 - database (important)
@@ -91,7 +97,7 @@ This version supports now on top of the original commands/tasks:
 
 and many more
 
-New functionally also supported now:
+#### New functionally also supported now:
 
 - svn (linux/windows)
 - group commands
@@ -120,22 +126,22 @@ Tip2: The probably most important feature for me is that my version cleanly sepa
 app and plugins. Without -p PluginName it leaves them alone.
 If you want to upgrade plugins use
 
-    cake Upgrade.Upgrade [command] -p PluginName
+	cake Upgrade.Upgrade [command] -p PluginName
 
 I also added support for -p * - to address all plugins at once.
 This is only fully supported by the `group` command like so:
 
-    cake Upgrade.Upgrade group [command1] [command2] ... -p *
+	cake Upgrade.Upgrade group [command1] [command2] ... -p *
 
 You need to supply at least two commands (if you want to use only one, type it twice:
 
-	  cake Upgrade.Upgrade group [command1] [command1] -p *
+	cake Upgrade.Upgrade group [command1] [command1] -p *
 
 This is necessary because 1 argument stands for a config group
 
 The not fully tested way of using the plugin wildcard would be
 
-    cake Upgrade.Upgrade [command] -p *
+	cake Upgrade.Upgrade [command] -p *
 
 which should just grab all files at once and process them
 
