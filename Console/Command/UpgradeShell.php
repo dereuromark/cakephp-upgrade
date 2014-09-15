@@ -17,6 +17,7 @@
 
 App::uses('AppShell', 'Console/Command');
 App::uses('Folder', 'Utility');
+App::uses('CakePlugin', 'Core');
 
 /**
  * A shell class to help developers upgrade applications to CakePHP 2.0 and above
