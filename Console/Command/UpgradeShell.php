@@ -1799,6 +1799,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				$this->out(__d('cake_console', 'Console file %s updated', $file));
 			}
 		}
+		$content = file_get_contents($to . 'cake');
+		if (strpos($content, "\n\r") !== false) {
+			$this->error($to . 'cake contains WIN newlines which will break on some UNIX OS. Please convert to UNIX newlines.');
+		}
 	}
 
 	/**
