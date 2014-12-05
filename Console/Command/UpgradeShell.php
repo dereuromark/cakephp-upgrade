@@ -651,20 +651,21 @@ EOL;
 
 		$patterns = array(
 			array(
-				'Replace ::ssn() with ::personId()',
-				'#\:\:\ssn\(#',
-				'::personId(',
-			),
-			array(
-				'Replace ->ssn() with ->personId()',
-				'#-\>ssn\(#',
-				'->personId(',
+				'Replace ->between() with ->lengthBetween()',
+				'#-\>between\(#',
+				'->lengthBetween(',
 			),
 			array(
 				'Replace ::between() with ::lengthBetween()',
 				'#\:\:\between\(#',
 				'::lengthBetween(',
 			),
+			array(
+				'Replace \'rule\' between lengthBetween',
+				'#\'rule\'\s*\=\>\s*\'between\'#',
+				'\'rule\' => \'lengthBetween\'',
+			),
+
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
