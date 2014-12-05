@@ -42,7 +42,7 @@ class CorrectShell extends UpgradeShell {
 		$all = get_class_methods($this);
 		$all = array_diff($all, $except);
 		foreach ($all as $key => $name) {
-			if (strpos($name, '_') === 0 || in_array($name, array('stable', 'php53', 'conventions_experimental', 'variable'))) {
+			if (strpos($name, '_') === 0 || in_array($name, array('stable', 'php53', 'conventions_experimental', 'variables', 'header', 'specialchars'))) {
 				unset($all[$key]);
 			}
 		}
@@ -247,7 +247,7 @@ class CorrectShell extends UpgradeShell {
 			),
 			array(
 				') {',
-				'/\)\s+\s+\s+{/',
+				'/\)\s*\s+\s+{/',
 				') {',
 			),
 			array(
