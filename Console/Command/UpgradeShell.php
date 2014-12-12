@@ -1756,6 +1756,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'$this->request->clientIp()'
 			),
 			array(
+				'$this->redirect(); exit; ... return $this->redirect(',
+				'/\t\$this-\>redirect\((.*?)\);\s*\s*\s*exit;/',
+				"\t" . 'return $this->redirect(\1);'
+			),
+			array(
 				'$this->redirect( ... return $this->redirect(',
 				'/\t\$this-\>redirect\(/',
 				"\t" . 'return $this->redirect('
