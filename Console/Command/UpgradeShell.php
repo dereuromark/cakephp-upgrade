@@ -1757,7 +1757,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			),
 			array(
 				'$this->redirect(); exit; ... return $this->redirect(',
-				'/\t\$this-\>redirect\((.*?)\);\s*\s*\s*exit;/',
+				'/\t\$this-\>redirect\((.*?)\);\s*\s*\s*(exit|die)(\(.*?\))?;/',
+				"\t" . 'return $this->redirect(\1);'
+			),
+			array(
+				'return $this->redirect(); exit; ... return $this->redirect(',
+				'/\treturn\s+\$this-\>redirect\((.*?)\);\s*\s*\s*(exit|die)(\(.*?\))?;/',
 				"\t" . 'return $this->redirect(\1);'
 			),
 			array(
@@ -1769,6 +1774,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'$this->flash( ... return $this->flash(',
 				'/\t\$this-\>flash\(/',
 				"\t" . 'return $this->flash('
+			),
+			// Correct bad practices
+			array(
+				'CakeSession:: ... $this->Session->',
+				'/\bCakeSession\:\:/',
+				'$this->Session->'
 			),
 		);
 
@@ -1952,6 +1963,12 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				'$this->Javascript() to $this->Js()',
 				'/\$this-\>Javascript-\>/',
 				'$this->Js->'
+			),
+			// Correct bad practices
+			array(
+				'CakeSession:: ... $this->Session->',
+				'/\bCakeSession\:\:/',
+				'$this->Session->'
 			),
 		);
 
