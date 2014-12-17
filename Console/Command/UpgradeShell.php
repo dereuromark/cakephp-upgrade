@@ -2698,6 +2698,11 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 				//Iterator processes plugins even if not asked to
 				if (empty($this->params['plugin'])) {
 					$excludes = array('Plugin', 'plugins');
+					if (empty($this->params['custom'])) {
+						$excludes[] = 'Vendor';
+						$excludes[] = 'vendors';
+					}
+
 					$isIllegalPluginPath = false;
 					foreach ($excludes as $exclude) {
 						if (strpos($file, $path . $exclude . DS) === 0) {

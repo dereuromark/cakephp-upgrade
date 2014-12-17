@@ -31,6 +31,8 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  */
 class CorrectShell extends UpgradeShell {
 
+	public $unstable = array('php53', 'conventions_experimental', 'variables', 'header', 'specialchars');
+
 	/**
 	 * CorrectShell::all()
 	 *
@@ -42,16 +44,24 @@ class CorrectShell extends UpgradeShell {
 		$all = get_class_methods($this);
 		$all = array_diff($all, $except);
 		foreach ($all as $key => $name) {
-			if (strpos($name, '_') === 0 || in_array($name, array('stable', 'php53', 'conventions_experimental', 'variables', 'header', 'specialchars'))) {
+			if (strpos($name, '_') === 0 || in_array($name, am($this->unstable, array('stable', 'unstable')))) {
 				unset($all[$key]);
 			}
 		}
 
 		foreach ($all as $name) {
-			$this->out(__d('cake_console', 'Running %s', $name));
+			if (!empty($this->params['interactive'])) {
+				$runThisCommand = $this->in('Run "'.$name.'"?', array('y', 'n'), 'y');
+				if ($runThisCommand !== 'y') {
+					$this->out('Skipping ' . $name);
+					continue;
+				}
+			}
+
+			$this->out(sprintf('Running %s', $name));
 			$this->{$name}();
 		}
-		$this->out(__d('cake_console', 'Done!'));
+		$this->out('Done!');
 	}
 
 	/**
@@ -62,10 +72,40 @@ class CorrectShell extends UpgradeShell {
 	public function stable() {
 		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n', 'forms');
 		foreach ($all as $name) {
-			$this->out(__d('cake_console', 'Running %s', $name));
+			if (!empty($this->params['interactive'])) {
+				$runThisCommand = $this->in('Run "'.$name.'"?', array('y', 'n'), 'y');
+				if ($runThisCommand !== 'y') {
+					$this->out('Skipping ' . $name);
+					continue;
+				}
+			}
+
+			$this->out(sprintf('Running %s', $name));
 			$this->{$name}();
 		}
-		$this->out(__d('cake_console', 'Done!'));
+		$this->out('Done!');
+	}
+
+	/**
+	 * CorrectShell::unstable()
+	 *
+	 * @return void
+	 */
+	public function unstable() {
+		$all = $this->unstable;
+		foreach ($all as $name) {
+			if (!empty($this->params['interactive'])) {
+				$runThisCommand = $this->in('Run "'.$name.'"?', array('y', 'n'), 'y');
+				if ($runThisCommand !== 'y') {
+					$this->out('Skipping ' . $name);
+					continue;
+				}
+			}
+
+			$this->out(sprintf('Running %s', $name));
+			$this->{$name}();
+		}
+		$this->out('Done!');
 	}
 
 	/**
@@ -180,7 +220,7 @@ class CorrectShell extends UpgradeShell {
 		$contents = $fileContent = file_get_contents($file);
 
 		foreach ($patterns as $pattern) {
-			$this->out(__d('cake_console', ' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
+			$this->out(sprintf(' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
 			//echo debug($contents);
 			preg_match($pattern[1], $contents, $matches);
 			if (!$matches) {
@@ -195,7 +235,7 @@ class CorrectShell extends UpgradeShell {
 			$contents = preg_replace($pattern[1], $replacement, $contents);
 		}
 
-		$this->out(__d('cake_console', 'Done updating %s', $file), 1, Shell::VERBOSE);
+		$this->out(sprintf('Done updating %s', $file), 1, Shell::VERBOSE);
 		if (!$this->params['dry-run'] && $contents !== $fileContent) {
 			file_put_contents($file, $contents);
 		}
@@ -373,12 +413,14 @@ class CorrectShell extends UpgradeShell {
 		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
-		$pattern = array(
+		$patterns = array(
+			/*
 			array(
 				'multiple spaces to 1',
 				array('/ {2,}/'),
 				array(' ')
 			),
+			*/
 		);
 
 		$this->_filesRegexpUpdate($patterns);
@@ -1786,7 +1828,7 @@ class CorrectShell extends UpgradeShell {
 			if (in_array(pathinfo($file, PATHINFO_BASENAME), $skipFiles)) {
 				continue;
 			}
-			$this->out(__d('cake_console', 'Updating %s...', $file), 1, Shell::VERBOSE);
+			$this->out(sprintf('Updating %s...', $file), 1, Shell::VERBOSE);
 			if ($method) {
 				$this->{$method}($file, $patterns, $callback);
 				continue;
@@ -1821,11 +1863,13 @@ class CorrectShell extends UpgradeShell {
 			foreach ($Iterator as $file) {
 				# Iterator processes plugins even if not asked to
 				$excludes = array();
+				if (empty($this->args[0])) {
+					$excludes = array('Vendor', 'vendors');
+				}
 				if (empty($this->params['plugin'])) {
-					$excludes = array('Plugin', 'plugins');
+					$excludes = am($excludes, array('Plugin', 'plugins'));
 				}
 				$excludes = am($excludes, $skipFolders);
-				//echo returns($excludes); die();
 
 				$isIllegalPath = false;
 				foreach ($excludes as $exclude) {
@@ -1837,7 +1881,6 @@ class CorrectShell extends UpgradeShell {
 				if ($isIllegalPath) {
 					continue;
 				}
-				//$this->out( $file->getPathname() ); continue;
 
 				if ($file->isFile()) {
 					$this->_files[] = $file->getPathname();
@@ -1856,147 +1899,156 @@ class CorrectShell extends UpgradeShell {
 			'options' => array(
 				'plugin' => array(
 					'short' => 'p',
-					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
+					'help' => 'The plugin to update. Only the specified plugin will be updated.',
 					'default' => '',
 				),
 				'dry-run' => array(
 					'short' => 'd',
-					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
+					'help' => 'Dry run the update, no files will actually be modified.',
 					'boolean' => true
 				),
 				'log' => array(
 					'short' => 'l',
-					'help' => __d('cake_console', 'Log all ouput to file log.txt in TMP dir'),
+					'help' => 'Log all ouput to file log.txt in TMP dir',
 					'boolean' => true
 				),
 				'ext' => array(
 					'short' => 'e',
-					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
+					'help' => 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern',
 					'default' => 'php|ctp'
+				),
+				'interactive' => array(
+					'short' => 'i',
+					'help' => 'Run it interactively and ask before each each command',
+					'boolean' => true
 				),
 			)
 		);
 
 		return parent::getOptionParser()
-			->description(__d('cake_console', "A shell to help automate upgrading from CakePHP 1.3 to 2.0. \n" .
-				"Be sure to have a backup of your application before running these commands."))
+			->description("A shell to help automate upgrading from CakePHP 1.3 to 2.0. \n" .
+				"Be sure to have a backup of your application before running these commands.")
 			->addSubcommand('all', array(
-				'help' => __d('cake_console', 'Run all correctional commands'),
+				'help' => 'Run all correctional commands',
 				'parser' => $subcommandParser
 			))
 			/*
 			->addSubcommand('objects', array(
-				'help' => __d('cake_console', 'Update objects'),
+				'help' => 'Update objects'),
 				'parser' => $subcommandParser
 			))
 			*/
 			->addSubcommand('stable', array(
-				'help' => __d('cake_console', 'Run all stable Correct commands.'),
+				'help' => 'Run all stable Correct commands.',
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('unstable', array(
+				'help' => 'Run all unstable Correct commands.',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('reference', array(
-				'help' => __d('cake_console', 'Update reference'),
+				'help' => 'Update reference',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('amp', array(
-				'help' => __d('cake_console', '=& fix'),
+				'help' => '=& fix',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('request', array(
-				'help' => __d('cake_console', 'clientIp corrections'),
+				'help' => 'clientIp corrections',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('variables', array(
-				'help' => __d('cake_console', 'variables corrections'),
+				'help' => 'variables corrections',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('functions', array(
-				'help' => __d('cake_console', 'function name corrections'),
+				'help' => 'function name corrections',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('i18n', array(
-				'help' => __d('cake_console', 'i18n simplifications'),
+				'help' => 'i18n simplifications',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('vis', array(
-				'help' => __d('cake_console', 'visibility (public, protected)'),
+				'help' => 'visibility (public, protected)',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('forms', array(
-				'help' => __d('cake_console', 'post to itself by default'),
+				'help' => 'post to itself by default',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions', array(
-				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'help' => 'usual php5/cakephp2 conventions for coding',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions2', array(
-				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'help' => 'usual php5/cakephp2 conventions for coding',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions3', array(
-				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'help' => 'usual php5/cakephp2 conventions for coding',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions4', array(
-				'help' => __d('cake_console', 'usual php5/cakephp2 conventions for coding'),
+				'help' => 'usual php5/cakephp2 conventions for coding',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('conventions_experimental', array(
-				'help' => __d('cake_console', 'experimental conventions (careful!)'),
+				'help' => 'experimental conventions (careful!)',
 				'parser' => $subcommandParser
 			))
 			# custom app stuff (not for anyone else)
 			->addSubcommand('helper', array(
-				'help' => __d('cake_console', 'helper fix'),
+				'help' => 'helper fix',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('auth', array(
-				'help' => __d('cake_console', 'auth fix'),
+				'help' => 'auth fix',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('classes', array(
-				'help' => __d('cake_console', 'classes'),
+				'help' => 'classes',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('mail', array(
-				'help' => __d('cake_console', 'mail fix'),
+				'help' => 'mail fix',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('umlauts', array(
-				'help' => __d('cake_console', 'umlauts fixes in utf8'),
+				'help' => 'umlauts fixes in utf8',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('doc_blocks', array(
-				'help' => __d('cake_console', 'doc block updates'),
+				'help' => 'doc block updates',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('tests', array(
-				'help' => __d('cake_console', 'test case updates'),
+				'help' => 'test case updates',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('html5', array(
-				'help' => __d('cake_console', 'html5 updates'),
+				'help' => 'html5 updates',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('header', array(
-				'help' => __d('cake_console', 'header change'),
+				'help' => 'header change',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('performance', array(
-				'help' => __d('cake_console', 'performance updates'),
+				'help' => 'performance updates',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('specialchars', array(
-				'help' => __d('cake_console', 'Resolve specialchars issues'),
+				'help' => 'Resolve specialchars issues',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('pagination', array(
-				'help' => __d('cake_console', 'Correct pagination default order'),
+				'help' => 'Correct pagination default order',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('whitespace', array(
-				'help' => __d('cake_console', 'Resolve whitespace issues'),
+				'help' => 'Resolve whitespace issues',
 				'parser' => $subcommandParser
 			));
 	}
