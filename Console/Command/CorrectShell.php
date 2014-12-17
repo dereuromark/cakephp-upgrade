@@ -944,6 +944,11 @@ class CorrectShell extends UpgradeShell {
 				'$this->Common->isPosted()'
 			),
 			array(
+				'update $this->Common->isPost()',
+				'/\$this-\>Common-\>isPost\(\)/',
+				'$this->Common->isPosted()'
+			),
+			array(
 				'correct redirect',
 				'/\$this-\>Common-\>flashMessage\(__\(\'record (edit|add) %s saved\',\s*h\(\$var\)\),\s*\'success\'\);
 				\$this-\>Common-\>autoRedirect\(/',
@@ -951,9 +956,14 @@ class CorrectShell extends UpgradeShell {
 				$this->Common->postRedirect('
 			),
 			array(
-				'update $this->Common->isPost()',
-				'/\$this-\>Common-\>isPost\(\)/',
-				'$this->Common->isPosted()'
+				'correct flash message',
+				'/-\>Common-\>flashMessage\(/',
+				'->Flash->message('
+			),
+			array(
+				'correct transient flash message',
+				'/-\>Common-\>transientFlashMessage\(/',
+				'->Flash->transientMessage('
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
@@ -976,6 +986,11 @@ class CorrectShell extends UpgradeShell {
 				'Html->link() to Form->postLink()',
 				'/\$this-\>Html-\>link\(__\(\'Delete/',
 				'$this->Form->postLink(__(\'Delete'
+			),
+			array(
+				'Common->flash() to Flash->flash()',
+				'/\$this-\>Common-\>flash\(/',
+				'$this->Flash->flash('
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
