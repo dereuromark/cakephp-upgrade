@@ -51,7 +51,10 @@ class CorrectShell extends UpgradeShell {
 
 		foreach ($all as $name) {
 			if (!empty($this->params['interactive'])) {
-				$runThisCommand = $this->in('Run "'.$name.'"?', array('y', 'n'), 'y');
+				$runThisCommand = $this->in('Continue with `' . $name . '`?', array('y', 'n', 'q'), 'y');
+				if ($runThisCommand === 'q') {
+					return $this->error('Aborted');
+				}
 				if ($runThisCommand !== 'y') {
 					$this->out('Skipping ' . $name);
 					continue;
@@ -73,7 +76,10 @@ class CorrectShell extends UpgradeShell {
 		$all = array('tests', 'request', 'amp', 'vis', 'reference', 'i18n', 'forms');
 		foreach ($all as $name) {
 			if (!empty($this->params['interactive'])) {
-				$runThisCommand = $this->in('Run "'.$name.'"?', array('y', 'n'), 'y');
+				$runThisCommand = $this->in('Continue with `' . $name . '`?', array('y', 'n', 'q'), 'y');
+				if ($runThisCommand === 'q') {
+					return $this->error('Aborted');
+				}
 				if ($runThisCommand !== 'y') {
 					$this->out('Skipping ' . $name);
 					continue;
@@ -95,7 +101,10 @@ class CorrectShell extends UpgradeShell {
 		$all = $this->unstable;
 		foreach ($all as $name) {
 			if (!empty($this->params['interactive'])) {
-				$runThisCommand = $this->in('Run "'.$name.'"?', array('y', 'n'), 'y');
+				$runThisCommand = $this->in('Continue with `' . $name . '`?', array('y', 'n', 'q'), 'y');
+				if ($runThisCommand === 'q') {
+					return $this->error('Aborted');
+				}
 				if ($runThisCommand !== 'y') {
 					$this->out('Skipping ' . $name);
 					continue;
