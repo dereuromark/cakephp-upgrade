@@ -22,7 +22,7 @@ App::uses('CakePlugin', 'Core');
 /**
  * A shell class to help developers upgrade applications to CakePHP 2.0 and above
  *
- * Necessary expecations for the shell to work flawlessly:
+ * Necessary expectations for the shell to work flawlessly:
  * - brackets must always be correct (`Class extends OtherClass {` in one line!)
  * - all php files most NOT have a closing `?>` tag
  * - 1 tab indentation (instead of spaces) as described in coding guidelines
@@ -2734,17 +2734,19 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 
 		foreach ($patterns as $pattern) {
 			$this->out(__d('cake_console', ' * Updating %s', $pattern[0]), 1, Shell::VERBOSE);
-			if ($callback) {
+			if ($callback && is_callable($callback)) {
+				$contents = $callback($contents, $pattern);
+			} elseif ($callback) {
 				$contents = preg_replace_callback($pattern[1], array($this, '_' . $callback), $contents);
 			} else {
 				$contents = preg_replace($pattern[1], $pattern[2], $contents);
 			}
 		}
 
-		$this->out(__d('cake_console', 'Done updating %s', $file), 1, Shell::VERBOSE);
 		if (!$this->params['dry-run'] && $contents !== $fileContent) {
 			file_put_contents($file, $contents);
 		}
+		$this->out(__d('cake_console', 'Done updating %s', $file), 1, Shell::VERBOSE);
 	}
 
 	/**

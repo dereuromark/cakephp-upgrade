@@ -152,6 +152,11 @@ The convert shell currenently handles:
 
 - Array syntax from long array() to short [] (PHP5.3 to PHP5.4)
 
+### MyUpgrade shell
+This is mainly Tools plugin and app specific stuff.
+You can disregard this shell.
+
+
 ### UPDATE January 2012: Support for 2.1
 Now supports
 - Auth::allow(), Layout Stuff and more

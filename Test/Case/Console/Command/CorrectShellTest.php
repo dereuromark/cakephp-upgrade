@@ -38,11 +38,11 @@ class CorrectShellTest extends CakeTestCase {
 
 class TestCorrectShell extends CorrectShell {
 
-	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array()) {
+	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array(), $callback = null, $method = null) {
 		$this->_updateFile($this->file, $patterns);
 	}
 
-	protected function _updateFile($file, $patterns) {
+	protected function _updateFile($file, $patterns, $callback = null) {
 		$isFile = $this->testPath . $file . '.txt';
 		$expectedFile = $this->testPath . $file . '_expected.txt';
 
