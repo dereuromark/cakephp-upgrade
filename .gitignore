@@ -1,3 +1,5 @@
 
 /.svn
 /vendor/
+/composer.lock
+/plugins/

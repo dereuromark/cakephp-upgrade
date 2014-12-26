@@ -35,5 +35,6 @@
 	},
 	"extra": {
 		"installer-name": "Upgrade"
-	}
+	},
+	"minimum-stability": "dev"
 }

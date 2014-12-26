@@ -50,7 +50,7 @@ Tip: You can alias the shell in your bootstrap cli:
 use Cake\Console\ShellDispatcher;
 
 // Custom shell aliases
-ShellDispatcher::alias('upgrade', 'Upgrade.Upgrade'); // Or any other alias
+ShellDispatcher::alias('u', 'Upgrade.Upgrade'); // Or any other alias
 ```
 
 #### This version supports now on top of the original commands/tasks:
