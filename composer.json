@@ -1,7 +1,7 @@
 {
 	"name": "dereuromark/cakephp-upgrade",
 	"type": "cakephp-plugin",
-	"description": "A CakePHP plugin helping in the upgrade process from 1.x or 2.x to the latest stable release",
+	"description": "A CakePHP plugin helping in the upgrade process of CakePHP 3.x apps or plugins to the latest stable release",
 	"keywords": ["cakephp", "plugin", "upgrade", "automate", "batch"],
 	"homepage": "https://github.com/dereuromark/cakephp-upgrade",
 	"license": "MIT",
@@ -13,11 +13,22 @@
 		}
 	],
 	"require": {
-		"php": ">=5.3",
-		"composer/installers": "*"
+		"php": ">=5.4",
+		"cakephp/plugin-installer": "*",
+		"cakephp/cakephp": "3.0.x-dev"
 	},
 	"support": {
 		"source": "https://github.com/dereuromark/cakephp-upgrade"
+	},
+	"autoload": {
+		"psr-4": {
+			"Upgrade\\": "src"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Upgrade\\Test\\": "tests"
+		}
 	},
 	"extra": {
 		"installer-name": "Upgrade"
