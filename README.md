@@ -1,4 +1,5 @@
-# CakePHP 3.x upgrade shell
+# CakePHP 3.x Upgrade shell
+[![License](https://poser.pugx.org/dereuromark/cakephp-upgrade/license.png)](https://packagist.org/packages/dereuromark/cakephp-upgrade)
 
 Helps automating the upgrade process mainly between CakePHP 3.x versions - and maybe also coming from CakePHP 2.x.
 
