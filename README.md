@@ -31,6 +31,14 @@ And run:
 composer install
 ```
 
+Note that as of right now the cakephp/upgrade repo is not in packagist yet.
+You will also need these lines then:
+```
+"repositories" : [{
+		"type" : "vcs",
+		"url" : "https://github.com/cakephp/upgrade"
+}]
+```
 
 ## Usage
 
