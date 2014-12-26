@@ -34,6 +34,11 @@
 			"Upgrade\\Test\\": "tests"
 		}
 	},
+	"repositories" : [{
+			"type" : "vcs",
+			"url" : "https://github.com/cakephp/upgrade"
+		}
+	],
 	"extra": {
 		"installer-name": "Upgrade"
 	},
