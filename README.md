@@ -84,4 +84,4 @@ If sth goes wrong with one command you can easily revert to the last step this w
 
 Also don't forget to take a look at in the migration guides:
 
-- book.cakephp.org/3.0/en/appendices/3-0-migration-guide.html
+- http://book.cakephp.org/3.0/en/appendices/3-0-migration-guide.html
