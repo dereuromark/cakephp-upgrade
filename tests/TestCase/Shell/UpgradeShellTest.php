@@ -3,7 +3,7 @@ namespace Upgrade\Test\TestCase\Shell;
 
 use Upgrade\Shell\UpgradeShell;
 use Cake\Console\ConsoleIo;
-use Tools\Console\ConsoleOutput;
+use Tools\TestSuite\ConsoleOutput;
 use Cake\Console\Shell;
 use Cake\Core\Plugin;
 use Tools\TestSuite\TestCase;
@@ -20,8 +20,8 @@ class UpgradeShellTest extends TestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->out = new TestOutput();
-		$this->err = new TestOutput();
+		$this->out = new ConsoleOutput();
+		$this->err = new ConsoleOutput();
 		$io = new ConsoleIo($this->out, $this->err);
 
 		$this->Shell = $this->getMock(

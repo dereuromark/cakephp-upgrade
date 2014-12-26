@@ -3,3 +3,4 @@
 /vendor/
 /composer.lock
 /plugins/
+/phpunit.phar

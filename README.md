@@ -6,6 +6,12 @@ It completes the existing [CakePHP Upgrade Tool](https://github.com/cakephp/upgr
 
 It can also apply a lot of additional sugar and enforce coding standards etc. Those commands are not vital, but nice to have.
 
+## Important preface
+If you upgraded 2.x code to 3.x:
+This plugin expects that you already upgraded to the latest CakePHP2.x version prior to upgrading using the 2.x branch of this plugin
+as well as the above tool afterwards then.
+
+It further expects that you used the above tool already, as the following is all just "on top", it does not aim to replace it.
 
 ## Installation
 
