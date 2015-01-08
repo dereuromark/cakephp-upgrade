@@ -102,7 +102,7 @@ class UpgradeShell extends Shell {
 			$plugins = array_unique($plugins);
 			$paths = array();
 			foreach ($plugins as $plugin) {
-				$paths[] = CakePlugin::path($plugin);
+				$paths[] = Plugin::path($plugin);
 			}
 			$this->_customPaths = $paths;
 			//$this->_paths = $this->_customPaths;
@@ -125,7 +125,7 @@ class UpgradeShell extends Shell {
 
 		if (empty($path)) {
 			if (!empty($this->params['plugin'])) {
-				$this->_paths = array(CakePlugin::path($this->params['plugin']));
+				$this->_paths = array(Plugin::path($this->params['plugin']));
 			} else {
 				$this->_paths = array(APP);
 			}
@@ -239,7 +239,7 @@ class UpgradeShell extends Shell {
 				continue;
 			}
 			# run all plugins
-			$plugins = CakePlugin::loaded();
+			$plugins = Plugin::loaded();
 			foreach ($plugins as $plugin) {
 				if (in_array($plugin, array('Upgrade'))) {
 					continue;
