@@ -1913,6 +1913,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 	 * @return void
 	 */
 	public function views() {
+		/*
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
@@ -1932,6 +1933,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			),
 		);
 		$this->_filesRegexpUpdate($patterns, 'helperName');
+		*/
 
 		$patterns = array(
 			array(
