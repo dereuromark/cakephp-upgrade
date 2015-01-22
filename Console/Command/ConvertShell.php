@@ -54,7 +54,7 @@ class ConvertShell extends UpgradeShell {
 				continue;
 			}
 			$this->out(__d('cake_console', 'Updating %s...', $file), 1, Shell::VERBOSE);
-			$this->_updateFile($file);
+			$this->_update($file);
 		}
 	}
 
@@ -67,7 +67,7 @@ class ConvertShell extends UpgradeShell {
 	 * @param string $file
 	 * @return void
 	 */
-	protected function _updateFile($file) {
+	protected function _update($file) {
 		$contents = file_get_contents($file);
 		$modified = $contents;
 
