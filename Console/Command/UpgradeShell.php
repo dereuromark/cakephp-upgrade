@@ -668,6 +668,27 @@ EOL;
 
 		);
 		$this->_filesRegexpUpdate($patterns);
+
+		$this->_buildPaths('View' . DS);
+
+		$patterns = array(
+			array(
+				'Replace ->end(...) with ->submit(...) and ->end()',
+				'#echo \$this-\>Form-\>end\((.+)\);#',
+				'echo $this->Form->submit(\1); echo $this->Form->end();',
+			),
+			array(
+				'Replace null, __(...) with [\'confirm\' => __(...))',
+				'#\bpostLink\((.*), null, __\((.*)\)\);#',
+				'postLink(\1, [\'confirm\' => __(\2)]);',
+			),
+			array(
+				'Replace array(\'escape\' => false), __(...) with [\'confirm\' => __(...))',
+				'#\bpostLink\((.*), array\(\'escape\'\s*=\>\s*false\), __\((.*)\)\);#',
+				'postLink(\1, [\'escape\' => false, \'confirm\' => __(\2)]);',
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
 	}
 
 	/**
