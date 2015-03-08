@@ -1,4 +1,7 @@
 # CakePHP 2.x upgrade shell
+[![Minimum PHP Version](http://img.shields.io/badge/php-%3E%3D%205.4-8892BF.svg)](https://php.net/)
+[![License](https://poser.pugx.org/dereuromark/cakephp-upgrade/license.png)](https://packagist.org/packages/dereuromark/cakephp-upgrade)
+[![Total Downloads](https://poser.pugx.org/dereuromark/cakephp-upgrade/d/total.png)](https://packagist.org/packages/dereuromark/cakephp-upgrade)
 
 Helps automating the upgrade process from CakePHP 1.1/1.2/1.3 to CakePHP 2.x and above.
 

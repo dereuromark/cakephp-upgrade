@@ -28,7 +28,7 @@ class Lib {
 			}
 		}
 		# blacklist? lazyloading with app::uses causes fatal errors in some libs that extend/import vendor files
-		$blacklist = array('IcqLib');
+		$blacklist = ['IcqLib'];
 		if (in_array($name, $blacklist)) {
 			return null;
 		}
@@ -84,7 +84,7 @@ class Lib {
 			}
 			if (basename($File->getPathname(), '.php') === $name) {
 				$finalPath = dirname($File->getPathname());
-				$package = array();
+				$package = [];
 				while ($loop) {
 					$loop--;
 					$package[] = basename($finalPath);

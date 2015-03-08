@@ -38,7 +38,7 @@ class CorrectShellTest extends CakeTestCase {
 
 class TestCorrectShell extends CorrectShell {
 
-	protected function _filesRegexpUpdate($patterns, $skipFiles = array(), $skipFolders = array(), $callback = null, $method = null) {
+	protected function _filesRegexpUpdate($patterns, $skipFiles = [], $skipFolders = [], $callback = null, $method = null) {
 		$this->_updateFile($this->file, $patterns);
 	}
 
@@ -56,7 +56,7 @@ class TestCorrectShell extends CorrectShell {
 		if (file_exists($expectedFile)) {
 			$testContents = file_get_contents($expectedFile);
 		}
-		$this->result = array('is' => $contents, 'expected' => $testContents);
+		$this->result = ['is' => $contents, 'expected' => $testContents];
 	}
 
 }
