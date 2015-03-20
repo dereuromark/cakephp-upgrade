@@ -679,13 +679,23 @@ EOL;
 			),
 			array(
 				'Replace null, __(...) with [\'confirm\' => __(...))',
-				'#\bpostLink\((.*), null, __\((.*)\)\);#',
-				'postLink(\1, [\'confirm\' => __(\2)]);',
+				'#\b(postLink|link)\((.*),\s*null,\s*__\((.*)\)\);#',
+				'\1(\2, [\'confirm\' => __(\3)]);',
 			),
 			array(
 				'Replace array(\'escape\' => false), __(...) with [\'confirm\' => __(...))',
-				'#\bpostLink\((.*), array\(\'escape\'\s*=\>\s*false\), __\((.*)\)\);#',
-				'postLink(\1, [\'escape\' => false, \'confirm\' => __(\2)]);',
+				'#\b(postLink|link)\((.*),\s*array\(\'escape\'\s*=\>\s*false\),\s*__\((.*)\)\);#',
+				'\1(\2, [\'escape\' => false, \'confirm\' => __(\3)]);',
+			),
+			array(
+				'Replace array(\'escape\' => false), __(...) with [\'confirm\' => __(...))',
+				'#\b(postLink|link)\((.*),\s*\[\'escape\'\s*=\>\s*false\],\s*__\((.*)\)\);#',
+				'\1(\2, [\'escape\' => false, \'confirm\' => __(\3)]);',
+			),
+			array(
+				'Replace array(\'escape\' => false), __(...) with [\'confirm\' => __(...), false)',
+				'#\b(postLink|link)\((.*),\s*array\(\'escape\'\s*=\>\s*false\),\s*__\((.*)\),\s*false\);#',
+				'\1(\2, [\'escape\' => false, \'confirm\' => __(\3)]);',
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
