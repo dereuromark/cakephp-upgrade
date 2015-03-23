@@ -609,6 +609,11 @@ class CorrectShell extends UpgradeShell {
 				'/strlen\((.*?)\)\s+\!\=\s+/',
 				'strlen(\1) !== '
 			),
+			array(
+				'isset(...) && !empty(...) to just !empty(...)',
+				'/\bisset\(.*\)\s*&&\s*!empty\((.*)\)/',
+				'!empty(\1)'
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
