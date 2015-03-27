@@ -127,9 +127,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = (array)App::path('Console/Command', $this->params['plugin']);
+			$this->_paths = (array)$this->_appPath('Console/Command', $this->params['plugin']);
 		} else {
-			$this->_paths = (array)App::path('Console/Command');
+			$this->_paths = (array)$this->_appPath('Console/Command');
 		}
 
 		$patterns = array(
@@ -188,9 +188,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Controller', $this->params['plugin']);
+			$this->_paths = $this->_appPath('Controller', $this->params['plugin']);
 		} else {
-			$this->_paths = App::path('Controller');
+			$this->_paths = $this->_appPath('Controller');
 		}
 
 		$patterns = array(
@@ -217,9 +217,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Controller', $this->params['plugin']);
+			$this->_paths = $this->_appPath('Controller', $this->params['plugin']);
 		} else {
-			$this->_paths = App::path('Controller');
+			$this->_paths = $this->_appPath('Controller');
 		}
 
 		$patterns = array(
@@ -439,9 +439,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = (array)App::path('View', $this->params['plugin']);
+			$this->_paths = (array)$this->_appPath('View', $this->params['plugin']);
 		} else {
-			$this->_paths = (array)App::path('View');
+			$this->_paths = (array)$this->_appPath('View');
 		}
 
 		$patterns = array(
@@ -485,9 +485,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = (array)App::path('View', $this->params['plugin']);
+			$this->_paths = (array)$this->_appPath('View', $this->params['plugin']);
 		} else {
-			$this->_paths = (array)App::path('View');
+			$this->_paths = (array)$this->_appPath('View');
 		}
 
 		$patterns = array(
@@ -511,9 +511,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = (array)App::path('View', $this->params['plugin']);
+			$this->_paths = (array)$this->_appPath('View', $this->params['plugin']);
 		} else {
-			$this->_paths = (array)App::path('View');
+			$this->_paths = (array)$this->_appPath('View');
 		}
 
 		$patterns = array(
@@ -682,9 +682,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('View', $this->params['plugin']);
+			$this->_paths = $this->_appPath('View', $this->params['plugin']);
 		} else {
-			$this->_paths = App::path('View');
+			$this->_paths = $this->_appPath('View');
 		}
 
 		$patterns = array(
@@ -705,9 +705,9 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = App::path('Model', $this->params['plugin']);
+			$this->_paths = $this->_appPath('Model', $this->params['plugin']);
 		} else {
-			$this->_paths = App::path('Model');
+			$this->_paths = $this->_appPath('Model');
 		}
 
 		$patterns = array(
