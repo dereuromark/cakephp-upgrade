@@ -780,7 +780,7 @@ class MyUpgradeShell extends UpgradeShell {
 		if (!empty($this->_customPaths)) {
 			$this->_paths = $this->_customPaths;
 		} elseif (!empty($this->params['plugin'])) {
-			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'View' . DS);
+			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'Model' . DS);
 		} else {
 			$this->_paths = array(APP . 'Model' . DS);
 		}
@@ -795,6 +795,21 @@ class MyUpgradeShell extends UpgradeShell {
 				'App::uses(\'MyModel\', \'Tools.Lib\'',
 				'/\bApp\:\:uses\(\'MyModel\',\s*\'Tools.Lib\'/',
 				'App::uses(\'MyModel\', \'Tools.Model\''
+			),
+			array(
+				'->get() to ->record()',
+				'/-\>get\((.+),\s*(.*),\s*(.*)\)/',
+				'->record(\1, [\'fields\' => \1, \'contain\' => \2])'
+			),
+			array(
+				'->get() to ->record()',
+				'/-\>get\((.+),\s*(.*)\)/',
+				'->record(\1, [\'fields\' => \1])'
+			),
+			array(
+				'->get() to ->record()',
+				'/-\>get\((.+)\)/',
+				'->record(\1)'
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
