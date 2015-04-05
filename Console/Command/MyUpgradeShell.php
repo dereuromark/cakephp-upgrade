@@ -962,7 +962,7 @@ class MyUpgradeShell extends UpgradeShell {
 		}
 
 		$patterns = array(
-		# tmp to qickly find unmatching ones
+			# tmp to qickly find unmatching ones
 			array(
 				'* xxxx-xx-xx xx ... removal',
 				'/\*\s*[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[a-z]+\s*\*\//i',
@@ -981,6 +981,32 @@ class MyUpgradeShell extends UpgradeShell {
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * Do run this ONLY if you actually start upgrading to 3.x
+	 *
+	 * @return void
+	 */
+	public function cake3() {
+		// Replace composer stuff
+		$path = APP;
+		$file = $path . 'composer.json';
+		if (!file_exists($file)) {
+			return $this->errror('Cannot find composer.json');
+		}
+
+		$content = file_get_contents($file);
+
+		// Basically the same as "composer require cakephp/cakephp:3.0.*
+		$content = preg_replace('#"cakephp/cakephp"\s*:\s*"2\..*"#', '"cakephp/cakephp": "3.0.*"', $content);
+
+		$content = preg_replace('#"markstory/asset_compress"\s*\:\s*"dev-master"#', '"markstory/asset_compress": "3.0.*-dev"', $content);
+		$content = preg_replace('#"cakedc/search"\s*\:\s*"dev-master"#', '"cakedc/search": "3.0.*-dev"', $content);
+
+		file_put_contents($file, $content);
+
+		$this->out('Done. Also add "autoload" and "autoload-dev". Then run "composer update".');
 	}
 
 	/**
@@ -1158,6 +1184,10 @@ class MyUpgradeShell extends UpgradeShell {
 			->addSubcommand('datetime', array(
 				'help' => __d('cake_console', 'niceDate() to localDate()'),
 				'parser' => $subcommandParser
+			))
+			->addSubcommand('cake3', array(
+				'help' => 'Upgrade to Cake3 now - last command of the 2.x shell',
+				'parser' => $subcommandParser
 			));
-		}
+	}
 }
