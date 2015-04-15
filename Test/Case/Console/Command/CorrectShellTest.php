@@ -6,12 +6,12 @@ class CorrectShellTest extends CakeTestCase {
 
 	public $Correct;
 
- 	public function setUp() {
- 		parent::setUp();
+	public function setUp() {
+		parent::setUp();
 
- 		$this->Correct = new TestCorrectShell();
- 		$this->Correct->testPath = CakePlugin::path('Upgrade') . 'Test' . DS . 'test_files' . DS;
- 	}
+		$this->Correct = new TestCorrectShell();
+		$this->Correct->testPath = CakePlugin::path('Upgrade') . 'Test' . DS . 'test_files' . DS;
+	}
 
 	public function testHTML5() {
 		$this->Correct->file = 'html5';

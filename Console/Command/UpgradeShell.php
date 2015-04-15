@@ -2217,7 +2217,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$changes = false;
 		foreach ($content as $line => $row) {
 			if (strpos($row, '\'driver\'') === false) {
-			 	continue;
+				continue;
 			}
 			$content[$line] = trim(preg_replace_callback('/\'driver\'\s*\=\>\s*\'(.*?)\'/', 'self::_prepDatasource', $row));
 			$changes = true;

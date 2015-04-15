@@ -23,15 +23,15 @@ class MyUpgradeShellTest extends CakeTestCase {
 
 	public $Shell;
 
- 	public function setUp() {
- 		parent::setUp();
+	public function setUp() {
+		parent::setUp();
 
 		$output = new TestConsoleOutput();
 		$error = new TestConsoleOutput();
 		$input = $this->getMock('ConsoleInput', [], [], '', false);
 
- 		$this->Shell = new MyUpgradeShell($output, $error, $input);
- 		$this->testPath = CakePlugin::path('Upgrade') . 'Test' . DS . 'test_files' . DS;
- 	}
+		$this->Shell = new MyUpgradeShell($output, $error, $input);
+		$this->testPath = CakePlugin::path('Upgrade') . 'Test' . DS . 'test_files' . DS;
+	}
 
 }
