@@ -614,6 +614,11 @@ class CorrectShell extends UpgradeShell {
 				'/\bisset\(.*\)\s*&&\s*!empty\((.*)\)/',
 				'!empty(\1)'
 			),
+			array(
+				'!isset(...) || empty(...) to just empty(...)',
+				'/\b!isset\(.*\)\s*||\s*empty\((.*)\)/',
+				'empty(\1)'
+			),
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
