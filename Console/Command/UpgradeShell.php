@@ -147,14 +147,27 @@ class UpgradeShell extends AppShell {
 			}
 			return;
 		}
-
 		$paths = array();
 		foreach ($path as $p) {
 			$p = str_replace(DS, '/', $p);
 			$p = trim($p, '/');
-			$paths = array_merge($paths, App::path($p, $this->params['plugin']));
+			$paths = array_merge($paths, $this->_appPath($p, $this->params['plugin']));
 		}
+
 		$this->_paths = $paths;
+	}
+
+	/**
+	 * @param string $path
+	 * @param string|null $plugin
+	 * @return array
+	 */
+	protected function _appPath($path, $plugin = null) {
+		if ($plugin) {
+			$path = CakePlugin::path($plugin) . $path;
+			return (array)$path;
+		}
+		return (array)App::path($path);
 	}
 
 	/**
@@ -1269,7 +1282,7 @@ EOL;
 		} elseif (!empty($this->params['plugin'])) {
 			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'views' . DS);
 		} else {
-			$this->_paths = array_diff(App::path('views'), App::core('views'));
+			$this->_paths = array_diff($this->_appPath('views'), App::core('views'));
 		}
 
 		$patterns = array();
@@ -1455,13 +1468,13 @@ EOL;
 				$pluginPath . 'config' . DS . 'schema' . DS,
 			);
 		} else {
-			$libs = App::path('Lib');
-			$views = App::path('View');
-			$controllers = App::path('Controller');
-			$components = App::path('Controller/Component');
-			$models = App::path('Model');
-			$helpers = App::path('View/Helper');
-			$behaviors = App::path('Model/Behavior');
+			$libs = $this->_appPath('Lib');
+			$views = $this->_appPath('View');
+			$controllers = $this->_appPath('Controller');
+			$components = $this->_appPath('Controller/Component');
+			$models = $this->_appPath('Model');
+			$helpers = $this->_appPath('View/Helper');
+			$behaviors = $this->_appPath('Model/Behavior');
 			$this->_paths = array_merge($libs, $views, $controllers, $components, $models, $helpers, $behaviors);
 			$this->_paths[] = TESTS . 'Fixture' . DS;
 			$this->_paths[] = APP . 'Config' . DS . 'Schema' . DS;
@@ -1501,9 +1514,9 @@ EOL;
 				$pluginPath . 'views' . DS,
 			);
 		} else {
-			$views = array_diff(App::path('views'), App::core('views'));
+			$views = array_diff($this->_appPath('views'), App::core('views'));
 			$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
-			$components = array_diff(App::path('components'), App::core('components'));
+			$components = array_diff($this->_appPath('components'), App::core('components'));
 			$this->_paths = array_merge($views, $controllers, $components);
 		}
 
@@ -1912,7 +1925,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			);
 		} else {
 			$controllers = array_diff(App::path('controllers'), App::core('controllers'), array(APP));
-			$components = array_diff(App::path('components'), App::core('components'));
+			$components = array_diff($this->_appPath('components'), App::core('components'));
 			$this->_paths = array_merge($controllers, $components);
 		}
 
