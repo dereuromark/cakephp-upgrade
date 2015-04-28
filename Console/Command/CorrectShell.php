@@ -611,12 +611,12 @@ class CorrectShell extends UpgradeShell {
 			),
 			array(
 				'isset(...) && !empty(...) to just !empty(...)',
-				'/\bisset\(.*\)\s*&&\s*!empty\((.*)\)/',
+				'/\bisset\(.+\)\s*\&\&\s*\!empty\((.+)\)/',
 				'!empty(\1)'
 			),
 			array(
 				'!isset(...) || empty(...) to just empty(...)',
-				'/\b!isset\(.*\)\s*||\s*empty\((.*)\)/',
+				'/\!isset\(.+\)\s*\|\|\s*empty\((.+)\)/',
 				'empty(\1)'
 			),
 		);
