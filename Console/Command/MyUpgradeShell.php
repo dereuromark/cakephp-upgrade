@@ -20,7 +20,7 @@ class MyUpgradeShell extends UpgradeShell {
 	public function all() {
 		foreach ($this->OptionParser->subcommands() as $command) {
 			$name = $command->name();
-			if ($name === 'all' || $name === 'group' || $name === 'except') {
+			if ($name === 'all' || $name === 'group' || $name === 'except' || $name === 'shim') {
 				continue;
 			}
 			if (!empty($this->params['interactive'])) {
@@ -47,7 +47,7 @@ class MyUpgradeShell extends UpgradeShell {
 
 		foreach ($commands as $command) {
 			$name = $command->name();
-			if (in_array($name, array('all', 'except', 'group', 'locations')) || in_array($name, $skip)) {
+			if (in_array($name, array('all', 'except', 'group', 'locations', 'shim')) || in_array($name, $skip)) {
 				continue;
 			}
 			if (!empty($this->params['interactive'])) {
@@ -913,6 +913,14 @@ class MyUpgradeShell extends UpgradeShell {
 	public function flash() {
 		$this->params['ext'] = 'php';
 
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$this->_paths = array(CakePlugin::path($this->params['plugin']));
+		} else {
+			$this->_paths = array(APP);
+		}
+
 		$patterns = array(
 			array(
 				'$this->Session->setFlash(...)',
@@ -920,23 +928,29 @@ class MyUpgradeShell extends UpgradeShell {
 				'->Flash->message(\1)'
 			),
 			array(
-				'$this->Session->setFlash(...)',
+				'$this->Flash->message(...)',
 				'/-\>Common-\>flashMessage\(__\(\'Invalid (.*)\'\)\)/',
-				'->Flash->message(__(\'Invalid \1\'), \'error\')'
+				'->Flash->error(__(\'Invalid \1\'))'
 			),
 			array(
-				'$this->Session->setFlash(...)',
+				'$this->Flash->message(...)',
 				'/-\>Common-\>flashMessage\(__\(\'(.*) has been saved\'\)\)/',
-				'->Flash->message(__(\'\1 has been saved\'), \'success\')'
+				'->Flash->success(__(\'\1 has been saved\'))'
 			),
 			array(
-				'$this->Session->setFlash(...)',
+				'$this->Flash->message(...)',
 				'/-\>Common-\>flashMessage\(__\(\'(.*) could not be saved(.*)\'\)\)/',
-				'->Flash->message(__(\'\1 could not be saved\2\'), \'error\')'
+				'->Flash->error(__(\'\1 could not be saved\2\'))'
+			),
+			# old ones to new sugar
+			array(
+				'$this->Flash->message(..., type) ... $this->Flash->type(...)',
+				'/-\>Flash-\>message\((.+),\s*\'(error|warning|success|info)\'\)/',
+				'->Flash->\2(\1)'
 			),
 			# tmp to qickly find unmatching ones
 			array(
-				'$this->Session->setFlash(...)',
+				'$this->Flash->message(...)',
 				'/-\>Common-\>flashMessage\(__\(\'(.*)\'\)\)/',
 				'->Flash->message(__(\'\1\'), \'xxxxx\')'
 			),
@@ -981,6 +995,32 @@ class MyUpgradeShell extends UpgradeShell {
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
+	}
+
+	/**
+	 * Do run this ONLY if you actually use the https://github.com/dereuromark/cakephp-shim Shim plugin
+	 *
+	 * @return void
+	 */
+	public function shim() {
+		$this->params['ext'] = 'php|ctp';
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'View' . DS);
+		} else {
+			$this->_paths = array(APP . 'View' . DS);
+		}
+
+		$patterns = array(
+			array(
+				'$this->Url->build() to $this->Url->build()',
+				'/->Html->url\(/',
+				'->Url->build('
+			),
+		);
+		$this->_filesRegexpUpdate($patterns);
+		$this->out('Done.');
 	}
 
 	/**
@@ -1183,6 +1223,10 @@ class MyUpgradeShell extends UpgradeShell {
 			))
 			->addSubcommand('datetime', array(
 				'help' => __d('cake_console', 'niceDate() to localDate()'),
+				'parser' => $subcommandParser
+			))
+			->addSubcommand('shim', array(
+				'help' => 'Upgrade to Shim plugin now.',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('cake3', array(
