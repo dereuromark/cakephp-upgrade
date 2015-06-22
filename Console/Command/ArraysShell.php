@@ -14,7 +14,7 @@ App::uses('UpgradeShell', 'Upgrade.Console/Command');
  * @author Mark scherer
  * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-class ConvertShell extends UpgradeShell {
+class ArraysShell extends UpgradeShell {
 
 	/**
 	 * ConvertShell::startup()
@@ -33,7 +33,7 @@ class ConvertShell extends UpgradeShell {
 	 *
 	 * @return void
 	 */
-	public function arrays() {
+	public function run() {
 		$this->params['ext'] = 'php|ctp';
 		$this->_getPaths();
 
@@ -231,28 +231,33 @@ class ConvertShell extends UpgradeShell {
 			'options' => array(
 				'plugin' => array(
 					'short' => 'p',
-					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
+					'help' => 'The plugin to update. Only the specified plugin will be updated.',
 					'default' => '',
 				),
 				'dry-run' => array(
 					'short' => 'd',
-					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
+					'help' => 'Dry run the update, no files will actually be modified.',
 					'boolean' => true
 				),
 				'ext' => array(
 					'short' => 'e',
-					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
+					'help' => 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern',
 					'default' => 'php'
 				),
-			)
+			),
+			'arguments' => [
+				'path' => [
+					'help' => 'Path to folder, defaults to current APP otherwise.'
+				]
+			]
 		);
 
 		$name = ($this->plugin ? $this->plugin . '.' : '') . $this->name;
 		$parser = new ConsoleOptionParser($name);
 		return $parser
-			->description(__d('cake_console', "A shell to help automate upgrading array syntax to PHP5.4"))
-			->addSubcommand('arrays', array(
-				'help' => __d('cake_console', 'Main method to update verbose array syntax to short one.'),
+			->description("A shell to help automate upgrading array syntax to PHP5.4")
+			->addSubcommand('run', array(
+				'help' => 'Update verbose array syntax to short one.',
 				'parser' => $subcommandParser
 			));
 	}
