@@ -80,13 +80,13 @@ class UpgradeShell extends AppShell {
 	public function startup() {
 		parent::startup();
 		if ($this->params['dry-run']) {
-			$this->out(__d('cake_console', '<warning>Dry-run mode enabled!</warning>'), 1, Shell::QUIET);
+			$this->out('<warning>Dry-run mode enabled!</warning>', 1, Shell::QUIET);
 		}
 		if (($this->params['git'] || $this->params['tgit']) && !$this->_isType('git')) {
-			$this->out(__d('cake_console', '<warning>No git repository detected!</warning>'), 1, Shell::QUIET);
+			$this->out('<warning>No git repository detected!</warning>', 1, Shell::QUIET);
 		}
 		if ($this->params['svn'] && !$this->_isType('svn')) {
-			$this->out(__d('cake_console', '<warning>No svn repository detected!</warning>'), 1, Shell::QUIET);
+			$this->out('<warning>No svn repository detected!</warning>', 1, Shell::QUIET);
 		}
 		//TODO: .hg
 
@@ -247,7 +247,7 @@ class UpgradeShell extends AppShell {
 			$commands = (array)Configure::read('UpgradeGroup' . $commands[0]);
 		}
 		if (empty($commands)) {
-			return $this->error(__d('cake_console', 'No group found. Please use args or Configure to define groups.'));
+			return $this->error('No group found. Please use args or Configure to define groups.');
 		}
 		$commands = array_unique($commands);
 		foreach ($commands as $command) {
@@ -1223,7 +1223,7 @@ EOL;
 			}
 			$this->_files = array();
 			chdir($cwd);
-			$this->out(__d('cake_console', 'Upgrading locations for app directory'));
+			$this->out('Upgrading locations for app directory');
 		}
 		$moves = array(
 			'locale' => 'Locale',
@@ -1647,17 +1647,17 @@ EOL;
 
 		$file = APP . 'Config' . DS . 'routes.php';
 		if (!file_exists($file)) {
-			$this->out(__d('cake_console', 'no routes.php found in Config - abort adding missing routes'));
+			$this->out('no routes.php found in Config - abort adding missing routes');
 			return;
 		}
 		$content = file_get_contents($file);
 		if (strpos($content, 'CakePlugin::routes()') === false) {
-			$this->out(__d('cake_console', 'adding 2.0 plugin routes...'));
+			$this->out('adding 2.0 plugin routes...');
 			$content .= PHP_EOL . PHP_EOL . 'CakePlugin::routes();';
 			$changes = true;
 		}
 		if (strpos($content, 'require CAKE . \'Config\' . DS . \'routes.php\'') === false) {
-			$this->out(__d('cake_console', 'adding new 2.0 default routes...'));
+			$this->out('adding new 2.0 default routes...');
 			$content .= PHP_EOL . PHP_EOL . '/**
 * Load the CakePHP default routes. Remove this if you do not want to use
 * the built-in default routes.
@@ -2114,7 +2114,7 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$file = $to . '.htaccess';
 		if (file_exists($file)) {
 			$this->_updateFile($file, $patterns);
-			$this->out(__d('cake_console', '%s updated', '.htaccess'));
+			$this->out('%s updated', '.htaccess');
 		}
 
 		$files = array('index.php', 'test.php');
@@ -2250,9 +2250,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		if ($changes) {
 			$content = implode(PHP_EOL, $content);
 			file_put_contents($file, $content);
-			$this->out(__d('cake_console', '%s updated', 'database.php'));
+			$this->out('%s updated', 'database.php');
 		} else {
-			$this->out(__d('cake_console', '%s unchanged', 'database.php'));
+			$this->out('%s unchanged', 'database.php');
 		}
 	}
 
@@ -2397,9 +2397,9 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		$content = $this->_report();
 		if ($content) {
 			file_put_contents($file, $content);
-			$this->out(__d('cake_console', 'Report %s has been generated in tmp folder', 'report.txt'));
+			$this->out('Report %s has been generated in tmp folder', 'report.txt');
 		} else {
-			$this->out(__d('cake_console', 'No issues found to report'));
+			$this->out('No issues found to report');
 		}
 	}
 
@@ -2857,42 +2857,42 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			'options' => array(
 				'plugin' => array(
 					'short' => 'p',
-					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
+					'help' => 'The plugin to update. Only the specified plugin will be updated.',
 					'default' => '',
 				),
 				'custom' => array(
 					'short' => 'c',
-					'help' => __d('cake_console', 'Custom path to update recursivly.'),
+					'help' => 'Custom path to update recursivly.',
 					'default' => ''
 				),
 				'ext' => array(
 					'short' => 'e',
-					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
+					'help' => 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern',
 					'default' => 'php|ctp|thtml|inc|tpl'
 				),
 				'git' => array(
 					'short' => 'g',
-					'help' => __d('cake_console', 'Use git command for moving files around.'),
+					'help' => 'Use git command for moving files around.',
 					'boolean' => true
 				),
 				'tgit' => array(
 					'short' => 't',
-					'help' => __d('cake_console', 'Use tortoise git command for moving files around.'),
+					'help' => 'Use tortoise git command for moving files around.',
 					'boolean' => true
 				),
 				'svn' => array(
 					'short' => 's',
-					'help' => __d('cake_console', 'Use svn command for moving files around.'),
+					'help' => 'Use svn command for moving files around.',
 					'boolean' => true
 				),
 				'dry-run' => array(
 					'short' => 'd',
-					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
+					'help' => 'Dry run the update, no files will actually be modified.',
 					'boolean' => true
 				),
 				'interactive' => array(
 					'short' => 'i',
-					'help' => __d('cake_console', 'Interactive commands.'),
+					'help' => 'Interactive commands.',
 					'boolean' => true
 				),
 			)
@@ -2902,39 +2902,39 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			__d('cake_console', "A shell to help automate upgrading from CakePHP 1.x to 2.x. \n" .
 			"Be sure to have a backup of your application before running these commands."
 		))->addSubcommand('all', array(
-			'help' => __d('cake_console', 'Run all upgrade commands.'),
+			'help' => 'Run all upgrade commands.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('group', array(
-			'help' => __d('cake_console', 'Run all defined upgrade commands. Use Configure::write() or params to define.'),
+			'help' => 'Run all defined upgrade commands. Use Configure::write() or params to define.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('locations', array(
-			'help' => __d('cake_console', 'Move files and folders to their new homes.'),
+			'help' => 'Move files and folders to their new homes.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('tests', array(
-			'help' => __d('cake_console', 'Update tests class names to FooTest rather than FooTestCase.'),
+			'help' => 'Update tests class names to FooTest rather than FooTestCase.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('i18n', array(
-			'help' => __d('cake_console', 'Update the i18n translation method calls.'),
+			'help' => 'Update the i18n translation method calls.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('helpers', array(
-			'help' => __d('cake_console', 'Update calls to helpers.'),
+			'help' => 'Update calls to helpers.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('basics', array(
-			'help' => __d('cake_console', 'Update removed basics functions to PHP native functions.'),
+			'help' => 'Update removed basics functions to PHP native functions.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('request', array(
-			'help' => __d('cake_console', 'Update removed request access, and replace with $this->request.'),
+			'help' => 'Update removed request access, and replace with $this->request.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('routes', array(
-			'help' => __d('cake_console', 'Add new 2.0 routes'),
+			'help' => 'Add new 2.0 routes',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('configure', array(
@@ -2946,103 +2946,103 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('console', array(
-			'help' => __d('cake_console', 'Update console (shells and tasks)'),
+			'help' => 'Update console (shells and tasks)',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('controllers', array(
-			'help' => __d('cake_console', 'Update controllers'),
+			'help' => 'Update controllers',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('components', array(
-			'help' => __d('cake_console', 'Update components to extend Component class.'),
+			'help' => 'Update components to extend Component class.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('exceptions', array(
-			'help' => __d('cake_console', 'Replace use of cakeError with exceptions.'),
+			'help' => 'Replace use of cakeError with exceptions.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('views', array(
-			'help' => __d('cake_console', 'Update views and replace nocache tag'),
+			'help' => 'Update views and replace nocache tag',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('stylesheets', array(
-			'help' => __d('cake_console', 'Update CSS style tag'),
+			'help' => 'Update CSS style tag',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('webroot', array(
-			'help' => __d('cake_console', 'Update webroot'),
+			'help' => 'Update webroot',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('legacy', array(
-			'help' => __d('cake_console', 'Update legacy files'),
+			'help' => 'Update legacy files',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('constructors', array(
-			'help' => __d('cake_console', 'Update constructors'),
+			'help' => 'Update constructors',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('database', array(
-			'help' => __d('cake_console', 'Update database.php'),
+			'help' => 'Update database.php',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('paginator', array(
-			'help' => __d('cake_console', 'Update paginator'),
+			'help' => 'Update paginator',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('name_attribute', array(
-			'help' => __d('cake_console', 'Remove name attribute var (PHP4 leftover)'),
+			'help' => 'Remove name attribute var (PHP4 leftover)',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('methods', array(
-			'help' => __d('cake_console', 'Correct method calls'),
+			'help' => 'Correct method calls',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake13', array(
-			'help' => __d('cake_console', 'Upgrade stuff older than cake13 (already deprecated in v13)'),
+			'help' => 'Upgrade stuff older than cake13 (already deprecated in v13)',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake20', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.0'),
+			'help' => 'Upgrade to CakePHP 2.0',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake21', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.1'),
+			'help' => 'Upgrade to CakePHP 2.1',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake23', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.3'),
+			'help' => 'Upgrade to CakePHP 2.3',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake24', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.4'),
+			'help' => 'Upgrade to CakePHP 2.4',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake25', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.5'),
+			'help' => 'Upgrade to CakePHP 2.5',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake26', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.6'),
+			'help' => 'Upgrade to CakePHP 2.6',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake27', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 2.7'),
+			'help' => 'Upgrade to CakePHP 2.7',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake30', array(
-			'help' => __d('cake_console', 'Upgrade to CakePHP 3.0 (experimental!)'),
+			'help' => 'Upgrade to CakePHP 3.0 (experimental!)',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('validation', array(
-			'help' => __d('cake_console', 'Upgrade validation name casings.'),
+			'help' => 'Upgrade validation name casings.',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('estrict', array(
-			'help' => __d('cake_console', 'Upgrade to E_STRICT standards'),
+			'help' => 'Upgrade to E_STRICT standards',
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('report', array(
-			'help' => __d('cake_console', 'Report issues that need to be addressed manually'),
+			'help' => 'Report issues that need to be addressed manually',
 			'parser' => $subcommandParser
 		));
 

@@ -1115,42 +1115,42 @@ class MyUpgradeShell extends UpgradeShell {
 			'options' => array(
 				'plugin' => array(
 					'short' => 'p',
-					'help' => __d('cake_console', 'The plugin to update. Only the specified plugin will be updated.'),
+					'help' => 'The plugin to update. Only the specified plugin will be updated.',
 					'default' => ''
 				),
 				'custom' => array(
 					'short' => 'c',
-					'help' => __d('cake_console', 'Custom path to update recursivly.'),
+					'help' => 'Custom path to update recursivly.',
 					'default' => ''
 				),
 				'ext' => array(
 					'short' => 'e',
-					'help' => __d('cake_console', 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern'),
+					'help' => 'The extension(s) to search. A pipe delimited list, or a preg_match compatible subpattern',
 					'default' => 'php|ctp|thtml|inc|tpl'
 				),
 				'git' => array(
 					'short' => 'g',
-					'help' => __d('cake_console', 'Use git command for moving files around.'),
+					'help' => 'Use git command for moving files around.',
 					'boolean' => true
 				),
 				'tgit' => array(
 					'short' => 't',
-					'help' => __d('cake_console', 'Use tortoise git command for moving files around.'),
+					'help' => 'Use tortoise git command for moving files around.',
 					'boolean' => true
 				),
 				'svn' => array(
 					'short' => 's',
-					'help' => __d('cake_console', 'Use svn command for moving files around.'),
+					'help' => 'Use svn command for moving files around.',
 					'boolean' => true
 				),
 				'dry-run' => array(
 					'short' => 'd',
-					'help' => __d('cake_console', 'Dry run the update, no files will actually be modified.'),
+					'help' => 'Dry run the update, no files will actually be modified.',
 					'boolean' => true
 				),
 				'log' => array(
 					'short' => 'l',
-					'help' => __d('cake_console', 'Log all ouput to file log.txt in TMP dir'),
+					'help' => 'Log all ouput to file log.txt in TMP dir',
 					'boolean' => true
 				),
 				'interactive' => array(
@@ -1163,71 +1163,71 @@ class MyUpgradeShell extends UpgradeShell {
 
 		return parent::getOptionParser()
 			->addSubcommand('search', array(
-				'help' => __d('cake_console', 'search plugin corrections'),
+				'help' => 'search plugin corrections',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('except', array(
-				'help' => __d('cake_console', 'all except locations and defined commands'),
+				'help' => 'all except locations and defined commands',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('custom', array(
-				'help' => __d('cake_console', 'custom'),
+				'help' => 'custom',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('controllers2', array(
-				'help' => __d('cake_console', 'more controller stuff'),
+				'help' => 'more controller stuff',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('auth', array(
-				'help' => __d('cake_console', 'auth'),
+				'help' => 'auth',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('packages', array(
-				'help' => __d('cake_console', 'lib packages'),
+				'help' => 'lib packages',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('session', array(
-				'help' => __d('cake_console', 'make sesssion static'),
+				'help' => 'make sesssion static',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('template', array(
-				'help' => __d('cake_console', 'adjust baked templates'),
+				'help' => 'adjust baked templates',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('view', array(
-				'help' => __d('cake_console', 'adjust view stuff'),
+				'help' => 'adjust view stuff',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('helpers', array(
-				'help' => __d('cake_console', 'adjust helpers stuff'),
+				'help' => 'adjust helpers stuff',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('tests2', array(
-				'help' => __d('cake_console', 'fix test methods'),
+				'help' => 'fix test methods',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('flash', array(
-				'help' => __d('cake_console', 'flash messages'),
+				'help' => 'flash messages',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('domains', array(
-				'help' => __d('cake_console', '__() domains'),
+				'help' => '__() domains',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('classes', array(
-				'help' => __d('cake_console', 'class names'),
+				'help' => 'class names',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('doc_blocks', array(
-				'help' => __d('cake_console', 'update/correct doc blocks'),
+				'help' => 'update/correct doc blocks',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('tools_data', array(
-				'help' => __d('cake_console', 'Tools plugin to Data plugin stuff'),
+				'help' => 'Tools plugin to Data plugin stuff',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('datetime', array(
-				'help' => __d('cake_console', 'niceDate() to localDate()'),
+				'help' => 'niceDate() to localDate()',
 				'parser' => $subcommandParser
 			))
 			->addSubcommand('shim', array(
