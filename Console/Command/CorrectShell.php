@@ -570,6 +570,11 @@ class CorrectShell extends UpgradeShell {
 				'/__\(\'List (\w+)\'\)/',
 				'__(\'List %s\', __(\'\1\'))'
 			),
+			[
+				'__d(\'cake_console\', ...) Removal',
+				'/__d\(\'cake_console\',\s\'(.+?)\'\)/',
+				'\'\1\''
+			]
 		);
 
 		$this->_filesRegexpUpdate($patterns);

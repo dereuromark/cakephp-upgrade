@@ -715,6 +715,31 @@ EOL;
 	}
 
 	/**
+	 * Do not use for CakePHP <= 2.6 !
+	 *
+	 * - String::...() to CakeText::...() - make sure to add/adjust App::uses() statements
+	 *
+	 * @return void
+	 */
+	public function cake27() {
+		$this->_buildPaths();
+
+		$patterns = array(
+			array(
+				'String::...() to CakeText::...()',
+				'#\bString\:\:#',
+				'CakeText::',
+			),
+			array(
+				'String::...() App::uses() update',
+				'#\bApp\:\:uses\(\'String\', \'Utility\'\)#',
+				'App::uses(\'CakeText\', \'Utility\')',
+			)
+		);
+		$this->_filesRegexpUpdate($patterns);
+	}
+
+		/**
 	 * Optional upgrades to prepare for 3.0
 	 * will remove/correct deprecated stuff
 	 *
@@ -2998,6 +3023,10 @@ require CAKE . \'Config\' . DS . \'routes.php\';';
 		))
 		->addSubcommand('cake26', array(
 			'help' => __d('cake_console', 'Upgrade to CakePHP 2.6'),
+			'parser' => $subcommandParser
+		))
+		->addSubcommand('cake27', array(
+			'help' => __d('cake_console', 'Upgrade to CakePHP 2.7'),
 			'parser' => $subcommandParser
 		))
 		->addSubcommand('cake30', array(

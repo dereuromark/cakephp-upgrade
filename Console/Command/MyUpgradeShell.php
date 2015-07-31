@@ -943,6 +943,11 @@ class MyUpgradeShell extends UpgradeShell {
 				'->Flash->error(__(\'\1 could not be saved\2\'))'
 			),
 			# old ones to new sugar
+			[
+				'$this->Flash->message(..., type) ... $this->Flash->type(...)',
+				'/-\>Flash-\>message\((.+),\s*\'(error|warning|success|info)\'\)/',
+				'->Flash->\2(\1)'
+			],
 			array(
 				'$this->Flash->message(..., type) ... $this->Flash->type(...)',
 				'/-\>Flash-\>message\((.+),\s*\'(error|warning|success|info)\'\)/',
