@@ -693,6 +693,21 @@ class MyUpgradeShell extends UpgradeShell {
 				'/echo\s+\$(\w+)\[\'(\w+)\'\]\[\'(created|modified)\'\]/',
 				'echo $this->Datetime->niceDate($\1[\'\2\'][\'\3\'])'
 			),
+			array(
+				'Remove altrow',
+				'/\<\?php \$i = 0; \$class = \' class="altrow"\';\?\>/',
+				''
+			),
+			array(
+				'Remove altrow',
+				'/\<\?php if \(\$i % 2 == 0\) echo \$class;\?\>/',
+				''
+			),
+			array(
+				'Remove altrow',
+				'/\<\?php if \(\$i\+\+ % 2 == 0\) echo \$class;\?\>/',
+				''
+			),
 		);
 
 		$this->_filesRegexpUpdate($patterns);
