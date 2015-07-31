@@ -952,7 +952,7 @@ class MyUpgradeShell extends UpgradeShell {
 			array(
 				'$this->Flash->message(...)',
 				'/-\>Common-\>flashMessage\(__\(\'(.*)\'\)\)/',
-				'->Flash->message(__(\'\1\'), \'xxxxx\')'
+				'->Flash->xxxxx(__(\'\1\'))'
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
