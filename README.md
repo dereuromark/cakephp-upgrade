@@ -178,6 +178,8 @@ Now creates missing App classes that are required since 2.1
 ### UPDATE Summer 2014: 2.6 support
 - Some validation rules changed
 
+### UPDATE 2015: 2.7 and 2.8 support
+
 ## Disclaimer
 
 Use this script ONLY after backing up your app folder.
@@ -213,3 +215,6 @@ AND everything else that is not yet covered but meticulously documented in the m
 - http://book.cakephp.org/2.0/en/appendices/2-2-migration-guide.html
 - http://book.cakephp.org/2.0/en/appendices/2-3-migration-guide.html
 - http://book.cakephp.org/2.0/en/appendices/2-4-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-5-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-6-migration-guide.html
+- http://book.cakephp.org/2.0/en/appendices/2-7-migration-guide.html
