@@ -23,15 +23,11 @@ It can also apply a lot of additional sugar and enforce coding standards etc. Th
 ## Installation
 
 ### Composer (recommended)
-Add this to your composer.json file:
+
+Execute the following from within the folder where your composer.json file is located:
+
 ```
-"require-dev": {
-	"dereuromark/cakephp-upgrade": "dev-master"
-}
-```
-And run:
-```
-composer install
+composer require --dev dereuromark/cakephp-upgrade dev-master
 ```
 
 ### Custom
