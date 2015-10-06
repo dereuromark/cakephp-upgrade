@@ -6,7 +6,7 @@
 Helps automating the upgrade process from CakePHP 1.1/1.2/1.3 to CakePHP 2.x and above.
 
 ## Important Notice - 2014-02
-This plugin is now in "feature-freeze" in favor of the all new [CakePHP Upgrade Tool](https://github.com/cakephp/upgrade).
+This plugin is now in "feature-freeze" in favor of the all new *standalone* [CakePHP Upgrade Tool](https://github.com/dereuromark/upgrade) - built with CakePHP 3.x.
 Please help to migrate all 2.x and 3.x relevant upgrade commands to this new repo.
 
 
