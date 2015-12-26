@@ -789,6 +789,21 @@ class MyUpgradeShell extends UpgradeShell {
 				'/\bApp\:\:uses\(\'DatetimeLib\'/',
 				'App::uses(\'TimeLib\''
 			),
+			[
+				'Auth::...() to $this->AuthUser->...()',
+				'/\bAuth\:\:(\w+)\(/',
+				'$this->AuthUser->\1(',
+			],
+			[
+				'$this->Html->defaultLink() to $this->Html->resetLink()',
+				'/\$this-\>Html-\>defaultLink\(/',
+				'$this->Html->resetLink(',
+			],
+			[
+				'$this->Html->defaultUrl() to $this->Html->resetUrl()',
+				'/\$this-\>Html-\>defaultUrl\(/',
+				'$this->Html->resetUrl(',
+			],
 		);
 		$this->_filesRegexpUpdate($patterns);
 
@@ -848,6 +863,13 @@ class MyUpgradeShell extends UpgradeShell {
 				'/\bApp\:\:uses\(\'MyHelper\',\s*\'Tools.Lib\'/',
 				'App::uses(\'MyHelper\', \'Tools.View/Helper\''
 			),
+			[
+				'paginator fix',
+				'/\<div class="paging"\>.+?\<\/div\>/sm',
+				'<div class="pagination-container">
+	<?php echo $this->element(\'Tools.pagination\'); ?>
+</div>',
+			],
 		);
 		$this->_filesRegexpUpdate($patterns);
 
@@ -1051,7 +1073,7 @@ class MyUpgradeShell extends UpgradeShell {
 
 		$patterns = [
 			[
-				'->_table->behaviors()->loaded( to ->hasBehavior(',
+				'->Behaviors->loaded( to ->hasBehavior(',
 				'/-\>Behaviors-\>loaded\(/',
 				'->hasBehavior(',
 			],
