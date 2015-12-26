@@ -774,8 +774,13 @@ EOL;
 				'Hash::extract(\'/Foo\', $data) to Hash::extract($data, {n}.Foo)',
 				'/\bHash\:\:extract\(\'\/([a-z_]+)\',\s*(.*?)\)/i',
 				'Hash::extract(\2, \'{n}.\1\')'
-			]
-			//TODO: Hash::combine
+			],
+			[
+				'Hash::combine($data, \'/Foo/bar\', \'/Foo/baz\') to Hash::combine($data, \'{n}.Foo.bar\', \'{n}.Foo.baz\')',
+				'/\bHash\:\:combine\((.*?),\s*\'\/([a-z_]+)\/([a-z_]+)\',\s*\'\/([a-z_]+)\/([a-z_]+)\'\)/i',
+				'Hash::combine(\1, \'{n}.\2.\3\', \'{n}.\4.\5\')'
+			],
+			//TODO: More Hash::combine
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
