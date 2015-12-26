@@ -746,10 +746,9 @@ EOL;
 	 * @return void
 	 */
 	public function cake30() {
-		// NOT IN USE - same methods changed how they work!
-		return;
+		// CAREFUL - same methods changed how they work!
 
-		$this->_buildPaths('Test' . DS, 'tests' . DS);
+		$this->_buildPaths();
 		$patterns = array(
 			array(
 				'App::uses(\'Set\', \'Utility\')',
@@ -760,7 +759,23 @@ EOL;
 				'Set to Hash',
 				'/\bSet\:\:/',
 				'Hash::'
-			)
+			),
+			[
+				'Hash::extract(\'/Foo/bar/baz\', $data) to Hash::extract($data, {n}.Foo.bar.baz)',
+				'/\bHash\:\:extract\(\'\/([a-z_]+)\/([a-z_]+)\/([a-z_]+)\',\s*(.*?)\)/i',
+				'Hash::extract(\4, \'{n}.\1.\2.\3\')'
+			],
+			[
+				'Hash::extract(\'/Foo/bar\', $data) to Hash::extract($data, {n}.Foo.bar)',
+				'/\bHash\:\:extract\(\'\/([a-z_]+)\/([a-z_]+)\',\s*(.*?)\)/i',
+				'Hash::extract(\3, \'{n}.\1.\2\')'
+			],
+			[
+				'Hash::extract(\'/Foo\', $data) to Hash::extract($data, {n}.Foo)',
+				'/\bHash\:\:extract\(\'\/([a-z_]+)\',\s*(.*?)\)/i',
+				'Hash::extract(\2, \'{n}.\1\')'
+			]
+			//TODO: Hash::combine
 		);
 		$this->_filesRegexpUpdate($patterns);
 	}
