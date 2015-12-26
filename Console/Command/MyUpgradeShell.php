@@ -1040,6 +1040,51 @@ class MyUpgradeShell extends UpgradeShell {
 			),
 		);
 		$this->_filesRegexpUpdate($patterns);
+
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'Model' . DS);
+		} else {
+			$this->_paths = array(APP . 'Model' . DS);
+		}
+
+		$patterns = [
+			[
+				'->_table->behaviors()->loaded( to ->hasBehavior(',
+				'/-\>Behaviors-\>loaded\(/',
+				'->hasBehavior(',
+			],
+			[
+				'->Behaviors->load( to ->addBehavior(',
+				'/-\>Behaviors-\>load\(/',
+				'->addBehavior(',
+			],
+			[
+				'->Behaviors->unload( to ->removeBehavior(',
+				'/-\>Behaviors-\>unload\(/',
+				'->removeBehavior(',
+			],
+		];
+		$this->_filesRegexpUpdate($patterns);
+
+		if (!empty($this->_customPaths)) {
+			$this->_paths = $this->_customPaths;
+		} elseif (!empty($this->params['plugin'])) {
+			$this->_paths = array(CakePlugin::path($this->params['plugin']) . 'Controller' . DS);
+		} else {
+			$this->_paths = array(APP . 'Controller' . DS);
+		}
+
+		$patterns = [
+			[
+				'->Components->load( to ->loadComponent(',
+				'/-\>Components-\>load\(/',
+				'->loadComponent(',
+			],
+		];
+		$this->_filesRegexpUpdate($patterns);
+
 		$this->out('Done.');
 	}
 
@@ -1059,9 +1104,9 @@ class MyUpgradeShell extends UpgradeShell {
 		$content = file_get_contents($file);
 
 		// Basically the same as "composer require cakephp/cakephp:3.0.*
-		$content = preg_replace('#"cakephp/cakephp"\s*:\s*"2\..*"#', '"cakephp/cakephp": "3.0.*"', $content);
+		$content = preg_replace('#"cakephp/cakephp"\s*:\s*"2\..*"#', '"cakephp/cakephp": "~3.1"', $content);
 
-		$content = preg_replace('#"markstory/asset_compress"\s*\:\s*"dev-master"#', '"markstory/asset_compress": "3.0.*-dev"', $content);
+		$content = preg_replace('#"markstory/asset_compress"\s*\:\s*"dev-master"#', '"markstory/asset_compress": "dev-master"', $content);
 		$content = preg_replace('#"cakedc/search"\s*\:\s*"dev-master"#', '"cakedc/search": "3.0.*-dev"', $content);
 
 		file_put_contents($file, $content);
