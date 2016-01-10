@@ -179,7 +179,7 @@ class ArraysShell extends UpgradeShell {
 				if (empty($this->params['plugin'])) {
 					$excludes = array('Plugin', 'plugins');
 				}
-				$excludes = am($excludes, $skipFolders);
+				$excludes = array_merge($excludes, $skipFolders);
 				//echo returns($excludes); die();
 
 				$isIllegalPath = false;

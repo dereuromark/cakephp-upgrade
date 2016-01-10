@@ -44,7 +44,7 @@ class CorrectShell extends UpgradeShell {
 		$all = get_class_methods($this);
 		$all = array_diff($all, $except);
 		foreach ($all as $key => $name) {
-			if (strpos($name, '_') === 0 || in_array($name, am($this->unstable, array('stable', 'unstable')))) {
+			if (strpos($name, '_') === 0 || in_array($name, array_merge($this->unstable, array('stable', 'unstable')))) {
 				unset($all[$key]);
 			}
 		}
@@ -1891,9 +1891,9 @@ class CorrectShell extends UpgradeShell {
 					$excludes = array('Vendor', 'vendors');
 				}
 				if (empty($this->params['plugin'])) {
-					$excludes = am($excludes, array('Plugin', 'plugins'));
+					$excludes = array_merge($excludes, array('Plugin', 'plugins'));
 				}
-				$excludes = am($excludes, $skipFolders);
+				$excludes = array_merge($excludes, $skipFolders);
 
 				$isIllegalPath = false;
 				foreach ($excludes as $exclude) {
