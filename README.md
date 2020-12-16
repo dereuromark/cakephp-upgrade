@@ -17,7 +17,7 @@ It further expects that you used the above tool already, as the following is all
 ## Installation
 
 ### Composer (recommended)
-Add this to your composer.json file with `composer require cakephp-upgrade:dev-cake3 --dev`.
+Add this to your composer.json file with `composer require dereuromark/cakephp-upgrade:dev-cake3 --dev`.
 It will automatically download and install it right away.
 
 Alternativly, you can add it manually:
